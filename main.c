@@ -62,11 +62,6 @@ int main(void)
         //prints raw values
         //display_imu(imu_values);
 
-        //this if doesn't work properly (aborts de debbuging) -> big chance that it has to do with dancing
-    	chprintf((BaseSequentialStream *)&SD3, "complete  : %d \r\n" , dance_memorized());
-    	chprintf((BaseSequentialStream *)&SD3, "true?  : %d \r\n" , true);
-
-
         if(dance_memorized() == 1){
         	chprintf((BaseSequentialStream *)&SD3, "bonjour \r\n" );
         	dancing();

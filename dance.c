@@ -48,10 +48,32 @@ static THD_FUNCTION(Dance, arg) {
 
 void dance_start(void){
     imu_start();
-    motor_start();
+    motors_init();
 
 
 	danceThd = chThdCreateStatic(waDance, sizeof(waDance), NORMALPRIO, Dance, NULL);
+}
+
+void display_imu(imu_msg_t imu_values)
+{
+    chprintf((BaseSequentialStream *)&SD3, "%Ax=%-7d Ay=%-7d Az=%-7d Gx=%-7d Gy=%-7d Gz=%-7d\r\n",
+            imu_values.acc_raw[X_AXIS], imu_values.acc_raw[Y_AXIS], imu_values.acc_raw[Z_AXIS],
+            imu_values.gyro_raw[X_AXIS], imu_values.gyro_raw[Y_AXIS], imu_values.gyro_raw[Z_AXIS]);
+
+    //prints raw values with offset correction
+    chprintf((BaseSequentialStream *)&SD3, "%Ax=%-7d Ay=%-7d Az=%-7d Gx=%-7d Gy=%-7d Gz=%-7d\r\n",
+            imu_values.acc_raw[X_AXIS]-imu_values.acc_offset[X_AXIS],
+            imu_values.acc_raw[Y_AXIS]-imu_values.acc_offset[Y_AXIS],
+            imu_values.acc_raw[Z_AXIS]-imu_values.acc_offset[Z_AXIS],
+            imu_values.gyro_raw[X_AXIS]-imu_values.gyro_offset[X_AXIS],
+            imu_values.gyro_raw[Y_AXIS]-imu_values.gyro_offset[Y_AXIS],
+            imu_values.gyro_raw[Z_AXIS]-imu_values.gyro_offset[Z_AXIS]);
+
+    //prints values in readable units
+    chprintf((BaseSequentialStream *)&SD3, "%Ax=%.2f Ay=%.2f Az=%.2f Gx=%.2f Gy=%.2f Gz=%.2f (%x)\r\n\n",
+            imu_values.acceleration[X_AXIS], imu_values.acceleration[Y_AXIS], imu_values.acceleration[Z_AXIS],
+            imu_values.gyro_rate[X_AXIS], imu_values.gyro_rate[Y_AXIS], imu_values.gyro_rate[Z_AXIS],
+            imu_values.status);
 }
 
 //function that fills the dancing vector to memorize
@@ -177,6 +199,11 @@ void dancing(void){
 			right_motor_set_speed(600);
 		}
 
+		if(i == (NB_PAS - 1) ){
+			left_motor_set_speed(0);
+			right_motor_set_speed(0);
+		}
+
 //		switch(dance_memo[i])
 //		{
 //			case FRONT:
@@ -206,3 +233,6 @@ void dancing(void){
 //		}
 	}
 }
+
+
+
