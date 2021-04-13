@@ -68,11 +68,9 @@ int main(void)
 
 
         if(dance_memorized() == 1){
-        	chprintf((BaseSequentialStream *)&SD3, "bonjour \r\n" );
         	dancing();
         } else  show_gravity(&imu_values);
 
-        //show_gravity(&imu_values);
     }
 }
 

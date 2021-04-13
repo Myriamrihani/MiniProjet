@@ -27,7 +27,6 @@ mvmt_robot dance_memo[NB_PAS] = {0};
 
 static bool dance_memo_complete = 0;
 
-
 static thread_t *danceThd;
 
 static THD_WORKING_AREA(waDance, 128);
@@ -203,33 +202,4 @@ void dancing(void){
 	}
 
 	count_step++;
-
-
-//		switch(dance_memo[i])
-//		{
-//			case FRONT:
-//				left_motor_set_speed(600);
-//				right_motor_set_speed(600);
-//		        chThdSleepMilliseconds(1000);
-//				break;
-//			case BACK:
-//				left_motor_set_speed(-600);
-//				right_motor_set_speed(-600);
-//		        chThdSleepMilliseconds(1000);
-//				break;
-//			case RIGHT:
-//				left_motor_set_speed(600);
-//				right_motor_set_speed(-600);
-//		        chThdSleepMilliseconds(1000);
-//				break;
-//			case LEFT:
-//				left_motor_set_speed(-600);
-//				right_motor_set_speed(600);
-//		        chThdSleepMilliseconds(1000);
-//				break;
-//			default:
-//				left_motor_set_speed(0);
-//				right_motor_set_speed(0);
-//				break;
-//		}
 }
