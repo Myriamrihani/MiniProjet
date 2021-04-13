@@ -48,6 +48,8 @@ static THD_FUNCTION(Dance, arg) {
 
 void dance_start(void){
     imu_start();
+    motor_start();
+
 
 	danceThd = chThdCreateStatic(waDance, sizeof(waDance), NORMALPRIO, Dance, NULL);
 }
