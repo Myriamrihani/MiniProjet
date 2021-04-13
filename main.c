@@ -63,8 +63,8 @@ int main(void)
         //imu_display(imu_values);
 
         //this if doesn't work properly (aborts de debbuging) -> big chance that it has to do with dancing
-    	chprintf((BaseSequentialStream *)&SD3, "complete  : %d \r\n" , dance_memorized());
-    	chprintf((BaseSequentialStream *)&SD3, "true?  : %d \r\n" , true);
+//    	chprintf((BaseSequentialStream *)&SD3, "complete  : %d \r\n" , dance_memorized());
+//    	chprintf((BaseSequentialStream *)&SD3, "true?  : %d \r\n" , true);
 
 
         if(dance_memorized() == 1){
