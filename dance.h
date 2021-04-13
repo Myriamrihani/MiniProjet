@@ -32,7 +32,10 @@ typedef enum{
 	RIGHT,
 }mvmt_robot;
 
+
 void dance_start(void);
+void imu_display(imu_msg_t imu_values);
+
 void show_gravity(imu_msg_t *imu_values);
 void dancing(void);
 bool dance_memorized(void);
