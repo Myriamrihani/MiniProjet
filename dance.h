@@ -18,6 +18,13 @@
 
 #define NB_PAS 4
 
+#define STANDARD_GRAVITY    9.80665f
+#define DEG2RAD(deg) (deg / 180 * M_PI)
+#define GRAVITY_CALIBRATION 32768.0f
+#define GYRO_CALIBRATION (3.814f/1000.0f)
+#define NB_SAMPLES_OFFSET     200
+#define MIN_GRAV_VALUE (STANDARD_GRAVITY*0.1)
+
 typedef enum{
 	FRONT,
 	BACK,
