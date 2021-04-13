@@ -134,7 +134,7 @@ void show_gravity(imu_msg_t *imu_values){
 
 
         chprintf((BaseSequentialStream *)&SD3, "count : %d \r\n" , count_step);
-        chprintf((BaseSequentialStream *)&SD3, "tilt : %d \r\n" , tilt);
+//        chprintf((BaseSequentialStream *)&SD3, "tilt : %d \r\n" , tilt);
 
         dance_memo[count_step] = tilt;
         count_step++;
@@ -144,10 +144,10 @@ void show_gravity(imu_msg_t *imu_values){
         	chprintf((BaseSequentialStream *)&SD3, "complete  : %d \r\n" , dance_memo_complete);
      	}
 
-    	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[0]);
-    	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[1]);
-    	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[2]);
-    	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[3]);
+//    	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[0]);
+//    	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[1]);
+//    	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[2]);
+//    	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[3]);
 
 
 }
@@ -158,28 +158,30 @@ bool dance_memorized(void){
 
 //function that takes memorized dance and starts the motors
 void dancing(void){
-	for(int i = 0; i < NB_PAS; i++)
-	{
-    	chprintf((BaseSequentialStream *)&SD3, "dance  : \r\n" , dance_memo[i]);
 
-		if ( i <= NB_PAS-1) {
-			if(dance_memo[i] == FRONT) {
-				left_motor_set_speed(600);
-				right_motor_set_speed(600);
-			} else if(dance_memo[i] == BACK) {
-				left_motor_set_speed(-600);
-				right_motor_set_speed(-600);
-			} else if(dance_memo[i] == RIGHT) {
-				left_motor_set_speed(600);
-				right_motor_set_speed(-600);
-			} else if(dance_memo[i] == LEFT) {
-				left_motor_set_speed(-600);
-				right_motor_set_speed(600);
-			}
-		} else {
-			left_motor_set_speed(0);
-			right_motor_set_speed(0);
+	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[count_step]);
+
+	if ( count_step <= NB_PAS-1) {
+		if(dance_memo[count_step] == FRONT) {
+			left_motor_set_speed(600);
+			right_motor_set_speed(600);
+		} else if(dance_memo[count_step] == BACK) {
+			left_motor_set_speed(-600);
+			right_motor_set_speed(-600);
+		} else if(dance_memo[count_step] == RIGHT) {
+			left_motor_set_speed(600);
+			right_motor_set_speed(-600);
+		} else if(dance_memo[count_step] == LEFT) {
+			left_motor_set_speed(-600);
+			right_motor_set_speed(600);
 		}
+	} else {
+		left_motor_set_speed(0);
+		right_motor_set_speed(0);
+	}
+
+	count_step++;
+
 
 //		switch(dance_memo[i])
 //		{
@@ -208,5 +210,4 @@ void dancing(void){
 //				right_motor_set_speed(0);
 //				break;
 //		}
-	}
 }

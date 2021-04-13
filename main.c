@@ -60,11 +60,11 @@ int main(void)
         messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
 
         //prints raw values
-        //display_imu(imu_values);
+        //imu_display(imu_values);
 
         //this if doesn't work properly (aborts de debbuging) -> big chance that it has to do with dancing
-    	chprintf((BaseSequentialStream *)&SD3, "complete  : %d \r\n" , dance_memorized());
-    	chprintf((BaseSequentialStream *)&SD3, "true?  : %d \r\n" , true);
+//    	chprintf((BaseSequentialStream *)&SD3, "complete  : %d \r\n" , dance_memorized());
+//    	chprintf((BaseSequentialStream *)&SD3, "true?  : %d \r\n" , true);
 
 
         if(dance_memorized() == 1){
