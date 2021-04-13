@@ -48,8 +48,7 @@ static THD_FUNCTION(Dance, arg) {
 
 void dance_start(void){
     imu_start();
-    motor_start();
-
+    motors_init();
 
 	danceThd = chThdCreateStatic(waDance, sizeof(waDance), NORMALPRIO, Dance, NULL);
 }
@@ -163,18 +162,23 @@ void dancing(void){
 	{
     	chprintf((BaseSequentialStream *)&SD3, "dance  : \r\n" , dance_memo[i]);
 
-		if(dance_memo[i] == FRONT) {
-			left_motor_set_speed(600);
-			right_motor_set_speed(600);
-		} else if(dance_memo[i] == BACK) {
-			left_motor_set_speed(-600);
-			right_motor_set_speed(-600);
-		} else if(dance_memo[i] == RIGHT) {
-			left_motor_set_speed(600);
-			right_motor_set_speed(-600);
-		} else if(dance_memo[i] == LEFT) {
-			left_motor_set_speed(-600);
-			right_motor_set_speed(600);
+		if ( i <= NB_PAS-1) {
+			if(dance_memo[i] == FRONT) {
+				left_motor_set_speed(600);
+				right_motor_set_speed(600);
+			} else if(dance_memo[i] == BACK) {
+				left_motor_set_speed(-600);
+				right_motor_set_speed(-600);
+			} else if(dance_memo[i] == RIGHT) {
+				left_motor_set_speed(600);
+				right_motor_set_speed(-600);
+			} else if(dance_memo[i] == LEFT) {
+				left_motor_set_speed(-600);
+				right_motor_set_speed(600);
+			}
+		} else {
+			left_motor_set_speed(0);
+			right_motor_set_speed(0);
 		}
 
 //		switch(dance_memo[i])
