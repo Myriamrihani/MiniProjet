@@ -56,12 +56,6 @@ int main(void)
      messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
      imu_msg_t imu_values;
 
-     //temp tab used to store values in complex_float format
-     //needed bx doFFT_c
-     static complex_float temp_tab[FFT_SIZE];
-     //send_tab is used to save the state of the buffer to send (double buffering)
-     //to avoid modifications of the buffer while sending it
-     static float send_tab[FFT_SIZE];
 
      mic_start(&processAudioData);
 
@@ -79,15 +73,17 @@ int main(void)
 //    	chprintf((BaseSequentialStream *)&SD3, "true?  : %d \r\n" , true);
 
 
-        if(dance_memorized() == 1){
-        	dancing();
+        if(get_dance_memo_complete() == 1){
+            wait_send_to_computer();
+            if (get_start_dance() == 1) {
+            	dancing();
+
+            }
         } else  show_gravity(&imu_values);
 
         //waits until a result must be sent to the computer for mic
-        wait_send_to_computer();
 
-        SendFloatToComputer((BaseSequentialStream *) &SD3, get_audio_buffer_ptr(LEFT_OUTPUT), FFT_SIZE);
-
+        //SendFloatToComputer((BaseSequentialStream *) &SD3, get_audio_buffer_ptr(LEFT_OUTPUT), FFT_SIZE);
 
     }
 }

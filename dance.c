@@ -18,6 +18,7 @@
 #include <dance.h>
 #include <chprintf.h>
 #include "motors.h"
+#include "audio_processing.h"
 
 
 static mvmt_robot tilt;
@@ -172,7 +173,7 @@ void show_gravity(imu_msg_t *imu_values){
 
 }
 
-bool dance_memorized(void){
+bool get_dance_memo_complete(void){
 	return dance_memo_complete;
 }
 
@@ -194,11 +195,24 @@ void dancing(void){
 		} else if(dance_memo[count_step] == LEFT) {
 			left_motor_set_speed(-600);
 			right_motor_set_speed(600);
+		} else if(dance_memo[count_step] == STOP) {
+			left_motor_set_speed(0);
+			right_motor_set_speed(0);
 		}
 	} else {
 		left_motor_set_speed(0);
 		right_motor_set_speed(0);
+		dance_memo_complete = 0;
+		set_start_dance(0);
 	}
 
 	count_step++;
 }
+
+void reset_dance(void){
+	dance_memo[0] = STOP;
+	dance_memo[1] = STOP;
+	dance_memo[2] = STOP;
+	dance_memo[3] = STOP;
+}
+

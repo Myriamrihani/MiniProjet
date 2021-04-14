@@ -20,6 +20,9 @@ typedef enum {
 
 void processAudioData(int16_t *data, uint16_t num_samples);
 
+bool get_start_dance(void);
+void set_start_dance(bool state);
+
 /*
 *	put the invoking thread into sleep until it can process the audio datas
 */
