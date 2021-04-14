@@ -39,7 +39,6 @@ static THD_FUNCTION(Dance, arg) {
     while(chThdShouldTerminateX() == false){
         chThdSleepMilliseconds(1000);
 
-
     }
 
 }
