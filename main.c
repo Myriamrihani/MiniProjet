@@ -12,15 +12,19 @@
 #include <chprintf.h>
 #include "sensors/mpu9250.h"
 #include "sensors/imu.h"
+#include "audio/microphone.h"
 #include "msgbus/messagebus.h"
 #include <i2c_bus.h>
 #include <dance.h>
+#include <audio_processing.h>
+#include <fft.h>
+#include <com_mic.h>
+#include <camera_processing.h>
 
 
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
-
 
 
 static void serial_start(void)
@@ -47,10 +51,26 @@ int main(void)
     /** Inits the Inter Process Communication bus. */
      messagebus_init(&bus, &bus_lock, &bus_condvar);
 
+     dcmi_start();
+     po8030_start();
+     process_image_start();
      dance_start();
+     uint8_t hello = get_number_of_lines(); //just a test line, to be removed Asap
+
+
+
 
      messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
      imu_msg_t imu_values;
+
+     //temp tab used to store values in complex_float format
+     //needed bx doFFT_c
+     static complex_float temp_tab[FFT_SIZE];
+     //send_tab is used to save the state of the buffer to send (double buffering)
+     //to avoid modifications of the buffer while sending it
+     static float send_tab[FFT_SIZE];
+
+     mic_start(&processAudioData);
 
     /* Infinite loop. */
     while (1) {
@@ -67,8 +87,14 @@ int main(void)
 
 
         if(dance_memorized() == 1){
-        	dancing();
+        	dancing(); 				//dancing should call get_number_of_lines() as an argument to know how many steps to do
         } else  show_gravity(&imu_values);
+
+        //waits until a result must be sent to the computer for mic
+        wait_send_to_computer();
+
+        SendFloatToComputer((BaseSequentialStream *) &SD3, get_audio_buffer_ptr(LEFT_OUTPUT), FFT_SIZE);
+
 
     }
 }

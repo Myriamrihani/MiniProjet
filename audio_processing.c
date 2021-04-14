@@ -9,7 +9,7 @@
 #include <audio_processing.h>
 #include <fft.h>
 #include <arm_math.h>
-#include <communication.h>
+#include <com_mic.h>
 
 //semaphore
 static BSEMAPHORE_DECL(sendToComputer_sem, TRUE);
