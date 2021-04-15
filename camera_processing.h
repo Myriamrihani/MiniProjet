@@ -20,11 +20,13 @@
 //#define KI 						3.5f	//must not be zero
 //#define MAX_SUM_ERROR 			(MOTOR_SPEED_LIMIT/KI)
 
+void SendImageToSystem(uint8_t* data, uint16_t size);
 float get_distance_cm(void);
 uint16_t get_line_position(void);
 uint8_t get_number_of_lines(void);
 void process_image_start(void);
 void wait_image_detected(void);
+
 
 
 #endif /* CAMERA_PROCESSING_H_ */

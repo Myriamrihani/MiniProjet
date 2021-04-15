@@ -28,6 +28,13 @@ static uint16_t line_position = IMAGE_BUFFER_SIZE/2;	//middle
 static BSEMAPHORE_DECL(image_ready_sem, TRUE);
 
 
+void SendImageToSystem(uint8_t* data, uint16_t size)
+{
+	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)"START", 5);
+	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)&size, sizeof(uint16_t));
+	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)data, size);
+}
+
 /*
  *  Returns the line's width extracted from the image buffer given
  *  Returns 0 if line not found
@@ -145,7 +152,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 	uint8_t image[IMAGE_BUFFER_SIZE] = {0};
 	uint16_t lineWidth = 0;
 
-//	bool send_to_computer = true;
+	bool send_to_computer = true;
 
     while(chThdShouldTerminateX() == false){
     	//waits until an image has been captured
@@ -169,17 +176,17 @@ static THD_FUNCTION(ProcessImage, arg) {
 //		}
 
 
-//		//converts the width into a distance between the robot and the camera
+		//converts the width into a distance between the robot and the camera
 //		if(lineWidth){
 //			distance_cm = PXTOCM/lineWidth;
 //		}
-//
-//		if(send_to_computer){
-//			//sends to the computer the image
-//			SendUint8ToComputer(image, IMAGE_BUFFER_SIZE);
-//		}
-//		//invert the bool
-//		send_to_computer = !send_to_computer;
+
+		if(send_to_computer){
+			//sends to the computer the image
+			SendImageToSystem(image, IMAGE_BUFFER_SIZE);
+		}
+		//invert the bool
+		send_to_computer = !send_to_computer;
 
 		//chThdSleepUntilWindowed(time, time + MS2ST(4)); //reduced the sample rate to 250Hz
 
