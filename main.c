@@ -70,12 +70,6 @@ int main(void)
         messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
 
 
-        //prints raw values
-        //imu_display(imu_values);
-
-//    	chprintf((BaseSequentialStream *)&SD3, "complete  : %d \r\n" , dance_memorized());
-//    	chprintf((BaseSequentialStream *)&SD3, "true?  : %d \r\n" , true);
-
 //        chprintf((BaseSequentialStream *)&SD3, "searching line  : %d \r\n" , line_is_searching());
 //        chprintf((BaseSequentialStream *)&SD3, "nb_line  : %d \r\n" , get_number_of_lines());
 //
@@ -89,8 +83,6 @@ int main(void)
             wait_start_signal();
             if (get_start_dance() == 1) {
             	dancing();
-            	chprintf((BaseSequentialStream *)&SD3, "dance clear?  : %d \r\n" , is_dance_clear());
-            	display_dance();
             }
         } else  if (is_dance_clear()) {show_gravity(&imu_values);}
 

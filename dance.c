@@ -156,7 +156,7 @@ void show_gravity(imu_msg_t *imu_values){
 	    }
 
 
-        chprintf((BaseSequentialStream *)&SD3, "count : %d \r\n" , count_step);
+ //       chprintf((BaseSequentialStream *)&SD3, "count : %d \r\n" , count_step);
 //        chprintf((BaseSequentialStream *)&SD3, "tilt : %d \r\n" , tilt);
 
         dance_memo[count_step] = tilt;
@@ -216,11 +216,6 @@ void clear_dance(void){
 	for(int i = 0; i<NB_PAS; i++){
 		dance_memo[i] = STOP;
 	}
-
-//	dance_memo[0] = STOP;
-//	dance_memo[1] = STOP;
-//	dance_memo[2] = STOP;
-//	dance_memo[3] = STOP;
 	dance_cleared = 1;
 }
 
