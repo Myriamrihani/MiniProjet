@@ -20,6 +20,8 @@
 #include <fft.h>
 #include <com_mic.h>
 #include <camera_processing.h>
+#include "audio/play_melody.h"
+#include "audio/audio_thread.h"
 
 
 
@@ -59,7 +61,7 @@ int main(void)
      messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
      imu_msg_t imu_values;
 
-
+     playMelodyStart();
      mic_start(&processAudioData);
 
     /* Infinite loop. */
@@ -78,6 +80,7 @@ int main(void)
 //        	//when true on chercher pour le nombre de line jusqu'a trouver au moins une ligne
 //        	//quand on trouve au moins une ligne on change line_searching to false et la on commence la procedure de dance
 //        }
+    	//playMelody(MARIO, ML_FORCE_CHANGE, NULL);
 
         if(get_dance_memo_complete() == 1){
             wait_start_signal();

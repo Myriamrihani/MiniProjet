@@ -20,6 +20,8 @@
 #include "motors.h"
 #include "audio_processing.h"
 #include "camera_processing.h"
+#include "audio/play_melody.h"
+#include "audio/audio_thread.h"
 
 
 static mvmt_robot tilt;
@@ -200,6 +202,7 @@ void dancing(void){
 			right_motor_set_speed(0);
 		}
 	} else {
+		//stopCurrentMelody();
 		count_step = 0;
 		left_motor_set_speed(0);
 		right_motor_set_speed(0);
