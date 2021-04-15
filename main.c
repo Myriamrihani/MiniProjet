@@ -54,7 +54,7 @@ int main(void)
      dance_start();
 
 
-     process_image_start();
+     //process_image_start();
 
      messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
      imu_msg_t imu_values;
@@ -76,22 +76,21 @@ int main(void)
 //    	chprintf((BaseSequentialStream *)&SD3, "complete  : %d \r\n" , dance_memorized());
 //    	chprintf((BaseSequentialStream *)&SD3, "true?  : %d \r\n" , true);
 
-        chprintf((BaseSequentialStream *)&SD3, "searching line  : %d \r\n" , line_is_searching());
-        chprintf((BaseSequentialStream *)&SD3, "nb_line  : %d \r\n" , get_number_of_lines());
-
-
-        if(line_is_searching()){
-        	//when true on chercher pour le nombre de line jusqu'a trouver au moins une ligne
-        	//quand on trouve au moins une ligne on change line_searching to false et la on commence la procedure de dance
-        }
+//        chprintf((BaseSequentialStream *)&SD3, "searching line  : %d \r\n" , line_is_searching());
+//        chprintf((BaseSequentialStream *)&SD3, "nb_line  : %d \r\n" , get_number_of_lines());
+//
+//
+//        if(line_is_searching()){
+//        	//when true on chercher pour le nombre de line jusqu'a trouver au moins une ligne
+//        	//quand on trouve au moins une ligne on change line_searching to false et la on commence la procedure de dance
+//        }
 
         if(get_dance_memo_complete() == 1){
             wait_start_signal();
             if (get_start_dance() == 1) {
             	dancing();
-            	if(get_dance_memo_complete() == 0){
-
-            	}
+            	chprintf((BaseSequentialStream *)&SD3, "dance clear?  : %d \r\n" , is_dance_clear());
+            	display_dance();
             }
         } else  if (is_dance_clear()) {show_gravity(&imu_values);}
 

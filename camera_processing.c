@@ -164,10 +164,10 @@ static THD_FUNCTION(ProcessImage, arg) {
 		extract_line_amount(image);
 
 
-		if(send_to_computer){
-			//sends to the computer the image
-			SendImageToSystem(image, IMAGE_BUFFER_SIZE);
-		}
+//		if(send_to_computer){
+//			//sends to the computer the image
+//			SendImageToSystem(image, IMAGE_BUFFER_SIZE);
+//		}
 		//invert the bool
 		send_to_computer = !send_to_computer;
 

@@ -168,10 +168,7 @@ void show_gravity(imu_msg_t *imu_values){
         	chprintf((BaseSequentialStream *)&SD3, "complete  : %d \r\n" , dance_memo_complete);
      	}
 
-//    	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[0]);
-//    	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[1]);
-//    	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[2]);
-//    	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[3]);
+       // display_dance();
 
 }
 
@@ -182,6 +179,7 @@ bool get_dance_memo_complete(void){
 //function that takes memorized dance and starts the motors
 void dancing(void){
 
+    chprintf((BaseSequentialStream *)&SD3, "count : %d \r\n" , count_step);
 	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[count_step]);
 
 	if ( count_step <= NB_PAS-1) {
@@ -202,6 +200,7 @@ void dancing(void){
 			right_motor_set_speed(0);
 		}
 	} else {
+		count_step = 0;
 		left_motor_set_speed(0);
 		right_motor_set_speed(0);
 		dance_memo_complete = 0;
@@ -227,5 +226,12 @@ void clear_dance(void){
 
 bool is_dance_clear(void){
 	return dance_cleared;
+}
+
+void display_dance(void){
+	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[0]);
+	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[1]);
+	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[2]);
+	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[3]);
 }
 
