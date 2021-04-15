@@ -22,6 +22,7 @@
 #include <camera_processing.h>
 #include "audio/play_melody.h"
 #include "audio/audio_thread.h"
+#include "button.h"
 
 
 
@@ -82,19 +83,20 @@ int main(void)
 //        }
     	//playMelody(MARIO, ML_FORCE_CHANGE, NULL);
 
+        //Je ne trouve pas le gpio du user button...
+//        if (button_is_pressed){
+//        	reset_dance();
+//        }
+
         if(get_dance_memo_complete() == 1){
             wait_start_signal();
             if (get_start_dance() == 1) {
             	dancing();
             }
         } else  if (is_dance_clear()) {show_gravity(&imu_values);}
-
-        //waits until a result must be sent to the computer for mic
-
-        //SendFloatToComputer((BaseSequentialStream *) &SD3, get_audio_buffer_ptr(LEFT_OUTPUT), FFT_SIZE);
-
     }
 }
+
 
 #define STACK_CHK_GUARD 0xe2dee396
 uintptr_t __stack_chk_guard = STACK_CHK_GUARD;

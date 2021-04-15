@@ -40,6 +40,7 @@ bool get_dance_memo_complete(void);
 void clear_dance(void);
 bool is_dance_clear(void);
 void display_dance(void);
+void reset_dance(void);
 
 
 #endif /* DANCE_H_ */

@@ -164,10 +164,15 @@ void show_gravity(imu_msg_t *imu_values){
         dance_memo[count_step] = tilt;
         count_step++;
         if (count_step >= NB_PAS){
+	    	palSetPad(GPIOD, GPIOD_LED1);
+			palSetPad(GPIOD, GPIOD_LED3);
+			palSetPad(GPIOD, GPIOD_LED5);
+			palSetPad(GPIOD, GPIOD_LED7);
+
         	count_step = 0;
         	dance_memo_complete = 1;
         	dance_cleared = 0;
-        	chprintf((BaseSequentialStream *)&SD3, "complete  : %d \r\n" , dance_memo_complete);
+        	//chprintf((BaseSequentialStream *)&SD3, "complete  : %d \r\n" , dance_memo_complete);
      	}
 
        // display_dance();
@@ -203,12 +208,9 @@ void dancing(void){
 		}
 	} else {
 		//stopCurrentMelody();
-		count_step = 0;
 		left_motor_set_speed(0);
 		right_motor_set_speed(0);
-		dance_memo_complete = 0;
-		set_start_dance(0);
-		clear_dance();
+		reset_dance();
 	}
 
 	count_step++;
@@ -231,5 +233,12 @@ void display_dance(void){
 	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[1]);
 	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[2]);
 	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[3]);
+}
+
+void reset_dance(void){
+	clear_dance();
+	count_step = 0;
+	dance_memo_complete = 0;
+	set_start_dance(0);
 }
 
