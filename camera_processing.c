@@ -23,6 +23,7 @@
 static float distance_cm = 0;
 static uint8_t number_of_lines = 0;					//very important!
 static uint16_t line_position = IMAGE_BUFFER_SIZE/2;	//middle
+static bool searching_for_lines = true;
 
 //semaphore
 static BSEMAPHORE_DECL(image_ready_sem, TRUE);
@@ -39,13 +40,12 @@ void SendImageToSystem(uint8_t* data, uint16_t size)
  *  Returns the line's width extracted from the image buffer given
  *  Returns 0 if line not found
  */
-uint16_t extract_line_width(uint8_t *buffer){
+void extract_line_amount(uint8_t *buffer){
 
-	uint16_t i = 0, begin = 0, end = 0, width = 0;
-	uint8_t stop = 0, wrong_line = 0, line_not_found = 0;
+	uint16_t i = 0, line_beginning = 0, line_ending = 0;
+	uint8_t stop_line_limit_search = 0, wrong_line = 0, line_not_found = 0;
 	uint32_t mean = 0;
 
-	static uint16_t last_width = PXTOCM/GOAL_DISTANCE; ////////
 
 	//performs an average
 	for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
@@ -55,68 +55,61 @@ uint16_t extract_line_width(uint8_t *buffer){
 
 	do{
 		wrong_line = 0;
-		//search for a begin
-		while(stop == 0 && i < (IMAGE_BUFFER_SIZE - WIDTH_SLOPE))
+		//search for a line_beginning
+		while(stop_line_limit_search == 0 && i < (IMAGE_BUFFER_SIZE - WIDTH_SLOPE))
 		{
 			//the slope must at least be WIDTH_SLOPE wide and is compared
 		    //to the mean of the image
 		    if(buffer[i] > mean && buffer[i+WIDTH_SLOPE] < mean)
 		    {
-		        begin = i;
-		        stop = 1;
+		        line_beginning = i;
+		        stop_line_limit_search = 1;
 		    }
 		    i++;
 		}
-		//if a begin was found, search for an end
-		if (i < (IMAGE_BUFFER_SIZE - WIDTH_SLOPE) && begin)
+		//if a line_beginning was found, search for a line_ending
+		if (i < (IMAGE_BUFFER_SIZE - WIDTH_SLOPE) && line_beginning)
 		{
-		    stop = 0;
+		    stop_line_limit_search = 0;
 
-		    while(stop == 0 && i < IMAGE_BUFFER_SIZE)
+		    while(stop_line_limit_search == 0 && i < IMAGE_BUFFER_SIZE)
 		    {
 		        if(buffer[i] > mean && buffer[i-WIDTH_SLOPE] < mean)
 		        {
-		            end = i;
-		            stop = 1;
+		            line_ending = i;
+		            stop_line_limit_search = 1;
 		        }
 		        i++;
 		    }
-		    //if an end was not found
-		    if (i > IMAGE_BUFFER_SIZE || !end)
+		    //if an line_ending was not found
+		    if (i > IMAGE_BUFFER_SIZE || !line_ending)
 		    {
 		        line_not_found = 1;
 		    }
 		}
-		else//if no begin was found
+		else//if no line_beginning was found
 		{
 		    line_not_found = 1;
 		}
 
-//		//if a line too small has been detected, continues the search
-//		if(!line_not_found && (end-begin) < MIN_LINE_WIDTH){
-//			i = end;
-//			begin = 0;
-//			end = 0;
-//			stop = 0;
-//			wrong_line = 1;
-//		}
+		//if a line too small has been detected, continues the search
+		if(!line_not_found && (line_ending-line_beginning) < MIN_LINE_WIDTH){
+			i = line_ending;
+			line_beginning = 0;
+			line_ending = 0;
+			stop_line_limit_search = 0;
+			wrong_line = 1;
+		} else if(!line_not_found){				//if a line is valid, searches for the next line
+			i = line_ending;
+			line_beginning = 0;
+			line_ending = 0;
+			stop_line_limit_search = 0;
+			wrong_line = 1;
+			++number_of_lines;
+		}
 	}while(wrong_line);
 
-//	if(line_not_found){
-//		begin = 0;
-//		end = 0;
-//		width = last_width;
-//	}else{
-//		last_width = width = (end - begin);
-//		line_position = (begin + end)/2; //gives the line position.
-//	}
-
-	//sets a maximum width or returns the measured width
-	if((PXTOCM/width) > MAX_DISTANCE){
-		return PXTOCM/MAX_DISTANCE;
-	}else{
-		return width;
-	}
+	searching_for_lines = false;
 }
 
 static THD_WORKING_AREA(waCaptureImage, 256);
@@ -151,7 +144,6 @@ static THD_FUNCTION(ProcessImage, arg) {
 
 	uint8_t *img_buff_ptr;
 	uint8_t image[IMAGE_BUFFER_SIZE] = {0};
-	uint16_t lineWidth = 0;
 
 	bool send_to_computer = true;
 
@@ -168,19 +160,9 @@ static THD_FUNCTION(ProcessImage, arg) {
 			image[i/2] = (uint8_t)img_buff_ptr[i]&0xF8;
 		}
 
-		//search for a line in the image and gets its width in pixels
-		lineWidth = extract_line_width(image);
-//		while(lineWidth){
-//			lineWidth = 0;
-//			++number_of_lines;
-//			lineWidth = extract_line_width(image);		//after each line found, will try to find another one
-//		}
+		//search for the number of lines in the image
+		extract_line_amount(image);
 
-
-		//converts the width into a distance between the robot and the camera
-//		if(lineWidth){
-//			distance_cm = PXTOCM/lineWidth;
-//		}
 
 		if(send_to_computer){
 			//sends to the computer the image
@@ -205,6 +187,7 @@ float get_distance_cm(void){
 uint16_t get_line_position(void){
 	return line_position;
 }
+
 
 uint8_t get_number_of_lines(void){
 	switch (number_of_lines)
@@ -243,6 +226,11 @@ uint8_t get_number_of_lines(void){
 		break;
 	}
 	return number_of_lines;
+}
+
+
+bool line_is_searching(void){
+	return searching_for_lines;
 }
 
 void process_image_start(void){
