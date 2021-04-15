@@ -54,7 +54,7 @@ int main(void)
      dance_start();
 
 
-     //process_image_start();
+     process_image_start();
 
      messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
      imu_msg_t imu_values;
@@ -69,6 +69,8 @@ int main(void)
         //wait for new measures to be published
         messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
 
+
+
         //prints raw values
         //imu_display(imu_values);
 
@@ -76,13 +78,13 @@ int main(void)
 //    	chprintf((BaseSequentialStream *)&SD3, "true?  : %d \r\n" , true);
 
 
-        if(get_dance_memo_complete() == 1){
-            wait_start_signal();
-            if (get_start_dance() == 1) {
-            	dancing();
-
-            }
-        } else  show_gravity(&imu_values);
+//        if(get_dance_memo_complete() == 1){
+//            wait_start_signal();
+//            if (get_start_dance() == 1) {
+//            	dancing();
+//
+//            }
+//        } else  show_gravity(&imu_values);
 
         //waits until a result must be sent to the computer for mic
 

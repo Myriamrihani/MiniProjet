@@ -92,24 +92,24 @@ uint16_t extract_line_width(uint8_t *buffer){
 		    line_not_found = 1;
 		}
 
-		//if a line too small has been detected, continues the search
-		if(!line_not_found && (end-begin) < MIN_LINE_WIDTH){
-			i = end;
-			begin = 0;
-			end = 0;
-			stop = 0;
-			wrong_line = 1;
-		}
+//		//if a line too small has been detected, continues the search
+//		if(!line_not_found && (end-begin) < MIN_LINE_WIDTH){
+//			i = end;
+//			begin = 0;
+//			end = 0;
+//			stop = 0;
+//			wrong_line = 1;
+//		}
 	}while(wrong_line);
 
-	if(line_not_found){
-		begin = 0;
-		end = 0;
-		width = last_width;
-	}else{
-		last_width = width = (end - begin);
-		line_position = (begin + end)/2; //gives the line position.
-	}
+//	if(line_not_found){
+//		begin = 0;
+//		end = 0;
+//		width = last_width;
+//	}else{
+//		last_width = width = (end - begin);
+//		line_position = (begin + end)/2; //gives the line position.
+//	}
 
 	//sets a maximum width or returns the measured width
 	if((PXTOCM/width) > MAX_DISTANCE){
@@ -147,6 +147,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
+
 
 	uint8_t *img_buff_ptr;
 	uint8_t image[IMAGE_BUFFER_SIZE] = {0};
