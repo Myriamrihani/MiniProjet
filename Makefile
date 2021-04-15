@@ -13,6 +13,7 @@ CSRC += ./main.c \
 		./dance.c \
 		./audio_processing.c \
 		./fft.c \
+		./camera_processing.c \
 		
 
 #Header folders to include

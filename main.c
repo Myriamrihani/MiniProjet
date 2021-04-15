@@ -19,12 +19,13 @@
 #include <audio_processing.h>
 #include <fft.h>
 #include <com_mic.h>
+#include <camera_processing.h>
+
 
 
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
-
 
 
 static void serial_start(void)
@@ -51,10 +52,18 @@ int main(void)
     /** Inits the Inter Process Communication bus. */
      messagebus_init(&bus, &bus_lock, &bus_condvar);
 
+     dcmi_start();
+     po8030_start();
+     process_image_start();
      dance_start();
+     uint8_t hello = get_number_of_lines(); //just a test line, to be removed Asap
+
+
+
 
      messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
      imu_msg_t imu_values;
+
 
 
      mic_start(&processAudioData);
