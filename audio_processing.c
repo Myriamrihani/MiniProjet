@@ -12,7 +12,7 @@
 #include <com_mic.h>
 
 //semaphore
-static BSEMAPHORE_DECL(sendToComputer_sem, TRUE);
+static BSEMAPHORE_DECL(micro_ready_sem, TRUE);
 
 //2 times FFT_SIZE because these arrays contain complex numbers (real + imaginary)
 static float micLeft_cmplx_input[2 * FFT_SIZE];
@@ -62,8 +62,6 @@ void sound_remote(float* data){
 
 	//go forward
 	if(max_norm_index >= FREQ_FORWARD_L && max_norm_index <= FREQ_FORWARD_H){
-//		left_motor_set_speed(600);
-//		right_motor_set_speed(600);
 		start_dance = 1;
 	}
 //	//turn left
@@ -169,7 +167,7 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 		//sends to UART3
 		if(mustSend > 8){
 			//signals to send the result to the computer
-			chBSemSignal(&sendToComputer_sem);
+			chBSemSignal(&micro_ready_sem);
 			mustSend = 0;
 		}
 		nb_samples = 0;
@@ -179,8 +177,8 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 	}
 }
 
-void wait_send_to_computer(void){
-	chBSemWait(&sendToComputer_sem);
+void wait_start_signal(void){
+	chBSemWait(&micro_ready_sem);
 }
 
 float* get_audio_buffer_ptr(BUFFER_NAME_t name){

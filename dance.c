@@ -19,6 +19,7 @@
 #include <chprintf.h>
 #include "motors.h"
 #include "audio_processing.h"
+#include "camera_processing.h"
 
 
 static mvmt_robot tilt;

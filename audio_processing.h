@@ -26,7 +26,7 @@ void set_start_dance(bool state);
 /*
 *	put the invoking thread into sleep until it can process the audio datas
 */
-void wait_send_to_computer(void);
+void wait_start_signal(void);
 
 /*
 *	Returns the pointer to the BUFFER_NAME_t buffer asked

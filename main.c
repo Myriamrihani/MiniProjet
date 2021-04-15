@@ -51,19 +51,13 @@ int main(void)
 
     /** Inits the Inter Process Communication bus. */
      messagebus_init(&bus, &bus_lock, &bus_condvar);
-
-     dcmi_start();
-     po8030_start();
-     process_image_start();
      dance_start();
-     uint8_t hello = get_number_of_lines(); //just a test line, to be removed Asap
 
 
-
+     //process_image_start();
 
      messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
      imu_msg_t imu_values;
-
 
 
      mic_start(&processAudioData);
@@ -83,7 +77,7 @@ int main(void)
 
 
         if(get_dance_memo_complete() == 1){
-            wait_send_to_computer();
+            wait_start_signal();
             if (get_start_dance() == 1) {
             	dancing();
 

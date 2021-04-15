@@ -17,7 +17,7 @@
 #include <camera/po8030.h>
 #include "motors.h"
 #include <camera_processing.h>
-#include <camera/dcmi_camera.h>			//we should talk about this with myriam, this is NOT good
+#include <camera/dcmi_camera.h>
 
 
 static float distance_cm = 0;
@@ -147,9 +147,9 @@ static THD_FUNCTION(ProcessImage, arg) {
 
 //	bool send_to_computer = true;
 
-    while(1){
+    while(chThdShouldTerminateX() == false){
     	//waits until an image has been captured
-        chBSemWait(&image_ready_sem);
+
 		//gets the pointer to the array filled with the last image in RGB565
 		img_buff_ptr = dcmi_get_last_image_ptr();
 
@@ -162,11 +162,11 @@ static THD_FUNCTION(ProcessImage, arg) {
 
 		//search for a line in the image and gets its width in pixels
 		lineWidth = extract_line_width(image);
-		while(lineWidth){
-			lineWidth = 0;
-			++number_of_lines;
-			lineWidth = extract_line_width(image);		//after each line found, will try to find another one
-		}
+//		while(lineWidth){
+//			lineWidth = 0;
+//			++number_of_lines;
+//			lineWidth = extract_line_width(image);		//after each line found, will try to find another one
+//		}
 
 
 //		//converts the width into a distance between the robot and the camera
@@ -180,7 +180,14 @@ static THD_FUNCTION(ProcessImage, arg) {
 //		}
 //		//invert the bool
 //		send_to_computer = !send_to_computer;
+
+		//chThdSleepUntilWindowed(time, time + MS2ST(4)); //reduced the sample rate to 250Hz
+
     }
+}
+
+void wait_image_detected(void){
+	chBSemWait(&image_ready_sem);
 }
 
 float get_distance_cm(void){
@@ -231,6 +238,9 @@ uint8_t get_number_of_lines(void){
 }
 
 void process_image_start(void){
+    dcmi_start();
+    po8030_start();
+
 	chThdCreateStatic(waProcessImage, sizeof(waProcessImage), NORMALPRIO, ProcessImage, NULL);
 	chThdCreateStatic(waCaptureImage, sizeof(waCaptureImage), NORMALPRIO, CaptureImage, NULL);
 }
