@@ -28,29 +28,30 @@ mvmt_robot dance_memo[NB_PAS] = {0};
 
 
 static bool dance_memo_complete = 0;
+static bool dance_cleared = 1;
 
-static thread_t *danceThd;
+//static thread_t *danceThd;
 
-static THD_WORKING_AREA(waDance, 128);
-static THD_FUNCTION(Dance, arg) {
-	(void) arg;
-    chRegSetThreadName(__FUNCTION__);
-
-
-
-    while(chThdShouldTerminateX() == false){
-        chThdSleepMilliseconds(1000);
-
-    }
-
-}
+//static THD_WORKING_AREA(waDance, 128);
+//static THD_FUNCTION(Dance, arg) {
+//	(void) arg;
+//    chRegSetThreadName(__FUNCTION__);
+//
+//
+//
+//    while(chThdShouldTerminateX() == false){
+//        chThdSleepMilliseconds(1000);
+//
+//    }
+//
+//}
 
 
 void dance_start(void){
     imu_start();
     motors_init();
 
-	danceThd = chThdCreateStatic(waDance, sizeof(waDance), NORMALPRIO, Dance, NULL);
+//	danceThd = chThdCreateStatic(waDance, sizeof(waDance), NORMALPRIO, Dance, NULL);
 }
 
 void imu_display(imu_msg_t imu_values)
@@ -163,6 +164,7 @@ void show_gravity(imu_msg_t *imu_values){
         if (count_step >= NB_PAS){
         	count_step = 0;
         	dance_memo_complete = 1;
+        	dance_cleared = 0;
         	chprintf((BaseSequentialStream *)&SD3, "complete  : %d \r\n" , dance_memo_complete);
      	}
 
@@ -170,7 +172,6 @@ void show_gravity(imu_msg_t *imu_values){
 //    	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[1]);
 //    	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[2]);
 //    	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[3]);
-
 
 }
 
@@ -205,15 +206,26 @@ void dancing(void){
 		right_motor_set_speed(0);
 		dance_memo_complete = 0;
 		set_start_dance(0);
+		clear_dance();
 	}
 
 	count_step++;
 }
 
-void reset_dance(void){
-	dance_memo[0] = STOP;
-	dance_memo[1] = STOP;
-	dance_memo[2] = STOP;
-	dance_memo[3] = STOP;
+void clear_dance(void){
+
+	for(int i = 0; i<NB_PAS; i++){
+		dance_memo[i] = STOP;
+	}
+
+//	dance_memo[0] = STOP;
+//	dance_memo[1] = STOP;
+//	dance_memo[2] = STOP;
+//	dance_memo[3] = STOP;
+	dance_cleared = 1;
+}
+
+bool is_dance_clear(void){
+	return dance_cleared;
 }
 

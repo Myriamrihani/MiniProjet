@@ -70,21 +70,30 @@ int main(void)
         messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
 
 
-
         //prints raw values
         //imu_display(imu_values);
 
 //    	chprintf((BaseSequentialStream *)&SD3, "complete  : %d \r\n" , dance_memorized());
 //    	chprintf((BaseSequentialStream *)&SD3, "true?  : %d \r\n" , true);
 
+        chprintf((BaseSequentialStream *)&SD3, "searching line  : %d \r\n" , line_is_searching());
+        chprintf((BaseSequentialStream *)&SD3, "nb_line  : %d \r\n" , get_number_of_lines());
 
-//        if(get_dance_memo_complete() == 1){
-//            wait_start_signal();
-//            if (get_start_dance() == 1) {
-//            	dancing();
-//
-//            }
-//        } else  show_gravity(&imu_values);
+
+        if(line_is_searching()){
+        	//when true on chercher pour le nombre de line jusqu'a trouver au moins une ligne
+        	//quand on trouve au moins une ligne on change line_searching to false et la on commence la procedure de dance
+        }
+
+        if(get_dance_memo_complete() == 1){
+            wait_start_signal();
+            if (get_start_dance() == 1) {
+            	dancing();
+            	if(get_dance_memo_complete() == 0){
+
+            	}
+            }
+        } else  if (is_dance_clear()) {show_gravity(&imu_values);}
 
         //waits until a result must be sent to the computer for mic
 

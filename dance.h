@@ -37,7 +37,7 @@ void dance_start(void);
 void show_gravity(imu_msg_t *imu_values);
 void dancing(void);
 bool get_dance_memo_complete(void);
-void reset_dance(void);
+void clear_dance(void);
 
 
 
