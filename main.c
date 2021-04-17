@@ -81,7 +81,6 @@ int main(void)
 //        	//when true on chercher pour le nombre de line jusqu'a trouver au moins une ligne
 //        	//quand on trouve au moins une ligne on change line_searching to false et la on commence la procedure de dance
 //        }
-    	//playMelody(MARIO, ML_FORCE_CHANGE, NULL);
 
         //Je ne trouve pas le gpio du user button...
 //        if (button_is_pressed){
@@ -91,6 +90,7 @@ int main(void)
         if(get_dance_memo_complete() == 1){
             wait_start_signal();
             if (get_start_dance() == 1) {
+            	//playMelody(MARIO, ML_FORCE_CHANGE, NULL);
             	dancing();
             }
         } else  if (is_dance_clear()) {show_gravity(&imu_values);}
