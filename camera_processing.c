@@ -149,7 +149,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 
     while(chThdShouldTerminateX() == false){
     	//waits until an image has been captured
-
+//		wait_image_detected(); //maybe add this
 		//gets the pointer to the array filled with the last image in RGB565
 		img_buff_ptr = dcmi_get_last_image_ptr();
 
