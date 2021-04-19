@@ -20,6 +20,8 @@
 #include "motors.h"
 #include "audio_processing.h"
 #include "camera_processing.h"
+#include "audio/play_melody.h"
+#include "audio/audio_thread.h"
 
 
 static mvmt_robot tilt;
@@ -28,29 +30,30 @@ mvmt_robot dance_memo[NB_PAS] = {0};
 
 
 static bool dance_memo_complete = 0;
+static bool dance_cleared = 1;
 
-static thread_t *danceThd;
+//static thread_t *danceThd;
 
-static THD_WORKING_AREA(waDance, 128);
-static THD_FUNCTION(Dance, arg) {
-	(void) arg;
-    chRegSetThreadName(__FUNCTION__);
-
-
-
-    while(chThdShouldTerminateX() == false){
-        chThdSleepMilliseconds(1000);
-
-    }
-
-}
+//static THD_WORKING_AREA(waDance, 128);
+//static THD_FUNCTION(Dance, arg) {
+//	(void) arg;
+//    chRegSetThreadName(__FUNCTION__);
+//
+//
+//
+//    while(chThdShouldTerminateX() == false){
+//        chThdSleepMilliseconds(1000);
+//
+//    }
+//
+//}
 
 
 void dance_start(void){
     imu_start();
     motors_init();
 
-	danceThd = chThdCreateStatic(waDance, sizeof(waDance), NORMALPRIO, Dance, NULL);
+//	danceThd = chThdCreateStatic(waDance, sizeof(waDance), NORMALPRIO, Dance, NULL);
 }
 
 void imu_display(imu_msg_t imu_values)
@@ -155,22 +158,24 @@ void show_gravity(imu_msg_t *imu_values){
 	    }
 
 
-        chprintf((BaseSequentialStream *)&SD3, "count : %d \r\n" , count_step);
+ //       chprintf((BaseSequentialStream *)&SD3, "count : %d \r\n" , count_step);
 //        chprintf((BaseSequentialStream *)&SD3, "tilt : %d \r\n" , tilt);
 
         dance_memo[count_step] = tilt;
         count_step++;
         if (count_step >= NB_PAS){
+	    	palSetPad(GPIOD, GPIOD_LED1);
+			palSetPad(GPIOD, GPIOD_LED3);
+			palSetPad(GPIOD, GPIOD_LED5);
+			palSetPad(GPIOD, GPIOD_LED7);
+
         	count_step = 0;
         	dance_memo_complete = 1;
-        	chprintf((BaseSequentialStream *)&SD3, "complete  : %d \r\n" , dance_memo_complete);
+        	dance_cleared = 0;
+        	//chprintf((BaseSequentialStream *)&SD3, "complete  : %d \r\n" , dance_memo_complete);
      	}
 
-//    	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[0]);
-//    	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[1]);
-//    	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[2]);
-//    	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[3]);
-
+       // display_dance();
 
 }
 
@@ -181,6 +186,7 @@ bool get_dance_memo_complete(void){
 //function that takes memorized dance and starts the motors
 void dancing(void){
 
+    chprintf((BaseSequentialStream *)&SD3, "count : %d \r\n" , count_step);
 	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[count_step]);
 
 	if ( count_step <= NB_PAS-1) {
@@ -201,19 +207,38 @@ void dancing(void){
 			right_motor_set_speed(0);
 		}
 	} else {
+		//stopCurrentMelody();
 		left_motor_set_speed(0);
 		right_motor_set_speed(0);
-		dance_memo_complete = 0;
-		set_start_dance(0);
+		reset_dance();
 	}
 
 	count_step++;
 }
 
+void clear_dance(void){
+
+	for(int i = 0; i<NB_PAS; i++){
+		dance_memo[i] = STOP;
+	}
+	dance_cleared = 1;
+}
+
+bool is_dance_clear(void){
+	return dance_cleared;
+}
+
+void display_dance(void){
+	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[0]);
+	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[1]);
+	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[2]);
+	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[3]);
+}
+
 void reset_dance(void){
-	dance_memo[0] = STOP;
-	dance_memo[1] = STOP;
-	dance_memo[2] = STOP;
-	dance_memo[3] = STOP;
+	clear_dance();
+	count_step = 0;
+	dance_memo_complete = 0;
+	set_start_dance(0);
 }
 
