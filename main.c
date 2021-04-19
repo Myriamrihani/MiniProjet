@@ -57,7 +57,7 @@ int main(void)
      dance_start();
 
 
-     //process_image_start();
+     process_image_start();
 
      messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
      imu_msg_t imu_values;
@@ -75,8 +75,17 @@ int main(void)
 //to be added somewhere, before the dance, when merging the codes!!!
         change_search_state(true);
         if(get_number_of_lines() > 0) {
-        	;
-        	//add here the dance mode
+            change_search_state(false);
+        	chprintf((BaseSequentialStream *)&SD3, "nb lines  : %d \r\n" , get_number_of_lines());
+        	set_nb_pas(get_number_of_lines());
+            if(get_dance_memo_complete() == 1){
+                wait_start_signal();
+                if (get_start_dance() == 1) {
+                	//playMelody(MARIO, ML_FORCE_CHANGE, NULL);
+                	dancing();
+                    change_search_state(true);
+                }
+            } else  if (is_dance_clear()) {show_gravity(&imu_values);}
         }
 
         //Je ne trouve pas le gpio du user button...
@@ -84,13 +93,7 @@ int main(void)
 //        	reset_dance();
 //        }
 
-        if(get_dance_memo_complete() == 1){
-            wait_start_signal();
-            if (get_start_dance() == 1) {
-            	//playMelody(MARIO, ML_FORCE_CHANGE, NULL);
-            	dancing();
-            }
-        } else  if (is_dance_clear()) {show_gravity(&imu_values);}
+
         //changer le state de search
     }
 }

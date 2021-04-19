@@ -16,7 +16,6 @@
 #include "msgbus/messagebus.h"
 #include <i2c_bus.h>
 
-#define NB_PAS 4
 
 #define STANDARD_GRAVITY    9.80665f
 #define DEG2RAD(deg) (deg / 180 * M_PI)
@@ -32,7 +31,7 @@ typedef enum{
 	RIGHT,
 	STOP,
 }mvmt_robot;
-
+void set_nb_pas(uint8_t nb);
 void dance_start(void);
 void show_gravity(imu_msg_t *imu_values);
 void dancing(void);

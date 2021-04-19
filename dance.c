@@ -26,7 +26,8 @@
 
 static mvmt_robot tilt;
 static int count_step = 0;
-mvmt_robot dance_memo[NB_PAS] = {0};
+static uint8_t nb_pas = 0;
+mvmt_robot dance_memo[nb_pas] = {0};
 
 
 static bool dance_memo_complete = 0;
@@ -47,7 +48,9 @@ static bool dance_cleared = 1;
 //    }
 //
 //}
-
+void set_nb_pas(uint8_t nb){
+	nb_pas = nb;
+}
 
 void dance_start(void){
     imu_start();
@@ -104,6 +107,13 @@ void show_gravity(imu_msg_t *imu_values){
        */
        time = GPTD11.tim->CNT;
        chSysUnlock();
+
+       if(count_step == 0){
+	    	palSetPad(GPIOD, GPIOD_LED1);
+			palSetPad(GPIOD, GPIOD_LED3);
+			palSetPad(GPIOD, GPIOD_LED5);
+			palSetPad(GPIOD, GPIOD_LED7);
+       }
 
 	    if((fabs(acc_x) < MIN_GRAV_VALUE) & (fabs(acc_y) < MIN_GRAV_VALUE))
 	    {
@@ -163,7 +173,7 @@ void show_gravity(imu_msg_t *imu_values){
 
         dance_memo[count_step] = tilt;
         count_step++;
-        if (count_step >= NB_PAS){
+        if (count_step >= nb_pas){
 	    	palSetPad(GPIOD, GPIOD_LED1);
 			palSetPad(GPIOD, GPIOD_LED3);
 			palSetPad(GPIOD, GPIOD_LED5);
@@ -189,7 +199,7 @@ void dancing(void){
     chprintf((BaseSequentialStream *)&SD3, "count : %d \r\n" , count_step);
 	chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[count_step]);
 
-	if ( count_step <= NB_PAS-1) {
+	if ( count_step <= nb_pas-1) {
 		if(dance_memo[count_step] == FRONT) {
 			left_motor_set_speed(600);
 			right_motor_set_speed(600);
@@ -218,14 +228,14 @@ void dancing(void){
 
 void clear_dance(void){
 
-	for(int i = 0; i<NB_PAS; i++){
+	for(int i = 0; i<nb_pas; i++){
 		dance_memo[i] = STOP;
 	}
 	dance_cleared = 1;
 }
 
 bool is_dance_clear(void){
-	return dance_cleared;
+	return (dance_cleared & (nb_pas != 0));
 }
 
 void display_dance(void){
