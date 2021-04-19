@@ -136,10 +136,12 @@ static THD_FUNCTION(CaptureImage, arg) {
 		chBSemSignal(&image_ready_sem);
     }
 }
+bool state(void){
+	return searching_for_lines;
+}
 
 
 static THD_WORKING_AREA(waProcessImage, 1024);
-
 
 static THD_FUNCTION(ProcessImage, arg) {
 
@@ -233,7 +235,11 @@ uint8_t get_number_of_lines(void){
 	return number_of_lines;
 }
 
+void reset_line(void){
+	number_of_lines = 0;
+	chprintf((BaseSequentialStream *)&SD3, "RESET : \r\n" );
 
+}
 void change_search_state(bool new_state){
 	searching_for_lines = new_state;
 }

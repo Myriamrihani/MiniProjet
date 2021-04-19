@@ -25,9 +25,11 @@ float get_distance_cm(void);
 uint16_t get_line_position(void);
 uint8_t get_number_of_lines(void);
 void change_search_state(bool new_state);
+bool state(void);
 void process_image_start(void);
 void wait_image_detected(void);
 bool line_is_searching(void);
+void reset_line(void);
 
 
 

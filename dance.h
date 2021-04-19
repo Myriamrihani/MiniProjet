@@ -16,7 +16,7 @@
 #include "msgbus/messagebus.h"
 #include <i2c_bus.h>
 
-#define NB_PAS 4
+#define NB_PAS 2
 
 #define STANDARD_GRAVITY    9.80665f
 #define DEG2RAD(deg) (deg / 180 * M_PI)
@@ -41,6 +41,6 @@ void clear_dance(void);
 bool is_dance_clear(void);
 void display_dance(void);
 void reset_dance(void);
-
+uint8_t get_nb_pas(void);
 
 #endif /* DANCE_H_ */
