@@ -69,8 +69,12 @@ int main(void)
         //wait for new measures to be published
         messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
 
-
-
+//to be added somewhere, before the dance, when merging the codes!!!
+        change_search_state(true);
+        if(get_number_of_lines() > 0) {
+        	;
+        	//add here the dance mode
+        }
         //prints raw values
         //imu_display(imu_values);
 

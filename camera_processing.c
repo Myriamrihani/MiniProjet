@@ -23,7 +23,7 @@
 static float distance_cm = 0;
 static uint8_t number_of_lines = 0;					//very important!
 static uint16_t line_position = IMAGE_BUFFER_SIZE/2;	//middle
-static bool searching_for_lines = true;
+static bool searching_for_lines = false;
 
 //semaphore
 static BSEMAPHORE_DECL(image_ready_sem, TRUE);
@@ -40,76 +40,79 @@ void SendImageToSystem(uint8_t* data, uint16_t size)
  *  Returns the line's width extracted from the image buffer given
  *  Returns 0 if line not found
  */
-void extract_line_amount(uint8_t *buffer){
+void extract_line_amount(uint8_t *buffer, bool searching_for_lines){
 
 	uint16_t i = 0, line_beginning = 0, line_ending = 0;
 	uint8_t stop_line_limit_search = 0, wrong_line = 0, line_not_found = 0;
 	uint32_t mean = 0;
 
+	if(searching_for_lines) {
+		//performs an average
+		for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
+			mean += buffer[i];
+		}
+		mean /= IMAGE_BUFFER_SIZE;
 
-	//performs an average
-	for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
-		mean += buffer[i];
+		do{
+			wrong_line = 0;
+			//search for a line_beginning
+			while(stop_line_limit_search == 0 && i < (IMAGE_BUFFER_SIZE - WIDTH_SLOPE))
+			{
+				//the slope must at least be WIDTH_SLOPE wide and is compared
+				//to the mean of the image
+				if(buffer[i] > mean && buffer[i+WIDTH_SLOPE] < mean)
+				{
+					line_beginning = i;
+					stop_line_limit_search = 1;
+				}
+				i++;
+			}
+			//if a line_beginning was found, search for a line_ending
+			if (i < (IMAGE_BUFFER_SIZE - WIDTH_SLOPE) && line_beginning)
+			{
+				stop_line_limit_search = 0;
+
+				while(stop_line_limit_search == 0 && i < IMAGE_BUFFER_SIZE)
+				{
+					if(buffer[i] > mean && buffer[i-WIDTH_SLOPE] < mean)
+					{
+						line_ending = i;
+						stop_line_limit_search = 1;
+					}
+					i++;
+				}
+				//if an line_ending was not found
+				if (i > IMAGE_BUFFER_SIZE || !line_ending)
+				{
+					line_not_found = 1;
+				}
+			}
+			else //if no line_beginning was found
+			{
+				line_not_found = 1;
+			}
+
+			//if a line too small has been detected, continues the search
+			if(!line_not_found && (line_ending-line_beginning) < MIN_LINE_WIDTH){
+				i = line_ending;
+				line_beginning = 0;
+				line_ending = 0;
+				stop_line_limit_search = 0;
+				wrong_line = 1;
+			} else if(!line_not_found){		//if a line is valid, searches for the next line
+				i = line_ending;
+				line_beginning = 0;
+				line_ending = 0;
+				stop_line_limit_search = 0;
+				wrong_line = 1;
+				++number_of_lines;
+			}
+		}while(wrong_line);
+
 	}
-	mean /= IMAGE_BUFFER_SIZE;
-
-	do{
-		wrong_line = 0;
-		//search for a line_beginning
-		while(stop_line_limit_search == 0 && i < (IMAGE_BUFFER_SIZE - WIDTH_SLOPE))
-		{
-			//the slope must at least be WIDTH_SLOPE wide and is compared
-		    //to the mean of the image
-		    if(buffer[i] > mean && buffer[i+WIDTH_SLOPE] < mean)
-		    {
-		        line_beginning = i;
-		        stop_line_limit_search = 1;
-		    }
-		    i++;
-		}
-		//if a line_beginning was found, search for a line_ending
-		if (i < (IMAGE_BUFFER_SIZE - WIDTH_SLOPE) && line_beginning)
-		{
-		    stop_line_limit_search = 0;
-
-		    while(stop_line_limit_search == 0 && i < IMAGE_BUFFER_SIZE)
-		    {
-		        if(buffer[i] > mean && buffer[i-WIDTH_SLOPE] < mean)
-		        {
-		            line_ending = i;
-		            stop_line_limit_search = 1;
-		        }
-		        i++;
-		    }
-		    //if an line_ending was not found
-		    if (i > IMAGE_BUFFER_SIZE || !line_ending)
-		    {
-		        line_not_found = 1;
-		    }
-		}
-		else//if no line_beginning was found
-		{
-		    line_not_found = 1;
-		}
-
-		//if a line too small has been detected, continues the search
-		if(!line_not_found && (line_ending-line_beginning) < MIN_LINE_WIDTH){
-			i = line_ending;
-			line_beginning = 0;
-			line_ending = 0;
-			stop_line_limit_search = 0;
-			wrong_line = 1;
-		} else if(!line_not_found){				//if a line is valid, searches for the next line
-			i = line_ending;
-			line_beginning = 0;
-			line_ending = 0;
-			stop_line_limit_search = 0;
-			wrong_line = 1;
-			++number_of_lines;
-		}
-	}while(wrong_line);
-
-	searching_for_lines = false;
+	if(get_number_of_lines() > 0) {
+		change_search_state(false);
+	}
 }
 
 static THD_WORKING_AREA(waCaptureImage, 256);
@@ -136,6 +139,8 @@ static THD_FUNCTION(CaptureImage, arg) {
 
 
 static THD_WORKING_AREA(waProcessImage, 1024);
+
+
 static THD_FUNCTION(ProcessImage, arg) {
 
     chRegSetThreadName(__FUNCTION__);
@@ -161,7 +166,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 		}
 
 		//search for the number of lines in the image
-		extract_line_amount(image);
+		extract_line_amount(image, searching_for_lines);
 
 
 		if(send_to_computer){
@@ -229,8 +234,8 @@ uint8_t get_number_of_lines(void){
 }
 
 
-bool line_is_searching(void){
-	return searching_for_lines;
+void change_search_state(bool new_state){
+	searching_for_lines = new_state;
 }
 
 void process_image_start(void){
