@@ -16,6 +16,7 @@
 #include "msgbus/messagebus.h"
 #include <i2c_bus.h>
 
+#define NB_PAS 4
 
 #define STANDARD_GRAVITY    9.80665f
 #define DEG2RAD(deg) (deg / 180 * M_PI)
