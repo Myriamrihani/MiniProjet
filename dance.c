@@ -214,10 +214,10 @@ void dancing(void){
 		}
 		count_step++;
 	} else {
-    	chprintf((BaseSequentialStream *)&SD3, "dancing \r\n");
+    	//chprintf((BaseSequentialStream *)&SD3, "dancing \r\n");
 
 		//stopCurrentMelody();
-		chprintf((BaseSequentialStream *)&SD3, "AVANT : \r\n" );
+		//chprintf((BaseSequentialStream *)&SD3, "AVANT : \r\n" );
 
 		display_dance();
 		left_motor_set_speed(0);
@@ -226,9 +226,9 @@ void dancing(void){
 		reset_dance();
     	reset_line();
     	nb_pas = 0;
-    	chprintf((BaseSequentialStream *)&SD3, "APRES : \r\n" );
+    	//chprintf((BaseSequentialStream *)&SD3, "APRES : \r\n" );
 
-    	display_dance();
+    	//display_dance();
 	}
 
 }

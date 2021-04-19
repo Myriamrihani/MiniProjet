@@ -79,13 +79,8 @@ int main(void)
         	set_nb_pas(get_number_of_lines());
         	change_search_state(false);
 
-	    	palSetPad(GPIOD, GPIOD_LED1);
-			palSetPad(GPIOD, GPIOD_LED3);
-			palSetPad(GPIOD, GPIOD_LED5);
-			palSetPad(GPIOD, GPIOD_LED7);
-
         	chprintf((BaseSequentialStream *)&SD3, "nb lines  : %d \r\n" , get_number_of_lines());
-//        	chprintf((BaseSequentialStream *)&SD3, "nb_pas  : %d \r\n" , get_nb_pas());
+        	//chprintf((BaseSequentialStream *)&SD3, "nb_pas  : %d \r\n" , get_nb_pas());
 
         	if(get_dance_memo_complete() == 1){
                 wait_start_signal();
@@ -93,11 +88,12 @@ int main(void)
                 if (get_start_dance() == 1) {
                 	//playMelody(MARIO, ML_FORCE_CHANGE, NULL);
                 	dancing();
+                    change_search_state(true);
                 }
             } else  if (is_dance_clear()) {show_gravity(&imu_values);}
         } else if(get_number_of_lines() == 0){
         	change_search_state(true);
-            chprintf((BaseSequentialStream *)&SD3, "state  : %d \r\n" , state());
+            //chprintf((BaseSequentialStream *)&SD3, "state  : %d \r\n" , state());
         }
 
 
