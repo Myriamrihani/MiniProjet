@@ -23,6 +23,8 @@
 #include "audio/play_melody.h"
 #include "audio/audio_thread.h"
 #include "button.h"
+#include "audio/play_sound_file.h"
+
 
 
 
@@ -51,6 +53,8 @@ int main(void)
     halInit();
     chSysInit();
     serial_start();
+	dac_start();
+
 
     /** Inits the Inter Process Communication bus. */
      messagebus_init(&bus, &bus_lock, &bus_condvar);
@@ -63,6 +67,7 @@ int main(void)
      imu_msg_t imu_values;
 
      playMelodyStart();
+     playSoundFileStart();
      mic_start(&processAudioData);
 
     /* Infinite loop. */
@@ -76,7 +81,7 @@ int main(void)
 
 
        if(get_number_of_lines() > 0) {
-        	set_nb_pas(get_number_of_lines());
+        	set_nb_pas(4);
         	change_search_state(false);
 
         	chprintf((BaseSequentialStream *)&SD3, "nb lines  : %d \r\n" , get_number_of_lines());
@@ -86,13 +91,12 @@ int main(void)
                 wait_start_signal();
             	chprintf((BaseSequentialStream *)&SD3, "will dance \r\n");
                 if (get_start_dance() == 1) {
-                	//playMelody(MARIO, ML_FORCE_CHANGE, NULL);
+                	playMelody(MARIO, ML_SIMPLE_PLAY, NULL);
                 	dancing();
                 }
             } else  if (is_dance_clear()) {show_gravity(&imu_values);}
         } else if(get_number_of_lines() == 0){
         	change_search_state(true);
-            //chprintf((BaseSequentialStream *)&SD3, "state  : %d \r\n" , state());
         }
 
 

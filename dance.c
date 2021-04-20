@@ -216,7 +216,7 @@ void dancing(void){
 	} else {
     	//chprintf((BaseSequentialStream *)&SD3, "dancing \r\n");
 
-		//stopCurrentMelody();
+		stopCurrentMelody();
 		//chprintf((BaseSequentialStream *)&SD3, "AVANT : \r\n" );
 
 		display_dance();
