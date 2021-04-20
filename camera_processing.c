@@ -48,8 +48,8 @@ void extract_line_amount(uint8_t *buffer, bool searching_for_lines){
 
 	if(searching_for_lines) {
 		//performs an average
-		for(uint16_t j = 0 ; j < IMAGE_BUFFER_SIZE ; j++){
-			mean += buffer[j];
+		for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
+			mean += buffer[i];
 		}
 		mean /= IMAGE_BUFFER_SIZE;
 
@@ -232,18 +232,12 @@ uint8_t get_number_of_lines(void){
 	default:
 		break;
 	}
-	//after indicating the nb_lines, we can turn back OFF all the LEDs
-	palSetPad(GPIOD, GPIOD_LED1);
-	palSetPad(GPIOD, GPIOD_LED3);
-	palSetPad(GPIOD, GPIOD_LED5);
-	palSetPad(GPIOD, GPIOD_LED7);
 	return number_of_lines;
 }
 
 void reset_line(void){
 	number_of_lines = 0;
 	chprintf((BaseSequentialStream *)&SD3, "RESET : \r\n" );
-	chprintf((BaseSequentialStream *)&SD3, "nb_lines just after RESET (should = 0) : \r\n" , get_number_of_lines());
 
 }
 void change_search_state(bool new_state){

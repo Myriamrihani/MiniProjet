@@ -90,9 +90,7 @@ int main(void)
                 	dancing();
                     change_search_state(true);
                 }
-            } else  if (is_dance_clear()) {
-            	show_gravity(&imu_values);
-            }
+            } else  if (is_dance_clear()) {show_gravity(&imu_values);}
         } else if(get_number_of_lines() == 0){
         	change_search_state(true);
             //chprintf((BaseSequentialStream *)&SD3, "state  : %d \r\n" , state());
