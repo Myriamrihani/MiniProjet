@@ -48,11 +48,9 @@ void extract_line_amount(uint8_t *buffer, bool searching_for_lines){
 
 	if(searching_for_lines) {
 		//performs an average
-		for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
-			mean += buffer[i];
-//		for(uint16_t j = 0 ; j < IMAGE_BUFFER_SIZE ; j++){
-//			mean += buffer[j];
-//		}
+		for(uint16_t j = 0 ; j < IMAGE_BUFFER_SIZE ; j++){
+			mean += buffer[j];
+		}
 		mean /= IMAGE_BUFFER_SIZE;
 
 		do{
