@@ -88,7 +88,6 @@ int main(void)
                 if (get_start_dance() == 1) {
                 	//playMelody(MARIO, ML_FORCE_CHANGE, NULL);
                 	dancing();
-                    change_search_state(true);
                 }
             } else  if (is_dance_clear()) {show_gravity(&imu_values);}
         } else if(get_number_of_lines() == 0){
