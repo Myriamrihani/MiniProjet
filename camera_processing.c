@@ -110,7 +110,7 @@ void extract_line_amount(uint8_t *buffer, bool searching_for_lines){
 		}while(wrong_line);
 
 	}
-	if(get_number_of_lines() > 0) {
+	if(number_of_lines > 0) {
 		change_search_state(false);
 	}
 }
