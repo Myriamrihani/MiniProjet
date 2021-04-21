@@ -26,6 +26,7 @@
 #include "audio/play_sound_file.h"
 #include "selector.h"
 
+
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
@@ -42,16 +43,14 @@ static void serial_start(void)
 
     sdStart(&SD3, &ser_cfg); // UART3. Connected to the second com port of the programmer
 }
-static bool stop_loop = 1;
 
 static THD_WORKING_AREA(selector_freq_thd_wa, 2048);
-
 static THD_FUNCTION(selector_freq_thd, arg)
 {
     (void) arg;
     chRegSetThreadName(__FUNCTION__);
 
-    while(stop_loop) {
+    while(get_stop_loop()) {
 
 		switch(get_selector()) {
 			case 0:
@@ -68,8 +67,6 @@ static THD_FUNCTION(selector_freq_thd, arg)
 		}
     }
 }
-
-
 
 int main(void)
 {
@@ -94,7 +91,6 @@ int main(void)
 
      chThdCreateStatic(selector_freq_thd_wa, sizeof(selector_freq_thd_wa), NORMALPRIO, selector_freq_thd, NULL);
 
-
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
@@ -113,7 +109,6 @@ int main(void)
 			case 1:
 				set_frequency(WOMAN);
 	        	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
-             	stop_loop = 0;
 
 	            if(get_number_of_lines() > 0) {
 	             	set_nb_pas(get_number_of_lines());
@@ -122,13 +117,13 @@ int main(void)
 	             	chprintf((BaseSequentialStream *)&SD3, "nb lines  : %d \r\n" , get_number_of_lines());
 
 	             	if(get_dance_memo_complete() == 1){
-
+	             		set_start_dance(1);
 	                     //wait_start_signal();
-	                 	 //chprintf((BaseSequentialStream *)&SD3, "will dance \r\n");
+	                 	// chprintf((BaseSequentialStream *)&SD3, "state %d \r\n", get_start_dance());
+	                 	//chprintf((BaseSequentialStream *)&SD3, "will dance \r\n");
 	                     //if (get_start_dance() == 1) {
 	                     	//playMelody(MARIO, ML_SIMPLE_PLAY, NULL);
 	                     	//dancing();
-	                 		stop_loop = 1;
 	                     //}
 	                 } else  if (is_dance_clear()) {show_gravity(&imu_values);}
 	             } else if(get_number_of_lines() == 0){
@@ -139,8 +134,7 @@ int main(void)
 			case 2:
 				set_frequency(MAN);
 	        	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
-             	stop_loop = 0;
-
+\
 	            if(get_number_of_lines() > 0) {
 	             	set_nb_pas(get_number_of_lines());
 	             	change_search_state(false);
@@ -148,13 +142,12 @@ int main(void)
 	             	chprintf((BaseSequentialStream *)&SD3, "nb lines  : %d \r\n" , get_number_of_lines());
 
 	             	if(get_dance_memo_complete() == 1){
-
+	             		set_start_dance(1);
 	                     //wait_start_signal();
-	                 	 chprintf((BaseSequentialStream *)&SD3, "will dance \r\n");
+	                 	 chprintf((BaseSequentialStream *)&SD3, "state %d \r\n", get_start_dance());
 	                     //if (get_start_dance() == 1) {
 	                     	//playMelody(RUSSIA, ML_SIMPLE_PLAY, NULL);
 	                     	//dancing();
-	                 	 	 stop_loop = 1;
 	                     //}
 	                 } else  if (is_dance_clear()) {show_gravity(&imu_values);}
 	             } else if(get_number_of_lines() == 0){
@@ -164,8 +157,6 @@ int main(void)
 		}
 
 
-
-
         //Je ne trouve pas le gpio du user button...
 //        if (button_is_pressed){
 //        	reset_dance();
@@ -173,7 +164,6 @@ int main(void)
 
     }
 }
-
 
 
 
