@@ -130,10 +130,7 @@ int main(void)
 	                     	dancing();
 	                     	stop_loop = 0;
 	                     }
-	                 } else  if (is_dance_clear()) {
-	                	 set_acc(imu_values.acceleration[X_AXIS], imu_values.acceleration[Y_AXIS]);
-	                     show_gravity();
-	                 }
+	                 } else  if (is_dance_clear()) {show_gravity(&imu_values);}
 	             } else if(get_number_of_lines() == 0){
 	             	change_search_state(true);
 	             }
@@ -158,15 +155,15 @@ int main(void)
 	                     	dancing();
 	                     	stop_loop = 0;
 	                     }
-	                 } else  if(is_dance_clear()) {
-	                	 set_acc(imu_values.acceleration[X_AXIS], imu_values.acceleration[Y_AXIS]);
-	                     show_gravity();
-	                 }
+	                 } else  if (is_dance_clear()) {show_gravity(&imu_values);}
 	             } else if(get_number_of_lines() == 0){
 	             	change_search_state(true);
 	             }
 	        	break;
 		}
+
+
+
 
         //Je ne trouve pas le gpio du user button...
 //        if (button_is_pressed){

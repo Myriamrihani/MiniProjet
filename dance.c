@@ -31,26 +31,24 @@ static uint8_t nb_pas = 0;
 static mvmt_robot dance_memo[NB_PAS] = {STOP};
 
 
-float acc_x = 0;
-float acc_y = 0;
-
 static bool dance_memo_complete = 0;
 static bool dance_cleared = 1;
 
 //static thread_t *danceThd;
-//
+
 //static THD_WORKING_AREA(waDance, 128);
 //static THD_FUNCTION(Dance, arg) {
 //	(void) arg;
 //    chRegSetThreadName(__FUNCTION__);
 //
+//
+//
 //    while(chThdShouldTerminateX() == false){
 //        chThdSleepMilliseconds(1000);
-//		chprintf((BaseSequentialStream *)&SD3, "dance thread \r\n");
+//
 //    }
 //
 //}
-
 void set_nb_pas(uint8_t nb){
 	nb_pas = nb;
 }
@@ -61,13 +59,6 @@ void dance_start(void){
 
 //	danceThd = chThdCreateStatic(waDance, sizeof(waDance), NORMALPRIO, Dance, NULL);
 }
-
-void set_acc(float imu_ac_x, float imu_ac_y){
-	acc_x = imu_ac_x;
-	acc_y = imu_ac_y;
-}
-
-
 
 void imu_display(imu_msg_t imu_values)
 {
@@ -92,8 +83,31 @@ void imu_display(imu_msg_t imu_values)
 }
 
 //function that fills the dancing vector to memorize
-void show_gravity(void){
-	chprintf((BaseSequentialStream *)&SD3, " gravity \r\n");
+void show_gravity(imu_msg_t *imu_values){
+
+    //variable to measure the time some functions take
+    //volatile to not be optimized out by the compiler if not used
+    volatile uint16_t time = 0;
+
+    /*
+    *   Use this to reset the timer counter and prevent the system
+    *   to switch to another thread.
+    *   Place it at the beginning of the code you want to measure
+    */
+    chSysLock();
+    //reset the timer counter
+    GPTD11.tim->CNT = 0;
+
+    float acc_x = imu_values->acceleration[X_AXIS];
+    float acc_y = imu_values->acceleration[Y_AXIS];
+
+    /*
+       *   Use this to capture the counter and stop to prevent
+       *   the system to switch to another thread.
+       *   Place it at the end of the code you want to measure
+       */
+       time = GPTD11.tim->CNT;
+       chSysUnlock();
 
        if(count_step == 0){
 	    	palSetPad(GPIOD, GPIOD_LED1);
