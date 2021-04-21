@@ -85,6 +85,9 @@ void imu_display(imu_msg_t imu_values)
 //function that fills the dancing vector to memorize
 void show_gravity(imu_msg_t *imu_values){
 
+    chprintf((BaseSequentialStream *)&SD3, "gravity : %d \r\n");
+
+
     //variable to measure the time some functions take
     //volatile to not be optimized out by the compiler if not used
     volatile uint16_t time = 0;
