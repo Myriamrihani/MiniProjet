@@ -17,9 +17,16 @@ typedef enum {
 	BACK_OUTPUT
 } BUFFER_NAME_t;
 
+typedef enum {
+	NONE = 0,
+	WOMAN,
+	MAN,
+
+}FREQUENCY_TO_DETECT;
 
 void processAudioData(int16_t *data, uint16_t num_samples);
-
+void set_frequency(FREQUENCY_TO_DETECT freq);
+FREQUENCY_TO_DETECT get_frequency(void);
 bool get_start_dance(void);
 void set_start_dance(bool state);
 

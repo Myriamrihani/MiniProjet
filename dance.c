@@ -28,7 +28,7 @@ static mvmt_robot tilt;
 static int count_step = 0;
 static uint8_t nb_pas = 0;
 
-mvmt_robot dance_memo[NB_PAS] = {STOP};
+static mvmt_robot dance_memo[NB_PAS] = {STOP};
 
 
 static bool dance_memo_complete = 0;
