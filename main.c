@@ -66,6 +66,7 @@ static THD_FUNCTION(selector_freq_thd, arg)
 			case 2:
 				set_frequency(MAN);
 				break;
+			default: break;
 		}
     }
 }
@@ -104,7 +105,7 @@ int main(void)
 			case 0:
 				set_frequency(NONE);
 	        	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
-             	//playMelody(WALKING, ML_SIMPLE_PLAY, NULL);
+             	playMelody(WALKING, ML_SIMPLE_PLAY, NULL);
 	        	//ici on ne détecte rien -> maybe on peut rajouter un mode du robot qui serait différent, maybe play une music d'attente, style ascenseur ??
 				break;
 
@@ -120,13 +121,13 @@ int main(void)
 
 	             	if(get_dance_memo_complete() == 1){
 	             		set_start_dance(1);
-	                     //wait_start_signal();
-	                 	// chprintf((BaseSequentialStream *)&SD3, "state %d \r\n", get_start_dance());
-	                 	//chprintf((BaseSequentialStream *)&SD3, "will dance \r\n");
-	                     //if (get_start_dance() == 1) {
-	                     	//playMelody(MARIO, ML_SIMPLE_PLAY, NULL);
-	                     	//dancing();
-	                     //}
+	                     wait_start_signal();
+	                 	 chprintf((BaseSequentialStream *)&SD3, "state %d \r\n", get_start_dance());
+	                 	chprintf((BaseSequentialStream *)&SD3, "will dance \r\n");
+	                     if (get_start_dance() == 1) {
+	                     	playMelody(MARIO, ML_SIMPLE_PLAY, NULL);
+	                     	dancing();
+	                     }
 	                 } else  if (is_dance_clear()) {show_gravity(&imu_values);}
 	             } else if(get_number_of_lines() == 0){
 	             	change_search_state(true);
@@ -145,12 +146,12 @@ int main(void)
 
 	             	if(get_dance_memo_complete() == 1){
 	             		set_start_dance(1);
-	                     //wait_start_signal();
+	                     wait_start_signal();
 	                 	 chprintf((BaseSequentialStream *)&SD3, "state %d \r\n", get_start_dance());
-	                     //if (get_start_dance() == 1) {
-	                     	//playMelody(RUSSIA, ML_SIMPLE_PLAY, NULL);
-	                     	//dancing();
-	                     //}
+	                     if (get_start_dance() == 1) {
+	                     	playMelody(RUSSIA, ML_SIMPLE_PLAY, NULL);
+	                     	dancing();
+	                     }
 	                 } else  if (is_dance_clear()) {show_gravity(&imu_values);}
 	             } else if(get_number_of_lines() == 0){
 	             	change_search_state(true);
@@ -158,10 +159,10 @@ int main(void)
 	        	break;
 		}
 
-       if(get_dance_memo_complete()){ //only search for proximity while dancing
-    	   find_proximity();
-    	   reset_dance();			//ou bien continuer la dance
-       }
+//       if(get_dance_memo_complete()){ //only search for proximity while dancing
+//    	   find_proximity();
+//    	   reset_dance();			//ou bien continuer la dance
+//       }
 
         //Je ne trouve pas le gpio du user button...
 //        if (button_is_pressed){
