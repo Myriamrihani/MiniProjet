@@ -30,9 +30,9 @@ void find_proximity(void){
 			current_sensor = i;
 		}
 	}
-	if (minimum_proximity <= PROXIMITY_THRESHOLD){
-		avoid_obstacle(current_sensor, minimum_proximity);
-	}
+//	if (minimum_proximity <= PROXIMITY_THRESHOLD){
+//		avoid_obstacle(current_sensor, minimum_proximity);
+//	}
 
 	chprintf((BaseSequentialStream *)&SD3, "sensor_IR  : %d \r\n" , current_sensor);
 	chprintf((BaseSequentialStream *)&SD3, "proximity  : %d \r\n" , minimum_proximity);

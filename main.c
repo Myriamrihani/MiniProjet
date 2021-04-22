@@ -20,13 +20,14 @@
 #include <fft.h>
 #include <com_mic.h>
 #include <camera_processing.h>
-#include <obstacles.h>
 #include <sensors/proximity.h>
 #include "audio/play_melody.h"
 #include "audio/audio_thread.h"
 #include "button.h"
 #include "audio/play_sound_file.h"
 #include "selector.h"
+#include "motors.h"
+
 
 
 messagebus_t bus;
@@ -52,7 +53,7 @@ static THD_FUNCTION(selector_freq_thd, arg)
     (void) arg;
     chRegSetThreadName(__FUNCTION__);
 
-    while(get_stop_loop()) {
+    while(1) {
 
 		switch(get_selector()) {
 			case 0:
@@ -74,25 +75,25 @@ static THD_FUNCTION(selector_freq_thd, arg)
 int main(void)
 {
     /* System init */
-    halInit();
+	halInit();
     chSysInit();
     serial_start();
 	dac_start();
 
-    /** Inits the Inter Process Communication bus. */
-     messagebus_init(&bus, &bus_lock, &bus_condvar);
-     dance_start();
-     process_image_start();
-     proximity_start();
+	/** Inits the Inter Process Communication bus. */
+	messagebus_init(&bus, &bus_lock, &bus_condvar);
+    imu_start();
+    messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
+    imu_msg_t imu_values;
 
-     messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
-     imu_msg_t imu_values;
+    motors_init();
+    process_image_start();
+    proximity_start();
+    playMelodyStart();
+    playSoundFileStart();
+    mic_start(&processAudioData);
 
-     playMelodyStart();
-     playSoundFileStart();
-     mic_start(&processAudioData);
-
-     chThdCreateStatic(selector_freq_thd_wa, sizeof(selector_freq_thd_wa), NORMALPRIO, selector_freq_thd, NULL);
+    chThdCreateStatic(selector_freq_thd_wa, sizeof(selector_freq_thd_wa), NORMALPRIO, selector_freq_thd, NULL);
 
     /* Infinite loop. */
     while (1) {
@@ -120,12 +121,6 @@ int main(void)
 //    	   find_proximity();
 //    	   reset_dance();			//ou bien continuer la dance
 //       }
-
-        //Je ne trouve pas le gpio du user button...
-//        if (button_is_pressed){
-//        	reset_dance();
-//        }
-
     }
 }
 

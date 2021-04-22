@@ -22,6 +22,8 @@
 #include "audio/play_melody.h"
 #include "audio/audio_thread.h"
 #include "selector.h"
+#include <obstacles.h>
+
 
 
 static mvmt_robot tilt;
@@ -33,59 +35,10 @@ static mvmt_robot dance_memo[NB_PAS] = {STOP};
 static bool dance_memo_complete = 0;
 static bool dance_cleared = 1;
 
-static bool stop_loop = 1;
 
-bool get_stop_loop(void){
-	return stop_loop;
-}
-
-
-
-//static THD_WORKING_AREA(waDance, 256);
-//static THD_FUNCTION(Dance, arg) {
-//	(void) arg;
-//    chRegSetThreadName(__FUNCTION__);
-//
-//    while(chThdShouldTerminateX() == false){
-//        if (get_start_dance() == 1) {
-//        	//stop_loop = 0;
-//        	//playMelody(MARIO, ML_SIMPLE_PLAY, NULL);
-//        	dancing();
-//        }
-//    }
-//}
 
 void set_nb_pas(uint8_t nb){
 	nb_pas = nb;
-}
-
-void dance_start(void){
-    imu_start();
-    motors_init();
-
-	//chThdCreateStatic(waDance, sizeof(waDance), NORMALPRIO, Dance, NULL);
-}
-
-void imu_display(imu_msg_t imu_values)
-{
-    chprintf((BaseSequentialStream *)&SD3, "%Ax=%-7d Ay=%-7d Az=%-7d Gx=%-7d Gy=%-7d Gz=%-7d\r\n",
-            imu_values.acc_raw[X_AXIS], imu_values.acc_raw[Y_AXIS], imu_values.acc_raw[Z_AXIS],
-            imu_values.gyro_raw[X_AXIS], imu_values.gyro_raw[Y_AXIS], imu_values.gyro_raw[Z_AXIS]);
-
-    //prints raw values with offset correction
-    chprintf((BaseSequentialStream *)&SD3, "%Ax=%-7d Ay=%-7d Az=%-7d Gx=%-7d Gy=%-7d Gz=%-7d\r\n",
-            imu_values.acc_raw[X_AXIS]-imu_values.acc_offset[X_AXIS],
-            imu_values.acc_raw[Y_AXIS]-imu_values.acc_offset[Y_AXIS],
-            imu_values.acc_raw[Z_AXIS]-imu_values.acc_offset[Z_AXIS],
-            imu_values.gyro_raw[X_AXIS]-imu_values.gyro_offset[X_AXIS],
-            imu_values.gyro_raw[Y_AXIS]-imu_values.gyro_offset[Y_AXIS],
-            imu_values.gyro_raw[Z_AXIS]-imu_values.gyro_offset[Z_AXIS]);
-
-    //prints values in readable units
-    chprintf((BaseSequentialStream *)&SD3, "%Ax=%.2f Ay=%.2f Az=%.2f Gx=%.2f Gy=%.2f Gz=%.2f (%x)\r\n\n",
-            imu_values.acceleration[X_AXIS], imu_values.acceleration[Y_AXIS], imu_values.acceleration[Z_AXIS],
-            imu_values.gyro_rate[X_AXIS], imu_values.gyro_rate[Y_AXIS], imu_values.gyro_rate[Z_AXIS],
-            imu_values.status);
 }
 
 //function that fills the dancing vector to memorize
@@ -236,6 +189,7 @@ void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
 		     //chprintf((BaseSequentialStream *)&SD3, "state %d \r\n", get_start_dance());
 		     chprintf((BaseSequentialStream *)&SD3, "will dance \r\n");
 		     if (get_start_dance() == 1) {
+		    	 find_proximity();
 		    	 if(freq == WOMAN) {playMelody(MARIO, ML_SIMPLE_PLAY, NULL);}
 		    	 if(freq == MAN) {playMelody(RUSSIA, ML_SIMPLE_PLAY, NULL);}
 		    	 dancing();

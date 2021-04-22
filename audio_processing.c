@@ -28,20 +28,20 @@ static float micBack_output[FFT_SIZE];
 #define MIN_VALUE_THRESHOLD	10000 
 
 #define MIN_FREQ		10	//we don't analyze before this index to not use resources for nothing
-#define FREQ_WOMAN	16	//250Hz
-#define FREQ_MAN		19	//296Hz
-#define FREQ_RIGHT		23	//359HZ
-#define FREQ_BACKWARD	26	//406Hz
+#define FREQ_WOMAN		16	//250Hz
+#define FREQ_MAN		23	//296Hz
+//#define FREQ_RIGHT		23	//359HZ
+//#define FREQ_BACKWARD	26	//406Hz
 #define MAX_FREQ		30	//we don't analyze after this index to not use resources for nothing
 
 #define FREQ_WOMAN_L		(FREQ_WOMAN-1)
 #define FREQ_WOMAN_H		(FREQ_WOMAN+1)
 #define FREQ_MAN_L			(FREQ_MAN-1)
 #define FREQ_MAN_H			(FREQ_MAN+1)
-#define FREQ_RIGHT_L		(FREQ_RIGHT-1)
-#define FREQ_RIGHT_H		(FREQ_RIGHT+1)
-#define FREQ_BACKWARD_L		(FREQ_BACKWARD-1)
-#define FREQ_BACKWARD_H		(FREQ_BACKWARD+1)
+//#define FREQ_RIGHT_L		(FREQ_RIGHT-1)
+//#define FREQ_RIGHT_H		(FREQ_RIGHT+1)
+//#define FREQ_BACKWARD_L		(FREQ_BACKWARD-1)
+//#define FREQ_BACKWARD_H		(FREQ_BACKWARD+1)
 
 static bool start_dance = 0;
 
