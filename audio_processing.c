@@ -29,7 +29,7 @@ static float micBack_output[FFT_SIZE];
 
 #define MIN_FREQ		10	//we don't analyze before this index to not use resources for nothing
 #define FREQ_WOMAN		16	//250Hz
-#define FREQ_MAN		23	//296Hz
+#define FREQ_MAN		12	//296Hz
 //#define FREQ_RIGHT		23	//359HZ
 //#define FREQ_BACKWARD	26	//406Hz
 #define MAX_FREQ		30	//we don't analyze after this index to not use resources for nothing
