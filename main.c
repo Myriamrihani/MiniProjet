@@ -4,12 +4,11 @@
 #include <math.h>
 #include <ch.h>
 #include <hal.h>
-
-#include "ch.h"
-#include "hal.h"
+#include <usbcfg.h>
+#include <chprintf.h>
 #include "memory_protection.h"
 #include <main.h>
-#include <chprintf.h>
+
 #include "sensors/mpu9250.h"
 #include "sensors/imu.h"
 #include "audio/microphone.h"
@@ -18,7 +17,7 @@
 #include <dance.h>
 #include <audio_processing.h>
 #include <fft.h>
-#include <com_mic.h>
+#include "com_mic.h"
 #include <camera_processing.h>
 #include <sensors/proximity.h>
 #include "audio/play_melody.h"
@@ -47,6 +46,8 @@ static void serial_start(void)
     sdStart(&SD3, &ser_cfg); // UART3. Connected to the second com port of the programmer
 }
 
+
+
 static THD_WORKING_AREA(selector_freq_thd_wa, 2048);
 static THD_FUNCTION(selector_freq_thd, arg)
 {
@@ -72,6 +73,58 @@ static THD_FUNCTION(selector_freq_thd, arg)
     }
 }
 
+//int main(void) //main Bryan
+//{
+//    /* System init */
+//	halInit();
+//    chSysInit();
+//    serial_start();
+//	dac_start();
+//
+//	/** Inits the Inter Process Communication bus. */
+//	messagebus_init(&bus, &bus_lock, &bus_condvar);
+//    imu_start();
+//    messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
+//    imu_msg_t imu_values;
+//
+//    motors_init();
+//    process_image_start();
+//    proximity_start();
+//    playMelodyStart();
+//    playSoundFileStart();
+//    mic_start(&processAudioData);
+//
+//    chThdCreateStatic(selector_freq_thd_wa, sizeof(selector_freq_thd_wa), NORMALPRIO, selector_freq_thd, NULL);
+//
+//    /* Infinite loop. */
+//    while (1) {
+//    	//waits 1 second
+//        chThdSleepMilliseconds(1000);
+//        //wait for new measures to be published
+//        messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
+//
+//		switch(get_frequency()) {
+//			case 0:
+//	        	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
+//             	playMelody(WALKING, ML_SIMPLE_PLAY, NULL);
+//				break;
+//
+//			case 1:
+//				dance(WOMAN, &imu_values);
+//				break;
+//
+//			case 2:
+//				dance(MAN, &imu_values);
+//	        	break;
+//		}
+//
+////       if(get_dance_memo_complete()){ //only search for proximity while dancing
+////    	   find_proximity();
+////    	   reset_dance();			//ou bien continuer la dance
+////       }
+//    }
+//}
+
 int main(void)
 {
     /* System init */
@@ -79,6 +132,8 @@ int main(void)
     chSysInit();
     serial_start();
 	dac_start();
+    usb_start();
+
 
 	/** Inits the Inter Process Communication bus. */
 	messagebus_init(&bus, &bus_lock, &bus_condvar);
@@ -102,28 +157,10 @@ int main(void)
         //wait for new measures to be published
         messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
 
-		switch(get_frequency()) {
-			case 0:
-	        	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
-             	playMelody(WALKING, ML_SIMPLE_PLAY, NULL);
-				break;
+        wait_start_signal();
 
-			case 1:
-				dance(WOMAN, &imu_values);
-				break;
-
-			case 2:
-				dance(MAN, &imu_values);
-	        	break;
-		}
-
-//       if(get_dance_memo_complete()){ //only search for proximity while dancing
-//    	   find_proximity();
-//    	   reset_dance();			//ou bien continuer la dance
-//       }
     }
 }
-
 
 
 #define STACK_CHK_GUARD 0xe2dee396

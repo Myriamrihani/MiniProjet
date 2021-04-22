@@ -47,6 +47,91 @@ static bool start_dance = 0;
 
 static FREQUENCY_TO_DETECT frequency = NONE;
 
+void compare_mic(float* right, float* left, float* back, float* front){
+
+
+//	if(highest_peak(left) >= highest_peak(right)){
+//    	palSetPad(GPIOD, GPIOD_LED1);
+//    	palSetPad(GPIOD, GPIOD_LED5);
+//		palClearPad(GPIOD, GPIOD_LED7);
+//		palSetPad(GPIOD, GPIOD_LED3);
+//		if(highest_peak(front) >= highest_peak(back)){
+//        	palClearPad(GPIOD, GPIOD_LED1);
+//        	palSetPad(GPIOD, GPIOD_LED5);
+//		} else 	{
+//        	palClearPad(GPIOD, GPIOD_LED5);
+//        	palSetPad(GPIOD, GPIOD_LED1);
+//		}
+//	}
+//
+//	if(highest_peak(left) <= highest_peak(right)){
+//    	palSetPad(GPIOD, GPIOD_LED1);
+//    	palSetPad(GPIOD, GPIOD_LED5);
+//		palClearPad(GPIOD, GPIOD_LED3);
+//		palSetPad(GPIOD, GPIOD_LED7);
+//		if(highest_peak(front) >= highest_peak(back)){
+//        	palClearPad(GPIOD, GPIOD_LED1);
+//        	palSetPad(GPIOD, GPIOD_LED5);
+//		} else 	{
+//        	palClearPad(GPIOD, GPIOD_LED5);
+//        	palSetPad(GPIOD, GPIOD_LED1);
+//		}
+//	}
+
+	if(highest_peak(left) - highest_peak(right) > 10000){
+		if(highest_peak(front) - highest_peak(back) > 10000){
+        	palClearPad(GPIOD, GPIOD_LED1);
+        	palSetPad(GPIOD, GPIOD_LED5);
+			palClearPad(GPIOD, GPIOD_LED7);
+			palSetPad(GPIOD, GPIOD_LED3);
+		} else if(highest_peak(front) - highest_peak(back) < 10000){
+        	palClearPad(GPIOD, GPIOD_LED5);
+        	palSetPad(GPIOD, GPIOD_LED1);
+			palClearPad(GPIOD, GPIOD_LED7);
+			palSetPad(GPIOD, GPIOD_LED3);
+		}else {
+	    	palSetPad(GPIOD, GPIOD_LED1);
+	    	palSetPad(GPIOD, GPIOD_LED5);
+			palClearPad(GPIOD, GPIOD_LED7);
+			palSetPad(GPIOD, GPIOD_LED3);
+		}
+
+	} else 	if(highest_peak(left) - highest_peak(right) < 10000){
+		if(highest_peak(front) - highest_peak(back) > 10000){
+        	palClearPad(GPIOD, GPIOD_LED1);
+        	palSetPad(GPIOD, GPIOD_LED5);
+			palClearPad(GPIOD, GPIOD_LED3);
+			palSetPad(GPIOD, GPIOD_LED7);
+		} else if(highest_peak(front) - highest_peak(back) < 10000){
+        	palClearPad(GPIOD, GPIOD_LED5);
+        	palSetPad(GPIOD, GPIOD_LED1);
+			palClearPad(GPIOD, GPIOD_LED3);
+			palSetPad(GPIOD, GPIOD_LED7);
+		} else {
+	    	palSetPad(GPIOD, GPIOD_LED1);
+	    	palSetPad(GPIOD, GPIOD_LED5);
+			palClearPad(GPIOD, GPIOD_LED3);
+			palSetPad(GPIOD, GPIOD_LED7);
+		}
+	} else {
+    	palSetPad(GPIOD, GPIOD_LED1);
+		palSetPad(GPIOD, GPIOD_LED3);
+		palSetPad(GPIOD, GPIOD_LED5);
+		palSetPad(GPIOD, GPIOD_LED7);
+	}
+}
+
+float highest_peak(float* data){
+	float max_norm = MIN_VALUE_THRESHOLD;
+	for(uint16_t i = MIN_FREQ ; i <= MAX_FREQ ; i++){
+		if(data[i] > max_norm){
+			max_norm = data[i];
+		}
+	}
+
+	return max_norm;
+}
+
 /*
 *	Simple function used to detect the highest value in a buffer
 *	and to execute a motor command depending on it
@@ -172,7 +257,8 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 		nb_samples = 0;
 		mustSend++;
 
-		sound_remote(micLeft_output);
+		//sound_remote(micLeft_output);
+		compare_mic(micRight_output, micLeft_output, micBack_output, micFront_output);
 	}
 }
 
