@@ -99,8 +99,8 @@ void extract_line_amount(uint8_t *buffer, bool searching_for_lines){
 				line_ending = 0;
 				stop_line_limit_search = 0;
 				wrong_line = 1;
-			} else if(!line_not_found){		//if a line is valid, searches for the next line
-				i = line_ending;
+			} else if(!line_not_found){		//if a line is valid, STOP IT
+				i = IMAGE_BUFFER_SIZE; //LET"S TRY WITH ONE LINE ONLY
 				line_beginning = 0;
 				line_ending = 0;
 				stop_line_limit_search = 0;
@@ -110,7 +110,7 @@ void extract_line_amount(uint8_t *buffer, bool searching_for_lines){
 		}while(wrong_line);
 
 	}
-	if(get_number_of_lines() > 0) {
+	if(number_of_lines > 0) {
 		change_search_state(false);
 	}
 }
@@ -207,6 +207,7 @@ uint8_t get_number_of_lines(void){
 		break;
 	case 1:
 		palClearPad(GPIOD, GPIOD_LED1);
+		palSetPad(GPIOD, GPIOD_LED1);
 		palSetPad(GPIOD, GPIOD_LED3);
 		palSetPad(GPIOD, GPIOD_LED5);
 		palSetPad(GPIOD, GPIOD_LED7);
@@ -214,6 +215,8 @@ uint8_t get_number_of_lines(void){
 	case 2:
 		palClearPad(GPIOD, GPIOD_LED1);
 		palClearPad(GPIOD, GPIOD_LED3);
+		palSetPad(GPIOD, GPIOD_LED1);
+		palSetPad(GPIOD, GPIOD_LED3);
 		palSetPad(GPIOD, GPIOD_LED5);
 		palSetPad(GPIOD, GPIOD_LED7);
 		break;
@@ -221,6 +224,9 @@ uint8_t get_number_of_lines(void){
 		palClearPad(GPIOD, GPIOD_LED1);
 		palClearPad(GPIOD, GPIOD_LED3);
 		palClearPad(GPIOD, GPIOD_LED5);
+		palSetPad(GPIOD, GPIOD_LED1);
+		palSetPad(GPIOD, GPIOD_LED3);
+		palSetPad(GPIOD, GPIOD_LED5);
 		palSetPad(GPIOD, GPIOD_LED7);
 		break;
 	case 4:
@@ -228,6 +234,10 @@ uint8_t get_number_of_lines(void){
 		palClearPad(GPIOD, GPIOD_LED3);
 		palClearPad(GPIOD, GPIOD_LED5);
 		palClearPad(GPIOD, GPIOD_LED7);
+		palSetPad(GPIOD, GPIOD_LED1);
+		palSetPad(GPIOD, GPIOD_LED3);
+		palSetPad(GPIOD, GPIOD_LED5);
+		palSetPad(GPIOD, GPIOD_LED7);
 		break;
 	default:
 		break;
@@ -251,3 +261,28 @@ void process_image_start(void){
 	chThdCreateStatic(waProcessImage, sizeof(waProcessImage), NORMALPRIO, ProcessImage, NULL);
 	chThdCreateStatic(waCaptureImage, sizeof(waCaptureImage), NORMALPRIO, CaptureImage, NULL);
 }
+
+
+//////old ending of lines extraction
+////if a line too small has been detected, continues the search
+//if(!line_not_found && (line_ending-line_beginning) < MIN_LINE_WIDTH){
+//	i = line_ending;
+//	line_beginning = 0;
+//	line_ending = 0;
+//	stop_line_limit_search = 0;
+//	wrong_line = 1;
+//} else if(!line_not_found){		//if a line is valid, searches for the next line
+//	i = line_ending;
+//	line_beginning = 0;
+//	line_ending = 0;
+//	stop_line_limit_search = 0;
+//	wrong_line = 1;
+//	++number_of_lines;
+//}
+//}while(wrong_line);
+//
+//}
+//if(number_of_lines > 0) {
+//change_search_state(false);
+//}
+//}

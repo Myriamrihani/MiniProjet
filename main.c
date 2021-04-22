@@ -20,6 +20,8 @@
 #include <fft.h>
 #include <com_mic.h>
 #include <camera_processing.h>
+#include <obstacles.h>
+#include <sensors/proximity.h>
 #include "audio/play_melody.h"
 #include "audio/audio_thread.h"
 #include "button.h"
@@ -79,8 +81,8 @@ int main(void)
     /** Inits the Inter Process Communication bus. */
      messagebus_init(&bus, &bus_lock, &bus_condvar);
      dance_start();
-
      process_image_start();
+     proximity_start();
 
      messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
      imu_msg_t imu_values;
@@ -156,6 +158,10 @@ int main(void)
 	        	break;
 		}
 
+       if(get_dance_memo_complete()){ //only search for proximity while dancing
+    	   find_proximity();
+    	   reset_dance();			//ou bien continuer la dance
+       }
 
         //Je ne trouve pas le gpio du user button...
 //        if (button_is_pressed){
