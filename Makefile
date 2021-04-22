@@ -14,6 +14,7 @@ CSRC += ./main.c \
 		./audio_processing.c \
 		./fft.c \
 		./camera_processing.c \
+		./obstacles.c \
 		
 
 #Header folders to include
