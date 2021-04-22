@@ -15,6 +15,7 @@
 #include "sensors/imu.h"
 #include "msgbus/messagebus.h"
 #include <i2c_bus.h>
+#include <audio_processing.h>
 
 #define NB_PAS 2
 
@@ -36,9 +37,10 @@ typedef enum{
 bool get_stop_loop(void);
 void set_nb_pas(uint8_t nb);
 void dance_start(void);
-void show_gravity(imu_msg_t *imu_values);
+void fill_dance(imu_msg_t *imu_values);
 void dancing(void);
 bool get_dance_memo_complete(void);
+void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values);
 void clear_dance(void);
 bool is_dance_clear(void);
 void display_dance(void);

@@ -103,59 +103,16 @@ int main(void)
 
 		switch(get_frequency()) {
 			case 0:
-				set_frequency(NONE);
 	        	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
              	playMelody(WALKING, ML_SIMPLE_PLAY, NULL);
-	        	//ici on ne détecte rien -> maybe on peut rajouter un mode du robot qui serait différent, maybe play une music d'attente, style ascenseur ??
 				break;
 
 			case 1:
-				set_frequency(WOMAN);
-	        	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
-
-	            if(get_number_of_lines() > 0) {
-	             	set_nb_pas(get_number_of_lines());
-	             	change_search_state(false);
-
-	             	chprintf((BaseSequentialStream *)&SD3, "nb lines  : %d \r\n" , get_number_of_lines());
-
-	             	if(get_dance_memo_complete() == 1){
-	             		set_start_dance(1);
-	                     wait_start_signal();
-	                 	 chprintf((BaseSequentialStream *)&SD3, "state %d \r\n", get_start_dance());
-	                 	chprintf((BaseSequentialStream *)&SD3, "will dance \r\n");
-	                     if (get_start_dance() == 1) {
-	                     	playMelody(MARIO, ML_SIMPLE_PLAY, NULL);
-	                     	dancing();
-	                     }
-	                 } else  if (is_dance_clear()) {show_gravity(&imu_values);}
-	             } else if(get_number_of_lines() == 0){
-	             	change_search_state(true);
-	             }
+				dance(WOMAN, &imu_values);
 				break;
 
 			case 2:
-				set_frequency(MAN);
-	        	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
-\
-	            if(get_number_of_lines() > 0) {
-	             	set_nb_pas(get_number_of_lines());
-	             	change_search_state(false);
-
-	             	chprintf((BaseSequentialStream *)&SD3, "nb lines  : %d \r\n" , get_number_of_lines());
-
-	             	if(get_dance_memo_complete() == 1){
-	             		set_start_dance(1);
-	                     wait_start_signal();
-	                 	 chprintf((BaseSequentialStream *)&SD3, "state %d \r\n", get_start_dance());
-	                     if (get_start_dance() == 1) {
-	                     	playMelody(RUSSIA, ML_SIMPLE_PLAY, NULL);
-	                     	dancing();
-	                     }
-	                 } else  if (is_dance_clear()) {show_gravity(&imu_values);}
-	             } else if(get_number_of_lines() == 0){
-	             	change_search_state(true);
-	             }
+				dance(MAN, &imu_values);
 	        	break;
 		}
 

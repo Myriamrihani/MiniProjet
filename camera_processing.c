@@ -41,6 +41,7 @@ void SendImageToSystem(uint8_t* data, uint16_t size)
  *  Returns 0 if line not found
  */
 void extract_line_amount(uint8_t *buffer, bool searching_for_lines){
+    chThdSleepMilliseconds(2000);
 
 	uint16_t i = 0, line_beginning = 0, line_ending = 0;
 	uint8_t stop_line_limit_search = 0, wrong_line = 0, line_not_found = 0;
@@ -100,7 +101,7 @@ void extract_line_amount(uint8_t *buffer, bool searching_for_lines){
 				stop_line_limit_search = 0;
 				wrong_line = 1;
 			} else if(!line_not_found){		//if a line is valid, STOP IT
-				i = IMAGE_BUFFER_SIZE; //LET"S TRY WITH ONE LINE ONLY
+				i = line_ending; //LET"S TRY WITH ONE LINE ONLY
 				line_beginning = 0;
 				line_ending = 0;
 				stop_line_limit_search = 0;
