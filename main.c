@@ -156,9 +156,22 @@ int main(void)
         chThdSleepMilliseconds(1000);
         //wait for new measures to be published
         messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
+		switch(get_frequency()) {
+			case 0:
+	        	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
+//             	playMelody(WALKING, ML_SIMPLE_PLAY, NULL);
+				wait_start_signal();
+				set_mode(VOICE);
+				break;
 
-        wait_start_signal();
+			case 1:
+				dance(WOMAN, &imu_values);
+				break;
 
+			case 2:
+				dance(MAN, &imu_values);
+	        	break;
+		}
     }
 }
 

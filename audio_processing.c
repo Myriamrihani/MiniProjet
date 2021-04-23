@@ -47,6 +47,7 @@ static float micBack_output[FFT_SIZE];
 static bool start_dance = 0;
 
 static FREQUENCY_TO_DETECT frequency = NONE;
+static MODE mode = DANCE;
 
 void compare_mic(float* right, float* left, float* back, float* front){
 
@@ -262,9 +263,18 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 		nb_samples = 0;
 		mustSend++;
 
-		//sound_remote(micLeft_output);
+		if(mode == DANCE){
+			sound_remote(micLeft_output);
+		}
+
+		if(mode == VOICE){
 		compare_mic(micRight_output, micLeft_output, micBack_output, micFront_output);
+		}
 	}
+}
+
+void set_mode(MODE new_mode){
+	mode = new_mode;
 }
 
 void wait_start_signal(void){

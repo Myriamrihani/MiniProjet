@@ -24,6 +24,11 @@ typedef enum {
 
 }FREQUENCY_TO_DETECT;
 
+typedef enum {
+	DANCE = 0,
+	VOICE,
+}MODE;
+
 void compare_mic(float* right, float* left, float* back, float* front);
 float highest_peak(float* data);
 void processAudioData(int16_t *data, uint16_t num_samples);
@@ -31,6 +36,8 @@ void set_frequency(FREQUENCY_TO_DETECT freq);
 FREQUENCY_TO_DETECT get_frequency(void);
 bool get_start_dance(void);
 void set_start_dance(bool state);
+void set_mode(MODE new_mode);
+
 
 /*
 *	put the invoking thread into sleep until it can process the audio datas
