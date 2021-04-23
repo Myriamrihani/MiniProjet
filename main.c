@@ -160,8 +160,9 @@ int main(void)
 			case 0:
 	        	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
 //             	playMelody(WALKING, ML_SIMPLE_PLAY, NULL);
-				wait_start_signal();
-				set_mode(VOICE);
+//				set_mode(VOICE);
+//				wait_start_signal();
+	        	right_motor_set_pos(1);
 				break;
 
 			case 1:

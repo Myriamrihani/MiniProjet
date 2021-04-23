@@ -26,13 +26,7 @@
 #define NB_SAMPLES_OFFSET     200
 #define MIN_GRAV_VALUE (STANDARD_GRAVITY*0.1)
 
-typedef enum{
-	FRONT,
-	BACK,
-	LEFT,
-	RIGHT,
-	STOP,
-}mvmt_robot;
+
 
 bool get_stop_loop(void);
 void set_nb_pas(uint8_t nb);

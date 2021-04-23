@@ -10,6 +10,9 @@
 #include <fft.h>
 #include <arm_math.h>
 #include <com_mic.h>
+#include "mouvement.h"
+#include "motors.h"
+
 
 //semaphore
 static BSEMAPHORE_DECL(micro_ready_sem, TRUE);
@@ -28,6 +31,8 @@ static float micBack_output[FFT_SIZE];
 #define MIN_VALUE_THRESHOLD	10000 
 #define MIN_DIFFERENCE_VALUE 5000
 
+
+
 #define MIN_FREQ		10	//we don't analyze before this index to not use resources for nothing
 #define FREQ_WOMAN		16	//250Hz
 #define FREQ_MAN		12	//296Hz
@@ -39,89 +44,48 @@ static float micBack_output[FFT_SIZE];
 #define FREQ_WOMAN_H		(FREQ_WOMAN+1)
 #define FREQ_MAN_L			(FREQ_MAN-1)
 #define FREQ_MAN_H			(FREQ_MAN+1)
-//#define FREQ_RIGHT_L		(FREQ_RIGHT-1)
-//#define FREQ_RIGHT_H		(FREQ_RIGHT+1)
-//#define FREQ_BACKWARD_L		(FREQ_BACKWARD-1)
-//#define FREQ_BACKWARD_H		(FREQ_BACKWARD+1)
+
 
 static bool start_dance = 0;
 
 static FREQUENCY_TO_DETECT frequency = NONE;
 static MODE mode = DANCE;
+static mvmt_robot voice = STOP;
 
 void compare_mic(float* right, float* left, float* back, float* front){
-
-
-//	if((highest_peak(left) - highest_peak(right)) > MIN_DIFFERENCE_VALUE){
-//		if((highest_peak(front) - highest_peak(back)) > MIN_DIFFERENCE_VALUE){
-//        	palClearPad(GPIOD, GPIOD_LED1);
-//        	palSetPad(GPIOD, GPIOD_LED5);
-//			palClearPad(GPIOD, GPIOD_LED7);
-//			palSetPad(GPIOD, GPIOD_LED3);
-//		} else if((highest_peak(back) - highest_peak(front)) > MIN_DIFFERENCE_VALUE){
-//        	palClearPad(GPIOD, GPIOD_LED5);
-//        	palSetPad(GPIOD, GPIOD_LED1);
-//			palClearPad(GPIOD, GPIOD_LED7);
-//			palSetPad(GPIOD, GPIOD_LED3);
-//		}else {
-//	    	palSetPad(GPIOD, GPIOD_LED1);
-//	    	palSetPad(GPIOD, GPIOD_LED5);
-//			palClearPad(GPIOD, GPIOD_LED7);
-//			palSetPad(GPIOD, GPIOD_LED3);
-//		}
-//
-//	} else 	if((highest_peak(right) - highest_peak(left)) > MIN_DIFFERENCE_VALUE){
-//		if(highest_peak(front) - highest_peak(back) > MIN_DIFFERENCE_VALUE){
-//        	palClearPad(GPIOD, GPIOD_LED1);
-//        	palSetPad(GPIOD, GPIOD_LED5);
-//			palClearPad(GPIOD, GPIOD_LED3);
-//			palSetPad(GPIOD, GPIOD_LED7);
-//		} else if((highest_peak(back) - highest_peak(front)) > MIN_DIFFERENCE_VALUE){
-//        	palClearPad(GPIOD, GPIOD_LED5);
-//        	palSetPad(GPIOD, GPIOD_LED1);
-//			palClearPad(GPIOD, GPIOD_LED3);
-//			palSetPad(GPIOD, GPIOD_LED7);
-//		} else {
-//	    	palSetPad(GPIOD, GPIOD_LED1);
-//	    	palSetPad(GPIOD, GPIOD_LED5);
-//			palClearPad(GPIOD, GPIOD_LED3);
-//			palSetPad(GPIOD, GPIOD_LED7);
-//		}
-//	} else 	if((highest_peak(front) - highest_peak(back)) > MIN_DIFFERENCE_VALUE){
-//    		palClearPad(GPIOD, GPIOD_LED1);
-//    		palSetPad(GPIOD, GPIOD_LED5);
-//    		palSetPad(GPIOD, GPIOD_LED7);
-//    		palSetPad(GPIOD, GPIOD_LED3);
-//		} else if((highest_peak(back) - highest_peak(front)) > MIN_DIFFERENCE_VALUE){
-//			palClearPad(GPIOD, GPIOD_LED5);
-//			palSetPad(GPIOD, GPIOD_LED1);
-//			palSetPad(GPIOD, GPIOD_LED7);
-//			palSetPad(GPIOD, GPIOD_LED3);
-//		} else {
-//			palSetPad(GPIOD, GPIOD_LED1);
-//			palSetPad(GPIOD, GPIOD_LED3);
-//			palSetPad(GPIOD, GPIOD_LED5);
-//			palSetPad(GPIOD, GPIOD_LED7);
-//		}
-
 	if((highest_peak(left) - highest_peak(right)) > MIN_DIFFERENCE_VALUE){
+		//turn left
 	    palClearPad(GPIOD, GPIOD_LED7);
 	    palSetPad(GPIOD, GPIOD_LED3);
+		voice = LEFT;
 	} else if((highest_peak(right) - highest_peak(left)) > MIN_DIFFERENCE_VALUE){
+		//turn right
 		palSetPad(GPIOD, GPIOD_LED7);
 		palClearPad(GPIOD, GPIOD_LED3);
+		voice = RIGHT;
 	} else {
+		//nor left nor right
 		palSetPad(GPIOD, GPIOD_LED3);
 		palSetPad(GPIOD, GPIOD_LED7);
 	}
 
 	if((highest_peak(front) - highest_peak(back)) > MIN_DIFFERENCE_VALUE){
+		//go forward
 	    palClearPad(GPIOD, GPIOD_LED1);
 	    palSetPad(GPIOD, GPIOD_LED5);
+		voice = FRONT;
+//	    motor_set_position(20, 20, 5, 5);
+//	    while(motor_position_reached() != POSITION_REACHED);
 	} else if((highest_peak(back) - highest_peak(front)) > MIN_DIFFERENCE_VALUE){
+		//do a 180
 		palSetPad(GPIOD, GPIOD_LED1);
 		palClearPad(GPIOD, GPIOD_LED5);
+		voice = BACK;
+//		motor_set_position(PERIMETER_EPUCK/2, PERIMETER_EPUCK/2, -5, 5);
+//		while(motor_position_reached() != POSITION_REACHED);
+
 	}else {
+		//none
 		palSetPad(GPIOD, GPIOD_LED1);
 		palSetPad(GPIOD, GPIOD_LED5);
 	}

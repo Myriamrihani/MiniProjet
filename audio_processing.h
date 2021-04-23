@@ -29,6 +29,14 @@ typedef enum {
 	VOICE,
 }MODE;
 
+typedef enum{
+	FRONT,
+	BACK,
+	LEFT,
+	RIGHT,
+	STOP,
+}mvmt_robot;
+
 void compare_mic(float* right, float* left, float* back, float* front);
 float highest_peak(float* data);
 void processAudioData(int16_t *data, uint16_t num_samples);
