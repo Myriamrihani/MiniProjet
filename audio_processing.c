@@ -26,6 +26,7 @@ static float micFront_output[FFT_SIZE];
 static float micBack_output[FFT_SIZE];
 
 #define MIN_VALUE_THRESHOLD	10000 
+#define MIN_DIFFERENCE_VALUE 5000
 
 #define MIN_FREQ		10	//we don't analyze before this index to not use resources for nothing
 #define FREQ_WOMAN		16	//250Hz
@@ -50,74 +51,78 @@ static FREQUENCY_TO_DETECT frequency = NONE;
 void compare_mic(float* right, float* left, float* back, float* front){
 
 
-//	if(highest_peak(left) >= highest_peak(right)){
-//    	palSetPad(GPIOD, GPIOD_LED1);
-//    	palSetPad(GPIOD, GPIOD_LED5);
-//		palClearPad(GPIOD, GPIOD_LED7);
-//		palSetPad(GPIOD, GPIOD_LED3);
-//		if(highest_peak(front) >= highest_peak(back)){
+//	if((highest_peak(left) - highest_peak(right)) > MIN_DIFFERENCE_VALUE){
+//		if((highest_peak(front) - highest_peak(back)) > MIN_DIFFERENCE_VALUE){
 //        	palClearPad(GPIOD, GPIOD_LED1);
 //        	palSetPad(GPIOD, GPIOD_LED5);
-//		} else 	{
+//			palClearPad(GPIOD, GPIOD_LED7);
+//			palSetPad(GPIOD, GPIOD_LED3);
+//		} else if((highest_peak(back) - highest_peak(front)) > MIN_DIFFERENCE_VALUE){
 //        	palClearPad(GPIOD, GPIOD_LED5);
 //        	palSetPad(GPIOD, GPIOD_LED1);
+//			palClearPad(GPIOD, GPIOD_LED7);
+//			palSetPad(GPIOD, GPIOD_LED3);
+//		}else {
+//	    	palSetPad(GPIOD, GPIOD_LED1);
+//	    	palSetPad(GPIOD, GPIOD_LED5);
+//			palClearPad(GPIOD, GPIOD_LED7);
+//			palSetPad(GPIOD, GPIOD_LED3);
 //		}
-//	}
 //
-//	if(highest_peak(left) <= highest_peak(right)){
-//    	palSetPad(GPIOD, GPIOD_LED1);
-//    	palSetPad(GPIOD, GPIOD_LED5);
-//		palClearPad(GPIOD, GPIOD_LED3);
-//		palSetPad(GPIOD, GPIOD_LED7);
-//		if(highest_peak(front) >= highest_peak(back)){
+//	} else 	if((highest_peak(right) - highest_peak(left)) > MIN_DIFFERENCE_VALUE){
+//		if(highest_peak(front) - highest_peak(back) > MIN_DIFFERENCE_VALUE){
 //        	palClearPad(GPIOD, GPIOD_LED1);
 //        	palSetPad(GPIOD, GPIOD_LED5);
-//		} else 	{
+//			palClearPad(GPIOD, GPIOD_LED3);
+//			palSetPad(GPIOD, GPIOD_LED7);
+//		} else if((highest_peak(back) - highest_peak(front)) > MIN_DIFFERENCE_VALUE){
 //        	palClearPad(GPIOD, GPIOD_LED5);
 //        	palSetPad(GPIOD, GPIOD_LED1);
+//			palClearPad(GPIOD, GPIOD_LED3);
+//			palSetPad(GPIOD, GPIOD_LED7);
+//		} else {
+//	    	palSetPad(GPIOD, GPIOD_LED1);
+//	    	palSetPad(GPIOD, GPIOD_LED5);
+//			palClearPad(GPIOD, GPIOD_LED3);
+//			palSetPad(GPIOD, GPIOD_LED7);
 //		}
-//	}
+//	} else 	if((highest_peak(front) - highest_peak(back)) > MIN_DIFFERENCE_VALUE){
+//    		palClearPad(GPIOD, GPIOD_LED1);
+//    		palSetPad(GPIOD, GPIOD_LED5);
+//    		palSetPad(GPIOD, GPIOD_LED7);
+//    		palSetPad(GPIOD, GPIOD_LED3);
+//		} else if((highest_peak(back) - highest_peak(front)) > MIN_DIFFERENCE_VALUE){
+//			palClearPad(GPIOD, GPIOD_LED5);
+//			palSetPad(GPIOD, GPIOD_LED1);
+//			palSetPad(GPIOD, GPIOD_LED7);
+//			palSetPad(GPIOD, GPIOD_LED3);
+//		} else {
+//			palSetPad(GPIOD, GPIOD_LED1);
+//			palSetPad(GPIOD, GPIOD_LED3);
+//			palSetPad(GPIOD, GPIOD_LED5);
+//			palSetPad(GPIOD, GPIOD_LED7);
+//		}
 
-	if(highest_peak(left) - highest_peak(right) > 10000){
-		if(highest_peak(front) - highest_peak(back) > 10000){
-        	palClearPad(GPIOD, GPIOD_LED1);
-        	palSetPad(GPIOD, GPIOD_LED5);
-			palClearPad(GPIOD, GPIOD_LED7);
-			palSetPad(GPIOD, GPIOD_LED3);
-		} else if(highest_peak(front) - highest_peak(back) < 10000){
-        	palClearPad(GPIOD, GPIOD_LED5);
-        	palSetPad(GPIOD, GPIOD_LED1);
-			palClearPad(GPIOD, GPIOD_LED7);
-			palSetPad(GPIOD, GPIOD_LED3);
-		}else {
-	    	palSetPad(GPIOD, GPIOD_LED1);
-	    	palSetPad(GPIOD, GPIOD_LED5);
-			palClearPad(GPIOD, GPIOD_LED7);
-			palSetPad(GPIOD, GPIOD_LED3);
-		}
-
-	} else 	if(highest_peak(left) - highest_peak(right) < 10000){
-		if(highest_peak(front) - highest_peak(back) > 10000){
-        	palClearPad(GPIOD, GPIOD_LED1);
-        	palSetPad(GPIOD, GPIOD_LED5);
-			palClearPad(GPIOD, GPIOD_LED3);
-			palSetPad(GPIOD, GPIOD_LED7);
-		} else if(highest_peak(front) - highest_peak(back) < 10000){
-        	palClearPad(GPIOD, GPIOD_LED5);
-        	palSetPad(GPIOD, GPIOD_LED1);
-			palClearPad(GPIOD, GPIOD_LED3);
-			palSetPad(GPIOD, GPIOD_LED7);
-		} else {
-	    	palSetPad(GPIOD, GPIOD_LED1);
-	    	palSetPad(GPIOD, GPIOD_LED5);
-			palClearPad(GPIOD, GPIOD_LED3);
-			palSetPad(GPIOD, GPIOD_LED7);
-		}
-	} else {
-    	palSetPad(GPIOD, GPIOD_LED1);
-		palSetPad(GPIOD, GPIOD_LED3);
-		palSetPad(GPIOD, GPIOD_LED5);
+	if((highest_peak(left) - highest_peak(right)) > MIN_DIFFERENCE_VALUE){
+	    palClearPad(GPIOD, GPIOD_LED7);
+	    palSetPad(GPIOD, GPIOD_LED3);
+	} else if((highest_peak(right) - highest_peak(left)) > MIN_DIFFERENCE_VALUE){
 		palSetPad(GPIOD, GPIOD_LED7);
+		palClearPad(GPIOD, GPIOD_LED3);
+	} else {
+		palSetPad(GPIOD, GPIOD_LED3);
+		palSetPad(GPIOD, GPIOD_LED7);
+	}
+
+	if((highest_peak(front) - highest_peak(back)) > MIN_DIFFERENCE_VALUE){
+	    palClearPad(GPIOD, GPIOD_LED1);
+	    palSetPad(GPIOD, GPIOD_LED5);
+	} else if((highest_peak(back) - highest_peak(front)) > MIN_DIFFERENCE_VALUE){
+		palSetPad(GPIOD, GPIOD_LED1);
+		palClearPad(GPIOD, GPIOD_LED5);
+	}else {
+		palSetPad(GPIOD, GPIOD_LED1);
+		palSetPad(GPIOD, GPIOD_LED5);
 	}
 }
 
