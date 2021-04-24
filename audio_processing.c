@@ -74,16 +74,12 @@ void compare_mic(float* right, float* left, float* back, float* front){
 	    palClearPad(GPIOD, GPIOD_LED1);
 	    palSetPad(GPIOD, GPIOD_LED5);
 		voice = FRONT;
-//	    motor_set_position(20, 20, 5, 5);
-//	    while(motor_position_reached() != POSITION_REACHED);
+
 	} else if((highest_peak(back) - highest_peak(front)) > MIN_DIFFERENCE_VALUE){
 		//do a 180
 		palSetPad(GPIOD, GPIOD_LED1);
 		palClearPad(GPIOD, GPIOD_LED5);
 		voice = BACK;
-//		motor_set_position(PERIMETER_EPUCK/2, PERIMETER_EPUCK/2, -5, 5);
-//		while(motor_position_reached() != POSITION_REACHED);
-
 	}else {
 		//none
 		palSetPad(GPIOD, GPIOD_LED1);
