@@ -45,6 +45,8 @@ static float micBack_output[FFT_SIZE];
 #define FREQ_MAN_H			(FREQ_MAN+1)
 
 static bool start_dance = 0;
+static float angle = 0;
+
 
 static FREQUENCY_TO_DETECT frequency = NONE;
 static MODE mode = DANCE;
@@ -103,11 +105,10 @@ void compare_mic(float* right, float* left, float* back, float* front){
 }
 
 void set_motor_angle(void){
-	float angle = 0;
 	if(voice_fb == FRONT) {
-		if(voice_rl == RIGHT) {
+		if(voice_rl == LEFT) {
 			angle = 22.5;
-		} else if(voice_rl == LEFT){
+		} else if(voice_rl == RIGHT){
 			angle = -22.5;
 		} else if(voice_rl == STOP){
 			angle = 0;
@@ -121,14 +122,15 @@ void set_motor_angle(void){
 			angle = 180;
 		}
 	}else if(voice_fb == STOP) {
-		if(voice_rl == RIGHT) {
+		if(voice_rl == LEFT) {
 			angle = 45;
-		} else if(voice_rl == LEFT) {
+		} else if(voice_rl == RIGHT) {
 			angle = -45;
 		} else if(voice_rl == STOP) {
 			angle = 0;
 		}
 	}
+	chprintf((BaseSequentialStream *)&SD3, "angle : %d \r\n" , angle);
 	motor_take_direction(angle);
 }
 
