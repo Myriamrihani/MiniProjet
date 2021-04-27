@@ -38,6 +38,15 @@ void find_proximity(void){
 	chprintf((BaseSequentialStream *)&SD3, "proximity  : %d \r\n" , minimum_proximity);
 }
 
+void manual_speed(uint8_t sensor, uint16_t distance){ //should only be called with IR3 and 4
+	int16_t speed = 0;
+	int16_t error = 0;
+	error = PROXIMITY_THRESHOLD - distance;
+	int16_t speed_correction = 0;
+	speed = 800 * error + 12*speed_correction;
+	left_motor_set_speed(speed + ROTATION_COEFF * speed_correction);
+	right_motor_set_speed(speed - ROTATION_COEFF * speed_correction);
+}
 void avoid_obstacle(uint8_t sensor, uint16_t distance){
 	int16_t speed = 0;
 	int16_t error = 0;

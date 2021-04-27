@@ -87,6 +87,7 @@ int main(void)
     imu_msg_t imu_values;
 
     motors_init();
+    pi_regulator_start();
     process_image_start();
     proximity_start();
     playMelodyStart();

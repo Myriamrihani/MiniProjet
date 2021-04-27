@@ -25,6 +25,9 @@ static uint8_t number_of_lines = 0;					//very important!
 static uint16_t line_position = IMAGE_BUFFER_SIZE/2;	//middle
 static bool searching_for_lines = false;
 
+static int type = 0; //better if we can put arguments to threads
+static uint16_t width = 0; //better if we can put argument to threads
+
 //semaphore
 static BSEMAPHORE_DECL(image_ready_sem, TRUE);
 
@@ -40,12 +43,15 @@ void SendImageToSystem(uint8_t* data, uint16_t size)
  *  Returns the line's width extracted from the image buffer given
  *  Returns 0 if line not found
  */
-void extract_line_amount(uint8_t *buffer, bool searching_for_lines){
+void extract_line(uint8_t *buffer, bool searching_for_lines){
     chThdSleepMilliseconds(2000);
 
 	uint16_t i = 0, line_beginning = 0, line_ending = 0;
 	uint8_t stop_line_limit_search = 0, wrong_line = 0, line_not_found = 0;
 	uint32_t mean = 0;
+	width = 0;
+
+	static uint16_t last_width = PXTOCM/GOAL_DISTANCE;
 
 	if(searching_for_lines) {
 		//performs an average
@@ -100,15 +106,31 @@ void extract_line_amount(uint8_t *buffer, bool searching_for_lines){
 				line_ending = 0;
 				stop_line_limit_search = 0;
 				wrong_line = 1;
-			} else if(!line_not_found){		//if a line is valid, STOP IT
-				i = line_ending; //LET"S TRY WITH ONE LINE ONLY
+			} else if(!line_not_found && type == 0){		//if a line is valid, STOP IT
+				i = line_ending;			//Type==0 aka Find number of lines
 				line_beginning = 0;
 				line_ending = 0;
 				stop_line_limit_search = 0;
 				wrong_line = 1;
 				++number_of_lines;
+			} else if(!line_not_found && type == 1){ //type==1 aka line following
+				last_width = width = (line_ending - line_beginning);
+				line_position = (line_beginning + line_ending)/2; //gives the line position.
+				++number_of_lines;		//useful since we use this nbr as a condition of lines found
 			}
 		}while(wrong_line);
+
+
+		if(line_not_found && type ==1){ //the ==1 condition might be useless
+			line_beginning = 0;
+			line_ending = 0;
+			width = last_width;
+		}
+
+		//sets a maximum width
+		if(type==1 && (PXTOCM/width) > MAX_DISTANCE){ //type==1 condition to avoid width=0 danger
+			width = PXTOCM/MAX_DISTANCE; //used to be a return with "else{return width;}"
+		}
 
 	}
 	if(number_of_lines > 0) {
@@ -169,8 +191,14 @@ static THD_FUNCTION(ProcessImage, arg) {
 		}
 
 		//search for the number of lines in the image
-		extract_line_amount(image, searching_for_lines);
+		extract_line(image, searching_for_lines);
 
+		//converts the width into a distance between the robot and the camera
+		if(width && type == 1){ //assure we actually got a line and thetype==1 is for safety, aka useless==1
+			distance_cm = PXTOCM/width;
+		} else if(width == 0 && type == 1){
+			distance_cm = GOAL_DISTANCE;		//if width = 0, donc on est au bout de la ligne et distance-goal=0 no?
+		}
 
 //		if(send_to_computer){
 //			//sends to the computer the image
@@ -264,26 +292,73 @@ void process_image_start(void){
 }
 
 
-//////old ending of lines extraction
-////if a line too small has been detected, continues the search
-//if(!line_not_found && (line_ending-line_beginning) < MIN_LINE_WIDTH){
-//	i = line_ending;
-//	line_beginning = 0;
-//	line_ending = 0;
-//	stop_line_limit_search = 0;
-//	wrong_line = 1;
-//} else if(!line_not_found){		//if a line is valid, searches for the next line
-//	i = line_ending;
-//	line_beginning = 0;
-//	line_ending = 0;
-//	stop_line_limit_search = 0;
-//	wrong_line = 1;
-//	++number_of_lines;
-//}
-//}while(wrong_line);
-//
-//}
-//if(number_of_lines > 0) {
-//change_search_state(false);
-//}
-//}
+								//////***PI REGULATOR PART ******///////
+
+//simple PI regulator implementation
+int16_t pi_regulator(float distance, float goal){
+
+	float error = 0;
+	float speed = 0;
+
+	static float sum_error = 0;
+
+	error = distance - goal;
+
+	//disables the PI regulator if the error is to small
+	//this avoids to always move as we cannot exactly be where we want and
+	//the camera is a bit noisy
+	if(fabs(error) < ERROR_THRESHOLD){
+		return 0;
+	}
+
+	sum_error += error;
+
+	//we set a maximum and a minimum for the sum to avoid an uncontrolled growth
+	if(sum_error > MAX_SUM_ERROR){
+		sum_error = MAX_SUM_ERROR;
+	}else if(sum_error < -MAX_SUM_ERROR){
+		sum_error = -MAX_SUM_ERROR;
+	}
+
+	speed = KP * error + KI * sum_error;
+
+    return (int16_t)speed;
+}
+
+static THD_WORKING_AREA(waPiRegulator, 256);
+static THD_FUNCTION(PiRegulator, arg) {
+
+    chRegSetThreadName(__FUNCTION__);
+    (void)arg;
+
+    systime_t time;
+
+    int16_t speed = 0;
+    int16_t speed_correction = 0;
+
+    while(1){
+        time = chVTGetSystemTime();
+
+        //computes the speed to give to the motors
+        //distance_cm is modified by the image processing thread
+        speed = pi_regulator(distance_cm, GOAL_DISTANCE);
+        //computes a correction factor to let the robot rotate to be in front of the line
+        speed_correction = (line_position - (IMAGE_BUFFER_SIZE/2));
+
+        //if the line is nearly in front of the camera, don't rotate
+        if(abs(speed_correction) < ROTATION_THRESHOLD){
+        	speed_correction = 0;
+        }
+
+        //applies the speed from the PI regulator and the correction for the rotation
+		right_motor_set_speed(speed + 1 - ROTATION_COEFF * speed_correction); //IMPORTANT, +1 as we should advance
+		left_motor_set_speed(speed + 1 +ROTATION_COEFF * speed_correction);		//NOT sure for the +1
+
+        //100Hz
+        chThdSleepUntilWindowed(time, time + MS2ST(10));
+    }
+}
+
+void pi_regulator_start(void){
+	chThdCreateStatic(waPiRegulator, sizeof(waPiRegulator), NORMALPRIO, PiRegulator, NULL);
+}
