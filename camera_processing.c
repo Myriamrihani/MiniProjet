@@ -44,6 +44,8 @@ void SendImageToSystem(uint8_t* data, uint16_t size)
  *  Returns 0 if line not found
  */
 void extract_line(uint8_t *buffer, bool searching_for_lines){
+	type =1;
+	searching_for_lines = 1;
     chThdSleepMilliseconds(2000);
 
 	uint16_t i = 0, line_beginning = 0, line_ending = 0;
@@ -347,12 +349,13 @@ static THD_FUNCTION(PiRegulator, arg) {
 
         //if the line is nearly in front of the camera, don't rotate
         if(abs(speed_correction) < ROTATION_THRESHOLD){
-        	speed_correction = 0;
+        	left_motor_set_speed(0);
         }
 
         //applies the speed from the PI regulator and the correction for the rotation
 		right_motor_set_speed(speed + 1 - ROTATION_COEFF * speed_correction); //IMPORTANT, +1 as we should advance
 		left_motor_set_speed(speed + 1 +ROTATION_COEFF * speed_correction);		//NOT sure for the +1
+
 
         //100Hz
         chThdSleepUntilWindowed(time, time + MS2ST(10));
