@@ -13,6 +13,8 @@
 #define WHEEL_DISTANCE      5.35f    //cm
 #define PERIMETER_EPUCK     (PI * WHEEL_DISTANCE)
 
+static MODE mode = DANCE;
+
 static int16_t right_speed = 0; 			    // in [step/s]
 static int16_t left_speed = 0; 					// in [step/s]
 //static int16_t counter_step_right = 0;          // in [step]
@@ -20,6 +22,15 @@ static int16_t left_speed = 0; 					// in [step/s]
 static float perimeter = 0;
 static int16_t pos_r = 0;
 static int16_t pos_l = 0;
+
+
+void set_mode(MODE new_mode){
+	mode = new_mode;
+}
+
+MODE get_mode(void){
+	return mode;
+}
 
 void motor_take_direction(float angle){
 	perimeter = angle * PI * WHEEL_DISTANCE / 360;
@@ -40,9 +51,6 @@ void motor_take_direction(float angle){
 
 	left_motor_set_speed(right_speed);
 	right_motor_set_speed(left_speed);
-	chprintf((BaseSequentialStream *)&SD3, "pos right  : %d \r\n" , right_motor_get_pos());
-	chprintf((BaseSequentialStream *)&SD3, "pos left  : %d \r\n" , left_motor_get_pos());
-
 }
 
 //void check_position(void){

@@ -23,6 +23,8 @@
 #include "audio/audio_thread.h"
 #include "selector.h"
 #include <obstacles.h>
+#include "motor_managmt.h"
+
 
 
 
@@ -169,20 +171,20 @@ void dancing(void){
 }
 
 void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
-	chprintf((BaseSequentialStream *)&SD3, "freq  : %d \r\n" , freq);
-	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
+//	chprintf((BaseSequentialStream *)&SD3, "freq  : %d \r\n" , freq);
+//	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
 
 
 	++freq_counter;
-	chprintf((BaseSequentialStream *)&SD3, "freq counter  : %d \r\n" , freq_counter);
+//	chprintf((BaseSequentialStream *)&SD3, "freq counter  : %d \r\n" , freq_counter);
 
 	if(freq_counter == 1) {
 		past_freq = freq;
-		chprintf((BaseSequentialStream *)&SD3, "past   : %d \r\n" , past_freq);
+//		chprintf((BaseSequentialStream *)&SD3, "past   : %d \r\n" , past_freq);
 	}
 
 	if(past_freq == get_frequency()){
-	    chprintf((BaseSequentialStream *)&SD3, "dance mode \r\n");
+//	    chprintf((BaseSequentialStream *)&SD3, "dance mode \r\n");
 
 		if(get_number_of_lines() > 0) {
 			set_mode(DANCE);
@@ -193,7 +195,7 @@ void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
 
 			if(get_dance_memo_complete() == 1){
 				wait_start_signal();
-			    chprintf((BaseSequentialStream *)&SD3, "will dance \r\n");
+//			    chprintf((BaseSequentialStream *)&SD3, "will dance \r\n");
 			    if (get_start_dance() == 1) {
 			    	find_proximity();
 			    	if(freq == WOMAN) {playMelody(MARIO, ML_SIMPLE_PLAY, NULL);}
@@ -205,7 +207,7 @@ void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
 			change_search_state(true);
 		}
 	} else {
-	    chprintf((BaseSequentialStream *)&SD3, "changed frequency \r\n");
+//	    chprintf((BaseSequentialStream *)&SD3, "changed frequency \r\n");
 
 		freq_counter = 0;
 		reset_dance();

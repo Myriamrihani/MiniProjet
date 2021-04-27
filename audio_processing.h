@@ -1,6 +1,8 @@
 #ifndef AUDIO_PROCESSING_H
 #define AUDIO_PROCESSING_H
 
+#include "motor_managmt.h"
+
 
 #define FFT_SIZE 	1024
 
@@ -21,22 +23,7 @@ typedef enum {
 	NONE = 0,
 	WOMAN,
 	MAN,
-
 }FREQUENCY_TO_DETECT;
-
-typedef enum {
-	DANCE = 0,
-	VOICE,
-}MODE;
-
-typedef enum{
-	FRONT,
-	BACK,
-	LEFT,
-	RIGHT,
-	STOP,
-}mvmt_robot;
-
 
 
 void compare_mic(float* right, float* left, float* back, float* front);
@@ -47,7 +34,6 @@ void set_frequency(FREQUENCY_TO_DETECT freq);
 FREQUENCY_TO_DETECT get_frequency(void);
 bool get_start_dance(void);
 void set_start_dance(bool state);
-void set_mode(MODE new_mode);
 
 
 /*

@@ -29,8 +29,6 @@
 #include "motor_managmt.h"
 
 
-
-
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
@@ -161,7 +159,6 @@ int main(void)
 		switch(get_frequency()) {
 			case 0:
 	        	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
-//             	playMelody(WALKING, ML_SIMPLE_PLAY, NULL);
 				set_mode(VOICE);
 				wait_start_signal();
 				break;

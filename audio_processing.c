@@ -49,7 +49,7 @@ static float angle = 0;
 
 
 static FREQUENCY_TO_DETECT frequency = NONE;
-static MODE mode = DANCE;
+
 static mvmt_robot voice_fb = STOP;
 static mvmt_robot voice_rl = STOP;
 
@@ -115,9 +115,9 @@ void set_motor_angle(void){
 		}
 	} else if(voice_fb == BACK) {
 		if(voice_rl == RIGHT) {
-			angle = 67.5;
-		} else if(voice_rl == LEFT){
 			angle = -67.5;
+		} else if(voice_rl == LEFT){
+			angle = 67.5;
 		} else if(voice_rl == STOP){
 			angle = 180;
 		}
@@ -130,7 +130,6 @@ void set_motor_angle(void){
 			angle = 0;
 		}
 	}
-	chprintf((BaseSequentialStream *)&SD3, "angle : %d \r\n" , angle);
 	motor_take_direction(angle);
 }
 
@@ -259,19 +258,17 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 		nb_samples = 0;
 		mustSend++;
 
-		if(mode == DANCE){
+		if(get_mode() == DANCE){
 			sound_remote(micLeft_output);
 		}
 
-		if(mode == VOICE){
+		if(get_mode() == VOICE){
 		compare_mic(micRight_output, micLeft_output, micBack_output, micFront_output);
 		}
 	}
 }
 
-void set_mode(MODE new_mode){
-	mode = new_mode;
-}
+
 
 void wait_start_signal(void){
 	chBSemWait(&micro_ready_sem);
