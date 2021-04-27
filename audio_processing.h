@@ -37,8 +37,11 @@ typedef enum{
 	STOP,
 }mvmt_robot;
 
+
+
 void compare_mic(float* right, float* left, float* back, float* front);
 float highest_peak(float* data);
+void set_motor_angle(void);
 void processAudioData(int16_t *data, uint16_t num_samples);
 void set_frequency(FREQUENCY_TO_DETECT freq);
 FREQUENCY_TO_DETECT get_frequency(void);

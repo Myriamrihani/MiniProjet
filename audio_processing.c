@@ -10,8 +10,8 @@
 #include <fft.h>
 #include <arm_math.h>
 #include <com_mic.h>
-#include "mouvement.h"
 #include "motors.h"
+#include "motor_managmt.h"
 
 
 //semaphore
@@ -32,7 +32,6 @@ static float micBack_output[FFT_SIZE];
 #define MIN_DIFFERENCE_VALUE 5000
 
 
-
 #define MIN_FREQ		10	//we don't analyze before this index to not use resources for nothing
 #define FREQ_WOMAN		16	//250Hz
 #define FREQ_MAN		12	//296Hz
@@ -45,47 +44,13 @@ static float micBack_output[FFT_SIZE];
 #define FREQ_MAN_L			(FREQ_MAN-1)
 #define FREQ_MAN_H			(FREQ_MAN+1)
 
-
 static bool start_dance = 0;
 
 static FREQUENCY_TO_DETECT frequency = NONE;
 static MODE mode = DANCE;
-static mvmt_robot voice = STOP;
+static mvmt_robot voice_fb = STOP;
+static mvmt_robot voice_rl = STOP;
 
-void compare_mic(float* right, float* left, float* back, float* front){
-	if((highest_peak(left) - highest_peak(right)) > MIN_DIFFERENCE_VALUE){
-		//turn left
-	    palClearPad(GPIOD, GPIOD_LED7);
-	    palSetPad(GPIOD, GPIOD_LED3);
-		voice = LEFT;
-	} else if((highest_peak(right) - highest_peak(left)) > MIN_DIFFERENCE_VALUE){
-		//turn right
-		palSetPad(GPIOD, GPIOD_LED7);
-		palClearPad(GPIOD, GPIOD_LED3);
-		voice = RIGHT;
-	} else {
-		//nor left nor right
-		palSetPad(GPIOD, GPIOD_LED3);
-		palSetPad(GPIOD, GPIOD_LED7);
-	}
-
-	if((highest_peak(front) - highest_peak(back)) > MIN_DIFFERENCE_VALUE){
-		//go forward
-	    palClearPad(GPIOD, GPIOD_LED1);
-	    palSetPad(GPIOD, GPIOD_LED5);
-		voice = FRONT;
-
-	} else if((highest_peak(back) - highest_peak(front)) > MIN_DIFFERENCE_VALUE){
-		//do a 180
-		palSetPad(GPIOD, GPIOD_LED1);
-		palClearPad(GPIOD, GPIOD_LED5);
-		voice = BACK;
-	}else {
-		//none
-		palSetPad(GPIOD, GPIOD_LED1);
-		palSetPad(GPIOD, GPIOD_LED5);
-	}
-}
 
 float highest_peak(float* data){
 	float max_norm = MIN_VALUE_THRESHOLD;
@@ -96,6 +61,75 @@ float highest_peak(float* data){
 	}
 
 	return max_norm;
+}
+
+void compare_mic(float* right, float* left, float* back, float* front){
+	if((highest_peak(left) - highest_peak(right)) > MIN_DIFFERENCE_VALUE){
+		//turn left
+	    palClearPad(GPIOD, GPIOD_LED7);
+	    palSetPad(GPIOD, GPIOD_LED3);
+		voice_rl = LEFT;
+	} else if((highest_peak(right) - highest_peak(left)) > MIN_DIFFERENCE_VALUE){
+		//turn right
+		palSetPad(GPIOD, GPIOD_LED7);
+		palClearPad(GPIOD, GPIOD_LED3);
+		voice_rl = RIGHT;
+	} else {
+		//nor left nor right
+		palSetPad(GPIOD, GPIOD_LED3);
+		palSetPad(GPIOD, GPIOD_LED7);
+		voice_rl = STOP;
+	}
+
+	if((highest_peak(front) - highest_peak(back)) > MIN_DIFFERENCE_VALUE){
+		//go forward
+	    palClearPad(GPIOD, GPIOD_LED1);
+	    palSetPad(GPIOD, GPIOD_LED5);
+		voice_fb = FRONT;
+
+	} else if((highest_peak(back) - highest_peak(front)) > MIN_DIFFERENCE_VALUE){
+		//do a 180
+		palSetPad(GPIOD, GPIOD_LED1);
+		palClearPad(GPIOD, GPIOD_LED5);
+		voice_fb = BACK;
+	}else {
+		//none
+		palSetPad(GPIOD, GPIOD_LED1);
+		palSetPad(GPIOD, GPIOD_LED5);
+		voice_fb = STOP;
+	}
+
+	set_motor_angle();
+}
+
+void set_motor_angle(void){
+	float angle = 0;
+	if(voice_fb == FRONT) {
+		if(voice_rl == RIGHT) {
+			angle = 22.5;
+		} else if(voice_rl == LEFT){
+			angle = -22.5;
+		} else if(voice_rl == STOP){
+			angle = 0;
+		}
+	} else if(voice_fb == BACK) {
+		if(voice_rl == RIGHT) {
+			angle = 67.5;
+		} else if(voice_rl == LEFT){
+			angle = -67.5;
+		} else if(voice_rl == STOP){
+			angle = 180;
+		}
+	}else if(voice_fb == STOP) {
+		if(voice_rl == RIGHT) {
+			angle = 45;
+		} else if(voice_rl == LEFT) {
+			angle = -45;
+		} else if(voice_rl == STOP) {
+			angle = 0;
+		}
+	}
+	motor_take_direction(angle);
 }
 
 /*
@@ -270,3 +304,5 @@ float* get_audio_buffer_ptr(BUFFER_NAME_t name){
 		return NULL;
 	}
 }
+
+

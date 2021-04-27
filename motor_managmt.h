@@ -5,11 +5,11 @@
  *      Author: myriamrihani
  */
 
-#ifndef MOTO_MANAGMT_H_
-#define MOTO_MANAGMT_H_
+#ifndef MOTOR_MANAGMT_H_
+#define MOTOR_MANAGMT_H_
 
 
+void motor_take_direction(float angle);
+void check_position(void);
 
-
-
-#endif /* MOTO_MANAGMT_H_ */
+#endif /* MOTOR_MANAGMT_H_ */
