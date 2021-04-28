@@ -346,9 +346,15 @@ static THD_FUNCTION(PiRegulator, arg) {
         }
 
         if(line_type == LINE_POSITION && (number_of_lines) > 0){
-        //applies the speed from the PI regulator and the correction for the rotation
-		right_motor_set_speed(MOTOR_SPEED_LIMIT/2 + extra_speed - ROTATION_COEFF * speed_correction);
-		left_motor_set_speed(MOTOR_SPEED_LIMIT/2 + extra_speed + ROTATION_COEFF * speed_correction);
+        	//applies the speed from the PI regulator and the correction for the rotation
+        	right_motor_set_speed(MOTOR_SPEED_LIMIT/2 + extra_speed - ROTATION_COEFF * speed_correction);
+        	left_motor_set_speed(MOTOR_SPEED_LIMIT/2 + extra_speed + ROTATION_COEFF * speed_correction);
+        	reset_line();
+        }
+        else if(line_type == LINE_POSITION && (number_of_lines) == 0){
+    		right_motor_set_speed(0);
+    		left_motor_set_speed(0);
+    		reset_line();
         }
         speed_correction = 0;
         extra_speed = 0;
