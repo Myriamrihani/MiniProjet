@@ -166,6 +166,7 @@ void dancing(void){
 		}
 		count_step++;
 	} else {
+		set_line_type(LINE_POSITION);
 		reset_dance();
 	}
 }
@@ -173,7 +174,6 @@ void dancing(void){
 void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
 //	chprintf((BaseSequentialStream *)&SD3, "freq  : %d \r\n" , freq);
 //	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
-
 
 	++freq_counter;
 //	chprintf((BaseSequentialStream *)&SD3, "freq counter  : %d \r\n" , freq_counter);
@@ -201,16 +201,17 @@ void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
 			    	if(freq == WOMAN) {playMelody(MARIO, ML_SIMPLE_PLAY, NULL);}
 			    	if(freq == MAN) {playMelody(RUSSIA, ML_SIMPLE_PLAY, NULL);}
 			    	dancing();
+
 			    }
 			} else  if (is_dance_clear()) {fill_dance(imu_values);}
-		} else if(get_number_of_lines() == 0){
+		} else if((get_number_of_lines() == 0)){
 			change_search_state(true);
 		}
 	} else {
 //	    chprintf((BaseSequentialStream *)&SD3, "changed frequency \r\n");
-
 		freq_counter = 0;
 		reset_dance();
+
 	}
 
 }

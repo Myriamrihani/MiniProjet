@@ -38,6 +38,7 @@ void wait_image_detected(void);
 bool line_is_searching(void);
 void reset_line(void);
 void set_line_type(LINE_TYPE_EXTRACT type);
+LINE_TYPE_EXTRACT get_line_type(void);
 
 void pi_regulator_start(void);
 

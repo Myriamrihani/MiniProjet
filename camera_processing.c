@@ -232,6 +232,10 @@ void set_line_type(LINE_TYPE_EXTRACT type){
 	line_type = type;
 }
 
+LINE_TYPE_EXTRACT get_line_type(void){
+	return line_type;
+}
+
 float get_distance_cm(void){
 	return distance_cm;
 }

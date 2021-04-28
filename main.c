@@ -73,59 +73,6 @@ static THD_FUNCTION(selector_freq_thd, arg)
     }
 }
 
-int main(void) //main Bryan
-//int main(void) //main Bryan
-//{
-//    /* System init */
-//	halInit();
-//    chSysInit();
-//    serial_start();
-//	dac_start();
-//
-//	/** Inits the Inter Process Communication bus. */
-//	messagebus_init(&bus, &bus_lock, &bus_condvar);
-//    imu_start();
-//    messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");
-//    imu_msg_t imu_values;
-//
-//    motors_init();
-//    process_image_start();
-//    proximity_start();
-//    playMelodyStart();
-//    playSoundFileStart();
-//    mic_start(&processAudioData);
-//
-//    chThdCreateStatic(selector_freq_thd_wa, sizeof(selector_freq_thd_wa), NORMALPRIO, selector_freq_thd, NULL);
-//
-//    /* Infinite loop. */
-//    while (1) {
-//    	//waits 1 second
-//        chThdSleepMilliseconds(1000);
-//        //wait for new measures to be published
-//        messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
-//
-//		switch(get_frequency()) {
-//			case 0:
-//	        	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
-//             	playMelody(WALKING, ML_SIMPLE_PLAY, NULL);
-//				break;
-//
-//			case 1:
-//				dance(WOMAN, &imu_values);
-//				break;
-//
-//			case 2:
-//				dance(MAN, &imu_values);
-//	        	break;
-//		}
-//
-////       if(get_dance_memo_complete()){ //only search for proximity while dancing
-////    	   find_proximity();
-////    	   reset_dance();			//ou bien continuer la dance
-////       }
-//    }
-//}
-
 int main(void)
 {
     /* System init */
@@ -167,12 +114,15 @@ int main(void)
 				break;
 
 			case 1:
-				dance(WOMAN, &imu_values);
+				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values);}
+				if(get_line_type() == LINE_POSITION) { change_search_state(true); }
+
 				break;
 
 			case 2:
-				dance(MAN, &imu_values);
-	        	break;
+				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values);}
+				if(get_line_type() == LINE_POSITION) { change_search_state(true); }
+				break;
 		}
     }
 }
