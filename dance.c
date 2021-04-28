@@ -184,14 +184,10 @@ void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
 	}
 	set_line_type(NUMBER_OF_LINES);
 
-<<<<<<< HEAD
-	if(past_freq == get_frequency()){
-//	    chprintf((BaseSequentialStream *)&SD3, "dance mode \r\n");
 
-=======
 	if(past_freq == get_frequency()){ //we want to make sure that we did not change the frequency type
 	    chprintf((BaseSequentialStream *)&SD3, "dance mode \r\n");
->>>>>>> origin/main
+
 		if(get_number_of_lines() > 0) {
 			set_mode(DANCE);
 			set_nb_pas(get_number_of_lines());

@@ -26,9 +26,7 @@
 #include "audio/play_sound_file.h"
 #include "selector.h"
 #include "motors.h"
-//#include "motor_managmt.h"
-
-
+#include "motor_managmt.h"
 
 
 messagebus_t bus;
@@ -90,7 +88,7 @@ int main(void)
     imu_msg_t imu_values;
 
     motors_init();
-    pi_regulator_start();
+   // pi_regulator_start();
     process_image_start();
     proximity_start();
     playMelodyStart();
@@ -113,40 +111,41 @@ int main(void)
 		switch(get_frequency()) {
 			case 0: //only used for testing
 	        	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
-<<<<<<< HEAD
-				set_mode(VOICE);
-				wait_start_signal();
+//				set_mode(VOICE);
+//				wait_start_signal();
+	        	change_search_state(true);
+	        	chprintf((BaseSequentialStream *)&SD3, "lines  : %d \r\n" , get_number_of_lines());
+	        	change_search_state(false);
+			    //chThdSleepMilliseconds(2000);
+	        	reset_line();
+	        	chprintf((BaseSequentialStream *)&SD3, "lines after reset : %d \r\n" , get_number_of_lines());
 				break;
 
 			case 1:
 				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values); }
 				if(get_line_type() == LINE_POSITION){ change_search_state(true); }
-=======
-//					set_mode(VOICE);
-//					wait_start_signal();
-//					if(!get_listening_voice()){
-			        	chprintf((BaseSequentialStream *)&SD3, "setting line position\r\n");
-						change_search_state(true);
-						set_line_type(LINE_POSITION);
-//					} else change_search_state(false);
+
+//				set_mode(VOICE);
+//				wait_start_signal();
+//				if(!get_listening_voice()){
+			    	chprintf((BaseSequentialStream *)&SD3, "setting line position\r\n");
+			    	change_search_state(true);
+			    	set_line_type(LINE_POSITION);
+//				} else change_search_state(false);
 
 				break;
 
-			case 1:
-				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values); }
-				if((get_line_type() == LINE_POSITION) && !get_listening_voice()){
-		        	chprintf((BaseSequentialStream *)&SD3, "line position mode");
-					change_search_state(true);
-				}
->>>>>>> origin/main
-
-				break;
+//			case 1:
+//				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values); }
+//				if((get_line_type() == LINE_POSITION) && !get_listening_voice()){
+//		        	chprintf((BaseSequentialStream *)&SD3, "line position mode");
+//					change_search_state(true);
+//				}
+//				break;
 
 			case 2:
-<<<<<<< HEAD
 				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values); }
 				if(get_line_type() == LINE_POSITION){ change_search_state(true); }
-=======
 				set_mode(DANCE);
 	        	set_line_type(NUMBER_OF_LINES);
 //				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values); }
@@ -155,7 +154,6 @@ int main(void)
 //					change_search_state(true);
 //				}
 	        	dance(WOMAN, &imu_values);
->>>>>>> origin/main
 				break;
 		}
     }
