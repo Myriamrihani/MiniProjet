@@ -46,7 +46,6 @@ void SendImageToSystem(uint8_t* data, uint16_t size)
  */
 void extract_line(uint8_t *buffer, bool searching_for_lines, LINE_TYPE_EXTRACT line_type){
 
-    chThdSleepMilliseconds(2000);
 
 	uint16_t i = 0, line_beginning = 0, line_ending = 0;
 	uint8_t stop_line_limit_search = 0, wrong_line = 0, line_found = 1;
@@ -112,7 +111,7 @@ void extract_line(uint8_t *buffer, bool searching_for_lines, LINE_TYPE_EXTRACT l
 					wrong_line = 1;
 					++number_of_lines;
 					if(line_type == NUMBER_OF_LINES){
-					    chprintf((BaseSequentialStream *)&SD3, "nb lones \r\n");
+					    chprintf((BaseSequentialStream *)&SD3, "nb lines \r\n");
 						i = line_ending;			//search for next lines
 					}
 					else if(line_type == LINE_POSITION){
@@ -338,7 +337,7 @@ static THD_FUNCTION(PiRegulator, arg) {
         	speed_correction = 0;
         }
 
-        if(line_type == LINE_POSITION && (number_of_lines) > 0){
+        if((line_type == LINE_POSITION) && ((number_of_lines) > 0)){
 
         	chprintf((BaseSequentialStream *)&SD3, "I'm in the line_pos and lines>0 \r\n" );
 
@@ -352,17 +351,16 @@ static THD_FUNCTION(PiRegulator, arg) {
             }
             searching_for_lines = false;
         	//applies the speed from the PI regulator and the correction for the rotation
+            //MYRIAM : je pense que tu as inverser les sens pour right et left (d'apres le comportement du robot)
         	right_motor_set_speed(MOTOR_SPEED_LIMIT/2 + extra_speed - ROTATION_COEFF * speed_correction);
         	left_motor_set_speed(MOTOR_SPEED_LIMIT/2 + extra_speed + ROTATION_COEFF * speed_correction);
         	reset_line();
         }
-        else if(line_type == LINE_POSITION && (number_of_lines) == 0){
+        else if((line_type == LINE_POSITION) && ((number_of_lines) == 0)){
     		right_motor_set_speed(0);
     		left_motor_set_speed(0);
-
-        	chprintf((BaseSequentialStream *)&SD3, "I'm in the line_pos and lines=0 \r\n" );
-
-    		reset_line();
+        	//chprintf((BaseSequentialStream *)&SD3, "I'm in the line_pos and lines=0 \r\n" );
+    		//reset_line(); si on ne met pas ca en commentaire, on est stuck en boucle car nb_lines sera toujours egal a 0
         }
         speed_correction = 0;
         extra_speed = 0;

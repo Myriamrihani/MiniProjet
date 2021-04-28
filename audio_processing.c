@@ -46,7 +46,7 @@ static float micBack_output[FFT_SIZE];
 
 static bool start_dance = 0;
 static float angle = 0;
-
+static bool listening_voice = 0;
 
 static FREQUENCY_TO_DETECT frequency = NONE;
 
@@ -101,6 +101,12 @@ void compare_mic(float* right, float* left, float* back, float* front){
 		voice_fb = STOP;
 	}
 
+//	if((voice_fb != STOP)) {
+//		listening_voice = 1;
+//	} else if((voice_rl != STOP)){
+//		listening_voice = 1;
+//	} else listening_voice = 0;
+
 	set_motor_angle();
 }
 
@@ -131,6 +137,14 @@ void set_motor_angle(void){
 		}
 	}
 	motor_take_direction(angle);
+}
+
+bool get_listening_voice(void){
+	return listening_voice;
+}
+
+void set_listening_void(bool state){
+	listening_voice = state;
 }
 
 /*
@@ -263,7 +277,7 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 		}
 
 		if(get_mode() == VOICE){
-		compare_mic(micRight_output, micLeft_output, micBack_output, micFront_output);
+			compare_mic(micRight_output, micLeft_output, micBack_output, micFront_output);
 		}
 	}
 }
