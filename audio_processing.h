@@ -1,6 +1,8 @@
 #ifndef AUDIO_PROCESSING_H
 #define AUDIO_PROCESSING_H
 
+#include "motor_managmt.h"
+
 
 #define FFT_SIZE 	1024
 
@@ -21,14 +23,18 @@ typedef enum {
 	NONE = 0,
 	WOMAN,
 	MAN,
-
 }FREQUENCY_TO_DETECT;
 
+
+void compare_mic(float* right, float* left, float* back, float* front);
+float highest_peak(float* data);
+void set_motor_angle(void);
 void processAudioData(int16_t *data, uint16_t num_samples);
 void set_frequency(FREQUENCY_TO_DETECT freq);
 FREQUENCY_TO_DETECT get_frequency(void);
 bool get_start_dance(void);
 void set_start_dance(bool state);
+
 
 /*
 *	put the invoking thread into sleep until it can process the audio datas

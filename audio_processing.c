@@ -10,6 +10,9 @@
 #include <fft.h>
 #include <arm_math.h>
 #include <com_mic.h>
+#include "motors.h"
+#include "motor_managmt.h"
+
 
 //semaphore
 static BSEMAPHORE_DECL(micro_ready_sem, TRUE);
@@ -26,6 +29,8 @@ static float micFront_output[FFT_SIZE];
 static float micBack_output[FFT_SIZE];
 
 #define MIN_VALUE_THRESHOLD	10000 
+#define MIN_DIFFERENCE_VALUE 5000
+
 
 #define MIN_FREQ		10	//we don't analyze before this index to not use resources for nothing
 #define FREQ_WOMAN		16	//250Hz
@@ -38,14 +43,95 @@ static float micBack_output[FFT_SIZE];
 #define FREQ_WOMAN_H		(FREQ_WOMAN+1)
 #define FREQ_MAN_L			(FREQ_MAN-1)
 #define FREQ_MAN_H			(FREQ_MAN+1)
-//#define FREQ_RIGHT_L		(FREQ_RIGHT-1)
-//#define FREQ_RIGHT_H		(FREQ_RIGHT+1)
-//#define FREQ_BACKWARD_L		(FREQ_BACKWARD-1)
-//#define FREQ_BACKWARD_H		(FREQ_BACKWARD+1)
 
 static bool start_dance = 0;
+static float angle = 0;
+
 
 static FREQUENCY_TO_DETECT frequency = NONE;
+
+static mvmt_robot voice_fb = STOP;
+static mvmt_robot voice_rl = STOP;
+
+
+float highest_peak(float* data){
+	float max_norm = MIN_VALUE_THRESHOLD;
+	for(uint16_t i = MIN_FREQ ; i <= MAX_FREQ ; i++){
+		if(data[i] > max_norm){
+			max_norm = data[i];
+		}
+	}
+
+	return max_norm;
+}
+
+void compare_mic(float* right, float* left, float* back, float* front){
+	if((highest_peak(left) - highest_peak(right)) > MIN_DIFFERENCE_VALUE){
+		//turn left
+	    palClearPad(GPIOD, GPIOD_LED7);
+	    palSetPad(GPIOD, GPIOD_LED3);
+		voice_rl = LEFT;
+	} else if((highest_peak(right) - highest_peak(left)) > MIN_DIFFERENCE_VALUE){
+		//turn right
+		palSetPad(GPIOD, GPIOD_LED7);
+		palClearPad(GPIOD, GPIOD_LED3);
+		voice_rl = RIGHT;
+	} else {
+		//nor left nor right
+		palSetPad(GPIOD, GPIOD_LED3);
+		palSetPad(GPIOD, GPIOD_LED7);
+		voice_rl = STOP;
+	}
+
+	if((highest_peak(front) - highest_peak(back)) > MIN_DIFFERENCE_VALUE){
+		//go forward
+	    palClearPad(GPIOD, GPIOD_LED1);
+	    palSetPad(GPIOD, GPIOD_LED5);
+		voice_fb = FRONT;
+
+	} else if((highest_peak(back) - highest_peak(front)) > MIN_DIFFERENCE_VALUE){
+		//do a 180
+		palSetPad(GPIOD, GPIOD_LED1);
+		palClearPad(GPIOD, GPIOD_LED5);
+		voice_fb = BACK;
+	}else {
+		//none
+		palSetPad(GPIOD, GPIOD_LED1);
+		palSetPad(GPIOD, GPIOD_LED5);
+		voice_fb = STOP;
+	}
+
+	set_motor_angle();
+}
+
+void set_motor_angle(void){
+	if(voice_fb == FRONT) {
+		if(voice_rl == LEFT) {
+			angle = 22.5;
+		} else if(voice_rl == RIGHT){
+			angle = -22.5;
+		} else if(voice_rl == STOP){
+			angle = 0;
+		}
+	} else if(voice_fb == BACK) {
+		if(voice_rl == RIGHT) {
+			angle = -67.5;
+		} else if(voice_rl == LEFT){
+			angle = 67.5;
+		} else if(voice_rl == STOP){
+			angle = 180;
+		}
+	}else if(voice_fb == STOP) {
+		if(voice_rl == LEFT) {
+			angle = 45;
+		} else if(voice_rl == RIGHT) {
+			angle = -45;
+		} else if(voice_rl == STOP) {
+			angle = 0;
+		}
+	}
+	motor_take_direction(angle);
+}
 
 /*
 *	Simple function used to detect the highest value in a buffer
@@ -172,9 +258,17 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 		nb_samples = 0;
 		mustSend++;
 
-		sound_remote(micLeft_output);
+		if(get_mode() == DANCE){
+			sound_remote(micLeft_output);
+		}
+
+		if(get_mode() == VOICE){
+		compare_mic(micRight_output, micLeft_output, micBack_output, micFront_output);
+		}
 	}
 }
+
+
 
 void wait_start_signal(void){
 	chBSemWait(&micro_ready_sem);
@@ -209,3 +303,5 @@ float* get_audio_buffer_ptr(BUFFER_NAME_t name){
 		return NULL;
 	}
 }
+
+

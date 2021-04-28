@@ -23,19 +23,22 @@
 #include "audio/audio_thread.h"
 #include "selector.h"
 #include <obstacles.h>
+#include "motor_managmt.h"
+
 
 
 
 static mvmt_robot tilt;
 static uint8_t count_step = 0;
 static uint8_t nb_pas = 0;
+static uint8_t freq_counter = 0;
 
 static mvmt_robot dance_memo[NB_PAS] = {STOP};
 
 static bool dance_memo_complete = 0;
 static bool dance_cleared = 1;
 
-
+static FREQUENCY_TO_DETECT past_freq = 0;
 
 void set_nb_pas(uint8_t nb){
 	nb_pas = nb;
@@ -163,41 +166,53 @@ void dancing(void){
 		}
 		count_step++;
 	} else {
-		stopCurrentMelody();
-		display_dance();
-		left_motor_set_speed(0);
-		right_motor_set_speed(0);
-		count_step = 0;
 		reset_dance();
-    	reset_line();
-    	nb_pas = 0;
 	}
 }
 
 void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
-	//set_frequency(WOMAN);
-	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
+//	chprintf((BaseSequentialStream *)&SD3, "freq  : %d \r\n" , freq);
+//	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
 
-	if(get_number_of_lines() > 0) {
-		set_nb_pas(get_number_of_lines());
-		change_search_state(false);
 
-		 chprintf((BaseSequentialStream *)&SD3, "nb lines  : %d \r\n" , get_number_of_lines());
+	++freq_counter;
+//	chprintf((BaseSequentialStream *)&SD3, "freq counter  : %d \r\n" , freq_counter);
 
-		 if(get_dance_memo_complete() == 1){
-		     wait_start_signal();
-		     //chprintf((BaseSequentialStream *)&SD3, "state %d \r\n", get_start_dance());
-		     chprintf((BaseSequentialStream *)&SD3, "will dance \r\n");
-		     if (get_start_dance() == 1) {
-		    	 find_proximity();
-		    	 if(freq == WOMAN) {playMelody(MARIO, ML_SIMPLE_PLAY, NULL);}
-		    	 if(freq == MAN) {playMelody(RUSSIA, ML_SIMPLE_PLAY, NULL);}
-		    	 dancing();
-		     }
-		 } else  if (is_dance_clear()) {fill_dance(imu_values);}
-	} else if(get_number_of_lines() == 0){
-		change_search_state(true);
+	if(freq_counter == 1) {
+		past_freq = freq;
+//		chprintf((BaseSequentialStream *)&SD3, "past   : %d \r\n" , past_freq);
 	}
+
+	if(past_freq == get_frequency()){
+//	    chprintf((BaseSequentialStream *)&SD3, "dance mode \r\n");
+
+		if(get_number_of_lines() > 0) {
+			set_mode(DANCE);
+			set_nb_pas(get_number_of_lines());
+			change_search_state(false);
+
+			chprintf((BaseSequentialStream *)&SD3, "nb lines  : %d \r\n" , get_number_of_lines());
+
+			if(get_dance_memo_complete() == 1){
+				wait_start_signal();
+//			    chprintf((BaseSequentialStream *)&SD3, "will dance \r\n");
+			    if (get_start_dance() == 1) {
+			    	find_proximity();
+			    	if(freq == WOMAN) {playMelody(MARIO, ML_SIMPLE_PLAY, NULL);}
+			    	if(freq == MAN) {playMelody(RUSSIA, ML_SIMPLE_PLAY, NULL);}
+			    	dancing();
+			    }
+			} else  if (is_dance_clear()) {fill_dance(imu_values);}
+		} else if(get_number_of_lines() == 0){
+			change_search_state(true);
+		}
+	} else {
+//	    chprintf((BaseSequentialStream *)&SD3, "changed frequency \r\n");
+
+		freq_counter = 0;
+		reset_dance();
+	}
+
 }
 
 void clear_dance(void){
@@ -221,7 +236,13 @@ void display_dance(void){
 
 void reset_dance(void){
 	clear_dance();
-
+	stopCurrentMelody();
+	display_dance();
+	left_motor_set_speed(0);
+	right_motor_set_speed(0);
+	count_step = 0;
+	reset_line();
+	nb_pas = 0;
 	dance_memo_complete = 0;
 	set_start_dance(0);
 }
