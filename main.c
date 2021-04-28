@@ -109,20 +109,25 @@ int main(void)
 		switch(get_frequency()) {
 			case 0:
 	        	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
-				set_mode(VOICE);
-				wait_start_signal();
+//				set_mode(VOICE);
+//				wait_start_signal();
 				break;
+
+//			case 1:
+//				set_mode(DANCE);
+//				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values); }
+//				if(get_line_type() == LINE_POSITION){ change_search_state(true); }
+//
+//				break;
 
 			case 1:
-				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values); }
-				if(get_line_type() == LINE_POSITION){ change_search_state(true); }
-
+//				set_mode(DANCE);
+//				if(get_line_type() == NUMBER_OF_LINES){
+					dance(WOMAN, &imu_values);
+//				}
+//				if(get_line_type() == LINE_POSITION){ change_search_state(true); }
 				break;
-
-			case 2:
-				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values); }
-				if(get_line_type() == LINE_POSITION){ change_search_state(true); }
-				break;
+			case 2 : break;
 		}
     }
 }
