@@ -135,11 +135,12 @@ int main(void)
 			case 2:
 				set_mode(DANCE);
 	        	set_line_type(NUMBER_OF_LINES);
-				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values); }
-				if((get_line_type() == LINE_POSITION) && !get_listening_voice()){
-		        	chprintf((BaseSequentialStream *)&SD3, "line position mode");
-					change_search_state(true);
-				}
+//				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values); }
+//				if((get_line_type() == LINE_POSITION) && !get_listening_voice()){
+//		        	chprintf((BaseSequentialStream *)&SD3, "line position mode");
+//					change_search_state(true);
+//				}
+	        	dance(WOMAN, &imu_values);
 				break;
 		}
     }

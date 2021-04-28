@@ -44,7 +44,7 @@ void SendImageToSystem(uint8_t* data, uint16_t size)
  *  Computes the line's width extracted from the image buffer given
  *  Gives 0 if line not found
  */
-void extract_line(uint8_t *buffer, bool searching_for_lines, LINE_TYPE_EXTRACT line_type){
+void extract_line(uint8_t *buffer, bool searching_for_lines){
 
 
 	uint16_t i = 0, line_beginning = 0, line_ending = 0;
@@ -187,7 +187,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 		}
 
 		//search for the number of lines in the image
-		extract_line(image, searching_for_lines, line_type);        //ATTENTIONNNNNNNNNNNNN
+		extract_line(image, searching_for_lines);        //ATTENTIONNNNNNNNNNNNN
 
 //		//converts the width into a distance between the robot and the camera
 //		if(width && type == 1){ //assure we actually got a line and the type==1 is for safety, aka useless==1
@@ -329,7 +329,6 @@ static THD_FUNCTION(PiRegulator, arg) {
     while(1){
         time = chVTGetSystemTime();
 
-
         //computes a correction factor to let the robot rotate to be in front of the line
         speed_correction = (line_position - (IMAGE_BUFFER_SIZE/2));
         //if the line is nearly in front of the camera, don't rotate
@@ -340,6 +339,7 @@ static THD_FUNCTION(PiRegulator, arg) {
         if((line_type == LINE_POSITION) && ((number_of_lines) > 0)){
 
         	chprintf((BaseSequentialStream *)&SD3, "I'm in the line_pos and lines>0 \r\n" );
+        	chprintf((BaseSequentialStream *)&SD3, "lines: %d \r\n" , number_of_lines );
 
             //computes the speed to give to the motors
             //distance_cm is modified by the image processing thread
