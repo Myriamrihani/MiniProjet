@@ -17,6 +17,7 @@
 #include <camera/po8030.h>
 #include "motors.h"
 #include <camera_processing.h>
+#include <obstacles.h>
 #include <camera/dcmi_camera.h>
 
 
@@ -330,7 +331,7 @@ static THD_FUNCTION(PiRegulator, arg) {
 
         //computes the speed to give to the motors
         //distance_cm is modified by the image processing thread
- //       extra_speed = pi_regulator(distance_cm, GOAL_DISTANCE);			///NONONON, APPELER LES IRs
+        extra_speed = find_proximity();			///NONONON, APPELER LES IRs
         //disables the extra_speed if the IR input is to small
         //this avoids to always move as we cannot exactly be where we want and IR is a bit noisy
         if(fabs(extra_speed) < ERROR_THRESHOLD){
@@ -349,6 +350,8 @@ static THD_FUNCTION(PiRegulator, arg) {
 		right_motor_set_speed(MOTOR_SPEED_LIMIT/2 + extra_speed - ROTATION_COEFF * speed_correction);
 		left_motor_set_speed(MOTOR_SPEED_LIMIT/2 + extra_speed + ROTATION_COEFF * speed_correction);
         }
+        speed_correction = 0;
+        extra_speed = 0;
 
         //100Hz
         chThdSleepUntilWindowed(time, time + MS2ST(10));

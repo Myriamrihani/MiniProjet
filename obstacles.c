@@ -19,7 +19,7 @@
 #include <sensors/proximity.h>
 
 
-void find_proximity(void){
+int16_t find_proximity(void){
 	uint16_t current_proximity = 0;
 	uint16_t minimum_proximity = PROXIMITY_THRESHOLD;
 	uint8_t current_sensor = 0;
@@ -33,12 +33,13 @@ void find_proximity(void){
 	if(minimum_proximity <= PROXIMITY_THRESHOLD){
 //		avoid_obstacle(current_sensor, minimum_proximity);
 		if(current_sensor == 3 || current_sensor == 4){		//MAGIC_NUMBERS!!!!!
-			manual_speed(current_sensor, minimum_proximity);
+			return manual_speed(current_sensor, minimum_proximity);
 		}
 	}
 
 	chprintf((BaseSequentialStream *)&SD3, "sensor_IR  : %d \r\n" , current_sensor);
 	chprintf((BaseSequentialStream *)&SD3, "proximity  : %d \r\n" , minimum_proximity);
+	return 0;
 }
 
 
@@ -67,13 +68,14 @@ int16_t pi_regulator(int16_t error){
     return (int16_t)speed;
 }
 
-void manual_speed(uint8_t sensor, uint16_t distance){ //should only be called with IR3 and 4
+int16_t manual_speed(uint8_t sensor, uint16_t distance){ //should only be called with IR3 and 4
 	int16_t extra_speed = 0;
 	int16_t error = 0;
 	error = PROXIMITY_THRESHOLD - distance;
 	//if we are far, error=PROX_THRESH-a_big_distance will be small
 	//if we are close, error=PROX_THRESH-a_small_distance will be big
 	extra_speed = pi_regulator(error);
+	return extra_speed;
 }
 
 

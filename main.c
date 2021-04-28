@@ -114,14 +114,14 @@ int main(void)
 				break;
 
 			case 1:
-				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values);}
-				if(get_line_type() == LINE_POSITION) { change_search_state(true); }
+				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values); }
+				if(get_line_type() == LINE_POSITION){ change_search_state(true); }
 
 				break;
 
 			case 2:
-				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values);}
-				if(get_line_type() == LINE_POSITION) { change_search_state(true); }
+				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values); }
+				if(get_line_type() == LINE_POSITION){ change_search_state(true); }
 				break;
 		}
     }
