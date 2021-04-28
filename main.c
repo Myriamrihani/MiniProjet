@@ -106,20 +106,20 @@ int main(void) //main Bryan
         //wait for new measures to be published
         messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
 
-		switch(get_frequency()) {
-			case 0:
-	        	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
-             	playMelody(WALKING, ML_SIMPLE_PLAY, NULL);
-				break;
-
-			case 1:
-				dance(WOMAN, &imu_values);
-				break;
-
-			case 2:
+//		switch(get_frequency()) {
+//			case 0:
+//	        	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
+//             	playMelody(WALKING, ML_SIMPLE_PLAY, NULL);
+//				break;
+//
+//			case 1:
+//				dance(WOMAN, &imu_values);
+//				break;
+//
+//			case 2:
 				dance(MAN, &imu_values);
-	        	break;
-		}
+//	        	break;
+//		}
 
 //       if(get_dance_memo_complete()){ //only search for proximity while dancing
 //    	   find_proximity();
