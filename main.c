@@ -99,6 +99,10 @@ int main(void)
 
     chThdCreateStatic(selector_freq_thd_wa, sizeof(selector_freq_thd_wa), NORMALPRIO, selector_freq_thd, NULL);
 
+    uint8_t freq_counter = 0;
+    uint8_t past_freq = 0;
+
+
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
@@ -107,27 +111,36 @@ int main(void)
         messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
 
 		switch(get_frequency()) {
-			case 0:
+			case 0: //only used for testing
 	        	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
-//				set_mode(VOICE);
-//				wait_start_signal();
-				break;
+//					set_mode(VOICE);
+//					wait_start_signal();
+//					if(!get_listening_voice()){
+			        	chprintf((BaseSequentialStream *)&SD3, "setting line position\r\n");
+						change_search_state(true);
+						set_line_type(LINE_POSITION);
+//					} else change_search_state(false);
 
-//			case 1:
-//				set_mode(DANCE);
-//				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values); }
-//				if(get_line_type() == LINE_POSITION){ change_search_state(true); }
-//
-//				break;
+				break;
 
 			case 1:
-//				set_mode(DANCE);
-//				if(get_line_type() == NUMBER_OF_LINES){
-					dance(WOMAN, &imu_values);
-//				}
-//				if(get_line_type() == LINE_POSITION){ change_search_state(true); }
+				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values); }
+				if((get_line_type() == LINE_POSITION) && !get_listening_voice()){
+		        	chprintf((BaseSequentialStream *)&SD3, "line position mode");
+					change_search_state(true);
+				}
+
 				break;
-			case 2 : break;
+
+			case 2:
+				set_mode(DANCE);
+	        	set_line_type(NUMBER_OF_LINES);
+				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values); }
+				if((get_line_type() == LINE_POSITION) && !get_listening_voice()){
+		        	chprintf((BaseSequentialStream *)&SD3, "line position mode");
+					change_search_state(true);
+				}
+				break;
 		}
     }
 }
