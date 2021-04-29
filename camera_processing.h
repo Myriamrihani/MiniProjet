@@ -16,9 +16,6 @@
 #define ROTATION_THRESHOLD		10
 #define ROTATION_COEFF			2
 #define ERROR_THRESHOLD			0.1f	//[cm] because of the noise of the camera
-//#define KP						800.0f
-//#define KI 						3.5f	//must not be zero
-//#define MAX_SUM_ERROR 			(MOTOR_SPEED_LIMIT/KI)
 
 typedef enum {
 	NOPE = 0,

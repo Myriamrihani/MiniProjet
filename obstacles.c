@@ -25,47 +25,20 @@ int16_t find_proximity(void){
 	uint8_t current_sensor = 0;
 	for(unsigned int i = 0 ; i < PROXIMITY_NB_CHANNELS; i++ ){
 		current_proximity = get_prox(i);
-		if (current_proximity < minimum_proximity){		//here, we suppose that with have to aim for the manual speed
+		if(current_proximity < minimum_proximity){		//here, we suppose that we have to aim for the manual speed
 			minimum_proximity = current_proximity;		//maybe remove it: example du pouce de myriam
 			current_sensor = i;
 		}
 	}
-	if(minimum_proximity <= PROXIMITY_THRESHOLD){
-//		avoid_obstacle(current_sensor, minimum_proximity);
-		if(current_sensor == 3 || current_sensor == 4){		//MAGIC_NUMBERS!!!!!
-			return manual_speed(current_sensor, minimum_proximity);
-		}
+
+	if(current_sensor == 3 || current_sensor == 4){		//MAGIC_NUMBERS!!!!!
+		return manual_speed(current_sensor, minimum_proximity);
 	}
+
 
 	chprintf((BaseSequentialStream *)&SD3, "sensor_IR  : %d \r\n" , current_sensor);
 	chprintf((BaseSequentialStream *)&SD3, "proximity  : %d \r\n" , minimum_proximity);
 	return 0;
-}
-
-
-int16_t pi_regulator(int16_t error){
-
-	float speed = 0;
-	static float sum_error = 0;
-
-	//disables the PI regulator if the error is to small
-	//this avoids to always move as we cannot exactly be where we want and
-	//the camera is a bit noisy
-	if(fabs(error) < ERROR_THRESHOLD){
-		return 0;
-	}
-
-	sum_error += error;			//this part is not yet good
-
-	//we set a maximum and a minimum for the sum to avoid an uncontrolled growth
-	if(sum_error > MAX_SUM_ERROR){
-		sum_error = MAX_SUM_ERROR;
-	}else if(sum_error < -MAX_SUM_ERROR){
-		sum_error = -MAX_SUM_ERROR;
-	}
-
-	speed = KP * error + KI * sum_error;
-    return (int16_t)speed;
 }
 
 int16_t manual_speed(uint8_t sensor, uint16_t distance){ //should only be called with IR3 and 4
@@ -74,7 +47,10 @@ int16_t manual_speed(uint8_t sensor, uint16_t distance){ //should only be called
 	error = PROXIMITY_THRESHOLD - distance;
 	//if we are far, error=PROX_THRESH-a_big_distance will be small
 	//if we are close, error=PROX_THRESH-a_small_distance will be big
-	extra_speed = pi_regulator(error);
+	if(fabs(error) < ERROR_THRESHOLD){
+		return 0;
+	}
+	extra_speed = KP * error;;
 	return extra_speed;
 }
 

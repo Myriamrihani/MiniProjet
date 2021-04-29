@@ -111,12 +111,9 @@ int main(void)
 		switch(get_frequency()) {
 			case 0: //only used for testing
 	        	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
-//				set_mode(VOICE);
-//				wait_start_signal();
 	        	change_search_state(true);
 	        	chprintf((BaseSequentialStream *)&SD3, "lines  : %d \r\n" , get_number_of_lines());
 	        	change_search_state(false);
-			    //chThdSleepMilliseconds(2000);
 	        	reset_line();
 	        	chprintf((BaseSequentialStream *)&SD3, "lines after reset : %d \r\n" , get_number_of_lines());
 				break;
@@ -124,35 +121,17 @@ int main(void)
 			case 1:
 				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values); }
 				if(get_line_type() == LINE_POSITION){ change_search_state(true); }
-
-//				set_mode(VOICE);
-//				wait_start_signal();
-//				if(!get_listening_voice()){
 			    	chprintf((BaseSequentialStream *)&SD3, "setting line position\r\n");
 			    	change_search_state(true);
 			    	set_line_type(LINE_POSITION);
-//				} else change_search_state(false);
 
 				break;
-
-//			case 1:
-//				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values); }
-//				if((get_line_type() == LINE_POSITION) && !get_listening_voice()){
-//		        	chprintf((BaseSequentialStream *)&SD3, "line position mode");
-//					change_search_state(true);
-//				}
-//				break;
 
 			case 2:
 				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values); }
 				if(get_line_type() == LINE_POSITION){ change_search_state(true); }
 				set_mode(DANCE);
 	        	set_line_type(NUMBER_OF_LINES);
-//				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values); }
-//				if((get_line_type() == LINE_POSITION) && !get_listening_voice()){
-//		        	chprintf((BaseSequentialStream *)&SD3, "line position mode");
-//					change_search_state(true);
-//				}
 	        	dance(WOMAN, &imu_values);
 				break;
 		}
