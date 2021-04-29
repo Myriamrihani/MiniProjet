@@ -173,7 +173,7 @@ void dancing(void){
 
 void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
 //	chprintf((BaseSequentialStream *)&SD3, "freq  : %d \r\n" , freq);
-	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
+//	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
 
 	++freq_counter;
 //	chprintf((BaseSequentialStream *)&SD3, "freq counter  : %d \r\n" , freq_counter);
@@ -184,7 +184,7 @@ void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
 	}
 
 	if(past_freq == get_frequency()){
-	    chprintf((BaseSequentialStream *)&SD3, "dance mode \r\n");
+//	    chprintf((BaseSequentialStream *)&SD3, "dance mode \r\n");
 
 		if(get_number_of_lines() > 0) {
 			set_mode(DANCE);
@@ -195,7 +195,7 @@ void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
 
 			if(get_dance_memo_complete() == 1){
 				wait_start_signal();
-			    chprintf((BaseSequentialStream *)&SD3, "will dance \r\n");
+//			    chprintf((BaseSequentialStream *)&SD3, "will dance \r\n");
 			    if (get_start_dance() == 1) {
 			    	find_proximity();
 			    	if(freq == WOMAN) {playMelody(MARIO, ML_SIMPLE_PLAY, NULL);}
@@ -243,8 +243,6 @@ void reset_dance(void){
 	right_motor_set_speed(0);
 	count_step = 0;
 	reset_line();
-	chprintf((BaseSequentialStream *)&SD3, "I'm in the reset_dance \r\n" );
-
 	nb_pas = 0;
 	dance_memo_complete = 0;
 	set_start_dance(0);
