@@ -182,10 +182,16 @@ void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
 		past_freq = freq;
 //		chprintf((BaseSequentialStream *)&SD3, "past   : %d \r\n" , past_freq);
 	}
+	set_line_type(NUMBER_OF_LINES);
 
+<<<<<<< HEAD
 	if(past_freq == get_frequency()){
 //	    chprintf((BaseSequentialStream *)&SD3, "dance mode \r\n");
 
+=======
+	if(past_freq == get_frequency()){ //we want to make sure that we did not change the frequency type
+	    chprintf((BaseSequentialStream *)&SD3, "dance mode \r\n");
+>>>>>>> origin/main
 		if(get_number_of_lines() > 0) {
 			set_mode(DANCE);
 			set_nb_pas(get_number_of_lines());
@@ -197,23 +203,20 @@ void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
 				wait_start_signal();
 //			    chprintf((BaseSequentialStream *)&SD3, "will dance \r\n");
 			    if (get_start_dance() == 1) {
-			    	find_proximity();
 			    	if(freq == WOMAN) {playMelody(MARIO, ML_SIMPLE_PLAY, NULL);}
 			    	if(freq == MAN) {playMelody(RUSSIA, ML_SIMPLE_PLAY, NULL);}
 			    	dancing();
-
 			    }
 			} else  if (is_dance_clear()) {fill_dance(imu_values);}
 		} else if((get_number_of_lines() == 0)){
 			change_search_state(true);
+		    chThdSleepMilliseconds(2000);
 		}
 	} else {
 //	    chprintf((BaseSequentialStream *)&SD3, "changed frequency \r\n");
 		freq_counter = 0;
 		reset_dance();
-
 	}
-
 }
 
 void clear_dance(void){

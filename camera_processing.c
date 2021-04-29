@@ -44,9 +44,8 @@ void SendImageToSystem(uint8_t* data, uint16_t size)
  *  Computes the line's width extracted from the image buffer given
  *  Gives 0 if line not found
  */
-void extract_line(uint8_t *buffer, bool searching_for_lines, LINE_TYPE_EXTRACT line_type){
+void extract_line(uint8_t *buffer, bool searching_for_lines){
 
-    chThdSleepMilliseconds(2000);
 
 	uint16_t i = 0, line_beginning = 0, line_ending = 0;
 	uint8_t stop_line_limit_search = 0, wrong_line = 0, line_found = 1;
@@ -112,6 +111,10 @@ void extract_line(uint8_t *buffer, bool searching_for_lines, LINE_TYPE_EXTRACT l
 					wrong_line = 1;
 					++number_of_lines;
 					if(line_type == NUMBER_OF_LINES){
+<<<<<<< HEAD
+=======
+					    chprintf((BaseSequentialStream *)&SD3, "nb lines \r\n");
+>>>>>>> origin/main
 						i = line_ending;			//search for next lines
 					}
 					else if(line_type == LINE_POSITION){
@@ -187,7 +190,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 		}
 
 		//search for the number of lines in the image
-		extract_line(image, searching_for_lines, line_type);        //ATTENTIONNNNNNNNNNNNN
+		extract_line(image, searching_for_lines);        //ATTENTIONNNNNNNNNNNNN
 
 //		//converts the width into a distance between the robot and the camera
 //		if(width && type == 1){ //assure we actually got a line and the type==1 is for safety, aka useless==1
@@ -329,6 +332,7 @@ static THD_FUNCTION(PiRegulator, arg) {
     while(1){
         time = chVTGetSystemTime();
 
+<<<<<<< HEAD
         //computes the speed to give to the motors
         //distance_cm is modified by the image processing thread
         extra_speed = find_proximity();			///NONONON, APPELER LES IRs
@@ -338,6 +342,8 @@ static THD_FUNCTION(PiRegulator, arg) {
         	extra_speed = 0;
         }
 
+=======
+>>>>>>> origin/main
         //computes a correction factor to let the robot rotate to be in front of the line
         speed_correction = (line_position - (IMAGE_BUFFER_SIZE/2));
         //if the line is nearly in front of the camera, don't rotate
@@ -345,16 +351,39 @@ static THD_FUNCTION(PiRegulator, arg) {
         	speed_correction = 0;
         }
 
+<<<<<<< HEAD
         if(line_type == LINE_POSITION && (number_of_lines) > 0){
+=======
+        if((line_type == LINE_POSITION) && ((number_of_lines) > 0)){
+
+        	chprintf((BaseSequentialStream *)&SD3, "I'm in the line_pos and lines>0 \r\n" );
+        	chprintf((BaseSequentialStream *)&SD3, "lines: %d \r\n" , number_of_lines );
+
+            //computes the speed to give to the motors
+            //distance_cm is modified by the image processing thread
+            extra_speed = find_proximity();			///NONONON, APPELER LES IRs
+            //disables the extra_speed if the IR input is to small
+            //this avoids to always move as we cannot exactly be where we want and IR is a bit noisy
+            if(fabs(extra_speed) < ERROR_THRESHOLD){
+            	extra_speed = 0;
+            }
+            searching_for_lines = false;
+>>>>>>> origin/main
         	//applies the speed from the PI regulator and the correction for the rotation
+            //MYRIAM : je pense que tu as inverser les sens pour right et left (d'apres le comportement du robot)
         	right_motor_set_speed(MOTOR_SPEED_LIMIT/2 + extra_speed - ROTATION_COEFF * speed_correction);
         	left_motor_set_speed(MOTOR_SPEED_LIMIT/2 + extra_speed + ROTATION_COEFF * speed_correction);
         	reset_line();
         }
-        else if(line_type == LINE_POSITION && (number_of_lines) == 0){
+        else if((line_type == LINE_POSITION) && ((number_of_lines) == 0)){
     		right_motor_set_speed(0);
     		left_motor_set_speed(0);
+<<<<<<< HEAD
     		reset_line();
+=======
+        	//chprintf((BaseSequentialStream *)&SD3, "I'm in the line_pos and lines=0 \r\n" );
+    		//reset_line(); si on ne met pas ca en commentaire, on est stuck en boucle car nb_lines sera toujours egal a 0
+>>>>>>> origin/main
         }
         speed_correction = 0;
         extra_speed = 0;

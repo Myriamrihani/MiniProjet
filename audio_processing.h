@@ -34,6 +34,8 @@ void set_frequency(FREQUENCY_TO_DETECT freq);
 FREQUENCY_TO_DETECT get_frequency(void);
 bool get_start_dance(void);
 void set_start_dance(bool state);
+bool get_listening_voice(void);
+void set_listening_voice(bool state);
 
 
 /*
