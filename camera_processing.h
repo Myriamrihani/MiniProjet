@@ -36,7 +36,7 @@ bool line_is_searching(void);
 void reset_line(void);
 void set_line_type(LINE_TYPE_EXTRACT type);
 LINE_TYPE_EXTRACT get_line_type(void);
-
+void moving_the_robot(void);
 void pi_regulator_start(void);
 
 #endif /* CAMERA_PROCESSING_H_ */

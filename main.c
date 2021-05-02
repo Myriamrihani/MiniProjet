@@ -88,7 +88,7 @@ int main(void)
     imu_msg_t imu_values;
 
     motors_init();
-   // pi_regulator_start();
+  // pi_regulator_start();
     process_image_start();
     proximity_start();
     playMelodyStart();
@@ -104,18 +104,19 @@ int main(void)
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
-        chThdSleepMilliseconds(1000);
+        //chThdSleepMilliseconds(1000);
         //wait for new measures to be published
         messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
 
 		switch(get_frequency()) {
 			case 0: //only used for testing
-	        	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
+				set_line_type(NUMBER_OF_LINES);
+	        	//chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
+	        	//chprintf((BaseSequentialStream *)&SD3, "line_type  : %d \r\n" , get_line_type());
 	        	change_search_state(true);
+	        	chThdSleepMilliseconds(500);
 	        	chprintf((BaseSequentialStream *)&SD3, "lines  : %d \r\n" , get_number_of_lines());
-	        	change_search_state(false);
 	        	reset_line();
-	        	chprintf((BaseSequentialStream *)&SD3, "lines after reset : %d \r\n" , get_number_of_lines());
 				break;
 
 			case 1:
