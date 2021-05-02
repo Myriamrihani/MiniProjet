@@ -26,26 +26,14 @@ static uint8_t number_of_lines = 0;					//very important!
 static uint16_t line_position = IMAGE_BUFFER_SIZE/2;	//middle
 static bool searching_for_lines = false;
 
-static LINE_TYPE_EXTRACT line_type = NOPE;
+static LINE_TYPE_EXTRACT line_type = NO_LINE_TYPE;
 static uint16_t width = 0; //better if we can put argument to threads
 
 //semaphore
 static BSEMAPHORE_DECL(image_ready_sem, TRUE);
 
 
-void SendImageToSystem(uint8_t* data, uint16_t size)
-{
-	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)"START", 5);
-	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)&size, sizeof(uint16_t));
-	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)data, size);
-}
-
-/*
- *  Computes the line's width extracted from the image buffer given
- *  Gives 0 if line not found
- */
 void extract_line(uint8_t *buffer, bool searching_for_lines){
-
 
 	uint16_t i = 0, line_beginning = 0, line_ending = 0;
 	uint8_t stop_line_limit_search = 0, wrong_line = 0, line_found = 1;
@@ -55,7 +43,6 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 	static uint16_t last_width = PXTOCM/GOAL_DISTANCE;
 
 	if(searching_for_lines){
-		chprintf((BaseSequentialStream *)&SD3, "we are searching for a line \r\n");
 		//performs an average
 		for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
 			mean += buffer[i];
@@ -63,28 +50,25 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 		mean /= IMAGE_BUFFER_SIZE;
 
 		do{
-			//chprintf((BaseSequentialStream *)&SD3, "we entered the monster with lines  : %d \r\n" , get_number_of_lines());
 			wrong_line = 0;
 			//search for a line_beginning
 			while(stop_line_limit_search == 0 && i < (IMAGE_BUFFER_SIZE - WIDTH_SLOPE)){
+
 				//the slope must at least be WIDTH_SLOPE wide and is compared
 				//to the mean of the image
 				if(buffer[i] > mean && buffer[i+WIDTH_SLOPE] < mean){
 					line_beginning = i;
 					stop_line_limit_search = 1;
-					//chprintf((BaseSequentialStream *)&SD3, "we found a beginning \r\n");
 				}
 				i++;
 			}
 			//if a line_beginning was found, search for a line_ending
 			if(i < (IMAGE_BUFFER_SIZE - WIDTH_SLOPE) && line_beginning){
 				stop_line_limit_search = 0;
-
 				while(stop_line_limit_search == 0 && i < IMAGE_BUFFER_SIZE){
 					if(buffer[i] > mean && buffer[i-WIDTH_SLOPE] < mean){
 						line_ending = i;
 						stop_line_limit_search = 1;
-						//chprintf((BaseSequentialStream *)&SD3, "it looks like an end \r\n");
 					}
 					i++;
 				}
@@ -97,7 +81,6 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 			else{				//if no line_beginning was found
 				line_found = 0;
 			}
-
 			if(line_found){
 				//if a line too small has been detected, continues the search
 				if((line_ending-line_beginning) < MIN_LINE_WIDTH){
@@ -118,15 +101,12 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 					++number_of_lines;
 					chprintf((BaseSequentialStream *)&SD3, "line position  : %d \r\n" , line_position);
 
-					if(line_type == NUMBER_OF_LINES){
-					    chprintf((BaseSequentialStream *)&SD3, "nb lines: %d \r\n", number_of_lines);
-
-						//i = line_ending;			//search for next lines
-						chprintf((BaseSequentialStream *)&SD3, "value should be as line_pos+width/2 : %d \r\n" , i);
-
+					if(line_type == LINE_POSITION){
+						i = IMAGE_BUFFER_SIZE;	//allows us to stop after 1 line
 					}
-					else if(line_type == LINE_POSITION){
-						i = IMAGE_BUFFER_SIZE;
+					else if(line_type == NUMBER_OF_LINES){	//this part is just comments, to be removed
+						chprintf((BaseSequentialStream *)&SD3, "nb lines: %d \r\n", number_of_lines);
+						chprintf((BaseSequentialStream *)&SD3, "value should be as line_pos+width/2 : %d \r\n" , i);
 					}
 				}
 			}
@@ -138,12 +118,12 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 			width = last_width;
 		}
 		//sets a maximum width
-		if((PXTOCM/width) > MAX_DISTANCE){
+		if((PXTOCM/width) > MAX_DISTANCE){		//not useful rn
 			width = PXTOCM/MAX_DISTANCE;
 		}
 	}
 
-	if(number_of_lines > 0) {		//ATTENTION
+	if(number_of_lines > 0) {		//to stop searching
 		change_search_state(false);
 	}
 }
@@ -177,7 +157,6 @@ static THD_FUNCTION(ProcessImage, arg) {
 
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
-
 
 	uint8_t *img_buff_ptr;
 	uint8_t image[IMAGE_BUFFER_SIZE] = {0};
@@ -221,10 +200,6 @@ void change_search_state(bool new_state){
 	searching_for_lines = new_state;
 }
 
-bool state(void){
-	return searching_for_lines;
-}
-
 void set_line_type(LINE_TYPE_EXTRACT type){
 	line_type = type;
 }
@@ -233,7 +208,7 @@ LINE_TYPE_EXTRACT get_line_type(void){
 	return line_type;
 }
 
-float get_distance_cm(void){
+float get_distance_cm(void){		//not useful rn
 	return distance_cm;
 }
 
@@ -244,7 +219,6 @@ uint16_t get_line_position(void){
 void reset_line(void){
 	number_of_lines = 0;
 	chprintf((BaseSequentialStream *)&SD3, "RESET : \r\n" );
-
 }
 
 uint8_t get_number_of_lines(void){
@@ -291,11 +265,6 @@ void moving_the_robot(void){
 		//computes the speed to give to the motors
 		//distance_cm is modified by the image processing thread
 		extra_speed = find_proximity();
-		//disables the extra_speed if the IR input is to small
-		//this avoids to always move as we cannot exactly be where we want and IR is a bit noisy
-		if(fabs(extra_speed) < ERROR_THRESHOLD){ //useless
-	           extra_speed = 0;
-		}
 
 	    //computes a correction factor to let the robot rotate to be in front of the line
 	    speed_correction = (line_position - (IMAGE_BUFFER_SIZE/2));
@@ -303,18 +272,15 @@ void moving_the_robot(void){
 	    if(abs(speed_correction) < ROTATION_THRESHOLD){
 	           speed_correction = 0;
 	    }
-	    //applies the speed from the PI regulator and the correction for the rotation
-	    right_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 - ROTATION_COEFF * speed_correction/2));
-	    left_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 + ROTATION_COEFF * speed_correction/2));
+	    //applies the speed from the extra_speed and the correction for the rotation
+	    right_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 - speed_correction)); 	//3 is a MAGIC NUMBER!!
+	    left_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 + speed_correction));
 	}
 	else if((line_type == LINE_POSITION) && ((number_of_lines) == 0)){
 		chprintf((BaseSequentialStream *)&SD3, "no lines for path \r\n" );
 		right_motor_set_speed(0);
 		left_motor_set_speed(0);
-		//	searching_for_lines = false;
 	}
-	speed_correction = 0;
-	extra_speed = 0;
 	reset_line();
 	change_search_state(true);
 }

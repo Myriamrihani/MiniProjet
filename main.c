@@ -110,7 +110,7 @@ int main(void)
 
 		switch(get_frequency()) {
 			case 0: //only used for testing
-				set_line_type(NUMBER_OF_LINES);
+				set_line_type(LINE_POSITION);
 	        	//chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
 	        	//chprintf((BaseSequentialStream *)&SD3, "line_type  : %d \r\n" , get_line_type());
 	        	change_search_state(true);
