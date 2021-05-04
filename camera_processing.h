@@ -13,9 +13,6 @@
 #define PXTOCM					1570.0f //experimental value
 #define GOAL_DISTANCE 			10.0f
 #define MAX_DISTANCE 			25.0f
-#define ROTATION_THRESHOLD		10
-#define ROTATION_COEFF			2
-#define ERROR_THRESHOLD			0.1f	//[cm] because of the noise of the camera
 
 typedef enum {
 	NO_LINE_TYPE = 0,
@@ -36,7 +33,6 @@ bool line_is_searching(void);
 void reset_line(void);
 void set_line_type(LINE_TYPE_EXTRACT type);
 LINE_TYPE_EXTRACT get_line_type(void);
-void moving_the_robot(void);
 void pi_regulator_start(void);
 
 #endif /* CAMERA_PROCESSING_H_ */

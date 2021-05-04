@@ -7,6 +7,8 @@
 #include <arm_math.h>
 #include "motors.h"
 #include "motor_managmt.h"
+#include "camera_processing.h"
+#include "obstacles.h"
 
 #define NSTEP_ONE_TURN      1000 // number of step for 1 turn of the motor
 #define WHEEL_PERIMETER     13 // [cm]
@@ -33,7 +35,7 @@ MODE get_mode(void){
 }
 
 void motor_take_direction(float angle){
-	perimeter = angle * PI * WHEEL_DISTANCE / 360;
+	perimeter = angle * PI * WHEEL_DISTANCE /360;
 
 	pos_r = -perimeter * NSTEP_ONE_TURN / WHEEL_PERIMETER;
 	pos_l = perimeter * NSTEP_ONE_TURN / WHEEL_PERIMETER;
@@ -58,3 +60,39 @@ void motor_stop(void){
 	left_motor_set_speed(0);
 }
 
+void moving_the_robot(void){
+    int16_t extra_speed = 0;
+    int16_t speed_correction = 0;
+	chprintf((BaseSequentialStream *)&SD3, "line type (be 2) %d \r\n" , get_line_type());
+
+	if(get_number_of_lines() > 0){
+		chprintf((BaseSequentialStream *)&SD3, "IN MOVING \r\n" );
+
+		chprintf((BaseSequentialStream *)&SD3, "lines: %d \r\n" , get_line_position());
+		//computes the speed to give to the motors
+		extra_speed = find_proximity();
+
+	    //computes a correction factor to let the robot rotate to be in front of the line
+	    speed_correction = (get_line_position() - (IMAGE_BUFFER_SIZE/2));
+	    //if the line is nearly in front of the camera, don't rotate
+	    if(abs(speed_correction) < ROTATION_THRESHOLD){
+	           speed_correction = 0;
+	    }
+
+	    //applies the speed from the extra_speed and the correction for the rotation
+	    right_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 - speed_correction));
+	    left_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 + speed_correction));
+		reset_line();
+		change_search_state(true);
+	}
+	else if(get_number_of_lines() == 0){
+		chprintf((BaseSequentialStream *)&SD3, "no lines for path \r\n" );
+		motor_stop();
+		palClearPad(GPIOD, GPIOD_LED5);
+    	chThdSleepMilliseconds(2000);
+		palSetPad(GPIOD, GPIOD_LED5);
+		set_line_type(NUMBER_OF_LINES);
+		reset_line();
+		change_search_state(true);
+	}
+}

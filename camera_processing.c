@@ -17,7 +17,6 @@
 #include <camera/po8030.h>
 #include "motors.h"
 #include <camera_processing.h>
-#include <obstacles.h>
 #include <camera/dcmi_camera.h>
 #include <audio_processing.h>
 
@@ -179,7 +178,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 
 		//search for the number of lines in the image
 		extract_line(image, searching_for_lines);
-		if(get_listening_voice() == 0){
+		if((get_listening_voice() == 0) && (get_line_type() == LINE_POSITION)){
 			chprintf((BaseSequentialStream *)&SD3, "moving robot \r\n" );
 			moving_the_robot();
 		}
@@ -263,40 +262,3 @@ uint8_t get_number_of_lines(void){
 	return number_of_lines;
 }
 
-
-void moving_the_robot(void){
-    int16_t extra_speed = 0;
-    int16_t speed_correction = 0;
-	chprintf((BaseSequentialStream *)&SD3, "line type (be 2) %d \r\n" , line_type );
-
-	if((line_type == LINE_POSITION) && ((number_of_lines) > 0) ){
-		chprintf((BaseSequentialStream *)&SD3, "IN MOVING \r\n" );
-
-		chprintf((BaseSequentialStream *)&SD3, "lines: %d \r\n" , line_position );
-		//computes the speed to give to the motors
-		extra_speed = find_proximity();
-
-	    //computes a correction factor to let the robot rotate to be in front of the line
-	    speed_correction = (line_position - (IMAGE_BUFFER_SIZE/2));
-	    //if the line is nearly in front of the camera, don't rotate
-	    if(abs(speed_correction) < ROTATION_THRESHOLD){
-	           speed_correction = 0;
-	    }
-
-	    //applies the speed from the extra_speed and the correction for the rotation
-	    right_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT - speed_correction)); 	//3 is a MAGIC NUMBER!!
-	    left_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT + speed_correction));
-		reset_line();
-		change_search_state(true);
-	}
-	else if((line_type == LINE_POSITION) && ((number_of_lines) == 0)){
-		chprintf((BaseSequentialStream *)&SD3, "no lines for path \r\n" );
-		motor_stop();
-		palClearPad(GPIOD, GPIOD_LED5);
-    	chThdSleepMilliseconds(2000);
-		palSetPad(GPIOD, GPIOD_LED5);
-		line_type = NUMBER_OF_LINES;
-		reset_line();
-		change_search_state(true);
-	}
-}

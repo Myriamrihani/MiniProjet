@@ -8,6 +8,10 @@
 #ifndef MOTOR_MANAGMT_H_
 #define MOTOR_MANAGMT_H_
 
+
+#define ROTATION_THRESHOLD		10
+#define ROTATION_COEFF			2
+
 typedef enum {
 	DANCE = 0,
 	VOICE,
@@ -27,5 +31,6 @@ MODE get_mode(void);
 void motor_stop(void);
 void motor_take_direction(float angle);
 void check_position(void);
+void moving_the_robot(void);
 
 #endif /* MOTOR_MANAGMT_H_ */
