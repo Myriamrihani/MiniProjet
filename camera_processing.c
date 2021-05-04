@@ -200,6 +200,10 @@ void change_search_state(bool new_state){
 	searching_for_lines = new_state;
 }
 
+bool get_search_state(void){
+	return searching_for_lines;
+}
+
 void set_line_type(LINE_TYPE_EXTRACT type){
 	line_type = type;
 }
@@ -275,12 +279,18 @@ void moving_the_robot(void){
 	    //applies the speed from the extra_speed and the correction for the rotation
 	    right_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 - speed_correction)); 	//3 is a MAGIC NUMBER!!
 	    left_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 + speed_correction));
+		reset_line();
+		change_search_state(true);
 	}
 	else if((line_type == LINE_POSITION) && ((number_of_lines) == 0)){
 		chprintf((BaseSequentialStream *)&SD3, "no lines for path \r\n" );
 		right_motor_set_speed(0);
 		left_motor_set_speed(0);
+		palClearPad(GPIOD, GPIOD_LED5);
+    	chThdSleepMilliseconds(2000);
+		palSetPad(GPIOD, GPIOD_LED5);
+		line_type = NUMBER_OF_LINES;
+		reset_line();
+		change_search_state(true);
 	}
-	reset_line();
-	change_search_state(true);
 }

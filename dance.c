@@ -46,6 +46,7 @@ void set_nb_pas(uint8_t nb){
 
 //function that fills the dancing vector to memorize
 void fill_dance(imu_msg_t *imu_values){
+
     //variable to measure the time some functions take
     //volatile to not be optimized out by the compiler if not used
     volatile uint16_t time = 0;
@@ -167,6 +168,11 @@ void dancing(void){
 		count_step++;
 	} else {
 		set_line_type(LINE_POSITION);
+		chprintf((BaseSequentialStream *)&SD3, "before \r\n");
+        chThdSleepMilliseconds(3000);
+        chprintf((BaseSequentialStream *)&SD3, "after \r\n");
+		change_search_state(true);	//////////////////
+		reset_line();				//////////////////
 		reset_dance();
 	}
 }
@@ -174,7 +180,6 @@ void dancing(void){
 void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
 //	chprintf((BaseSequentialStream *)&SD3, "freq  : %d \r\n" , freq);
 //	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
-
 	++freq_counter;
 //	chprintf((BaseSequentialStream *)&SD3, "freq counter  : %d \r\n" , freq_counter);
 
@@ -184,16 +189,14 @@ void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
 	}
 	set_line_type(NUMBER_OF_LINES);
 
-
 	if(past_freq == get_frequency()){ //we want to make sure that we did not change the frequency type
-	    chprintf((BaseSequentialStream *)&SD3, "dance mode \r\n");
 
 		if(get_number_of_lines() > 0) {
 			set_mode(DANCE);
 			set_nb_pas(get_number_of_lines());
 			change_search_state(false);
 
-			chprintf((BaseSequentialStream *)&SD3, "nb lines  : %d \r\n" , get_number_of_lines());
+			chprintf((BaseSequentialStream *)&SD3, "nb lines in dance  : %d \r\n" , get_number_of_lines());
 
 			if(get_dance_memo_complete() == 1){
 				wait_start_signal();
@@ -201,6 +204,7 @@ void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
 			    if (get_start_dance() == 1) {
 			    	if(freq == WOMAN) {playMelody(MARIO, ML_SIMPLE_PLAY, NULL);}
 			    	if(freq == MAN) {playMelody(RUSSIA, ML_SIMPLE_PLAY, NULL);}
+			    	chprintf((BaseSequentialStream *)&SD3, "we will play the dance \r\n");
 			    	dancing();
 			    }
 			} else  if (is_dance_clear()) {fill_dance(imu_values);}
@@ -209,7 +213,7 @@ void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
 		    chThdSleepMilliseconds(2000);
 		}
 	} else {
-//	    chprintf((BaseSequentialStream *)&SD3, "changed frequency \r\n");
+	    chprintf((BaseSequentialStream *)&SD3, "changed frequency \r\n");
 		freq_counter = 0;
 		reset_dance();
 	}

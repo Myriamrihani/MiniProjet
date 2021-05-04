@@ -20,9 +20,9 @@ typedef enum {
 } BUFFER_NAME_t;
 
 typedef enum {
-	NONE = 0,
-	WOMAN,
 	MAN,
+	NONE,
+	WOMAN,
 }FREQUENCY_TO_DETECT;
 
 

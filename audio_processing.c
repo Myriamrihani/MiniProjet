@@ -164,7 +164,11 @@ void sound_remote(float* data){
 	}
 
 	switch(frequency){
-		case 0 : break;
+		case 0 :
+			if(max_norm_index >= FREQ_MAN_L && max_norm_index <= FREQ_MAN_H){
+				start_dance = 1;
+			}
+			break;
 		case 1:
 			if(max_norm_index >= FREQ_WOMAN_L && max_norm_index <= FREQ_WOMAN_H){
 				start_dance = 1;
