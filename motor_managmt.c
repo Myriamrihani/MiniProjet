@@ -58,6 +58,17 @@ void motor_stop(void){
 	left_motor_set_speed(0);
 }
 
+void motor_path_mode(void) {
+	if (get_listening_voice() == 1){
+		chprintf((BaseSequentialStream *)&SD3, "VOICE 1 \r\n" );
+    	left_motor_set_speed(right_speed);
+    	right_motor_set_speed(left_speed);
+	} else {
+		chprintf((BaseSequentialStream *)&SD3, "moving robot \r\n" );
+		moving_the_robot();
+	}
+}
+
 void moving_the_robot(void){
     int16_t extra_speed = 0;
     int16_t speed_correction = 0;
@@ -77,26 +88,16 @@ void moving_the_robot(void){
 	           speed_correction = 0;
 	    }
 
-	    if(get_listening_voice() == 1){
-			chprintf((BaseSequentialStream *)&SD3, "VOICE \r\n" );
-	    	left_motor_set_speed(right_speed);
-	    	right_motor_set_speed(left_speed);
-	    } else {
 			chprintf((BaseSequentialStream *)&SD3, "MOTOR \r\n" );
 		    //applies the speed from the extra_speed and the correction for the rotation
 		    right_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 - speed_correction));
 		    left_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 + speed_correction));
 			reset_line();
 			change_search_state(true);
-	    }
 
 	}
 	else if(get_number_of_lines() == 0){
-	    if(get_listening_voice() == 1){
-			chprintf((BaseSequentialStream *)&SD3, "VOICE \r\n" );
-	    	left_motor_set_speed(right_speed);
-	    	right_motor_set_speed(left_speed);
-	    } else motor_stop();
+		motor_stop();
 		chprintf((BaseSequentialStream *)&SD3, "no lines for path \r\n" );
 		palClearPad(GPIOD, GPIOD_LED5);
     	chThdSleepMilliseconds(2000);
@@ -105,4 +106,5 @@ void moving_the_robot(void){
 		reset_line();
 		change_search_state(true);
 	}
+
 }

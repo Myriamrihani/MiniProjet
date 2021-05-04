@@ -74,7 +74,7 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 				}
 				//if a line_ending was not found
 				if(i > IMAGE_BUFFER_SIZE || !line_ending){
-					chprintf((BaseSequentialStream *)&SD3, "no end found \r\n");
+					//chprintf((BaseSequentialStream *)&SD3, "no end found \r\n");
 					line_found = 0;
 				}
 			}
@@ -178,10 +178,10 @@ static THD_FUNCTION(ProcessImage, arg) {
 
 		//search for the number of lines in the image
 		extract_line(image, searching_for_lines);
-		if( (get_line_type() == LINE_POSITION)){
-			chprintf((BaseSequentialStream *)&SD3, "moving robot \r\n" );
-			moving_the_robot();
+		if((get_line_type() == LINE_POSITION)){
+			motor_path_mode();
 		}
+
 		//invert the bool
 		send_to_computer = !send_to_computer;
     }

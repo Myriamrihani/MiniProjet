@@ -31,6 +31,7 @@ MODE get_mode(void);
 void motor_stop(void);
 void motor_take_direction(float angle);
 void check_position(void);
+void motor_path_mode(void);
 void moving_the_robot(void);
 
 #endif /* MOTOR_MANAGMT_H_ */
