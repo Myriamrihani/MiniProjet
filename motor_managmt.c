@@ -88,16 +88,26 @@ void moving_the_robot(void){
 	           speed_correction = 0;
 	    }
 
+	    if(get_listening_voice() == 1){
+			chprintf((BaseSequentialStream *)&SD3, "VOICE 2 \r\n" );
+	    	left_motor_set_speed(right_speed);
+	    	right_motor_set_speed(left_speed);
+	    } else {
 			chprintf((BaseSequentialStream *)&SD3, "MOTOR \r\n" );
 		    //applies the speed from the extra_speed and the correction for the rotation
 		    right_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 - speed_correction));
 		    left_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 + speed_correction));
 			reset_line();
 			change_search_state(true);
+	    }
 
 	}
 	else if(get_number_of_lines() == 0){
-		motor_stop();
+	    if(get_listening_voice() == 1){
+			chprintf((BaseSequentialStream *)&SD3, "VOICE 3 \r\n" );
+	    	left_motor_set_speed(right_speed);
+	    	right_motor_set_speed(left_speed);
+	    } else motor_stop();
 		chprintf((BaseSequentialStream *)&SD3, "no lines for path \r\n" );
 		palClearPad(GPIOD, GPIOD_LED5);
     	chThdSleepMilliseconds(2000);
