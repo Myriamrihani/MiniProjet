@@ -9,6 +9,7 @@
 #include "motor_managmt.h"
 #include "camera_processing.h"
 #include "obstacles.h"
+#include "audio_processing.h"
 
 #define NSTEP_ONE_TURN      1000 // number of step for 1 turn of the motor
 #define WHEEL_PERIMETER     13 // [cm]
@@ -77,9 +78,11 @@ void moving_the_robot(void){
 	    }
 
 	    if(get_listening_voice() == 1){
+			chprintf((BaseSequentialStream *)&SD3, "VOICE \r\n" );
 	    	left_motor_set_speed(right_speed);
 	    	right_motor_set_speed(left_speed);
 	    } else {
+			chprintf((BaseSequentialStream *)&SD3, "MOTOR \r\n" );
 		    //applies the speed from the extra_speed and the correction for the rotation
 		    right_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 - speed_correction));
 		    left_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 + speed_correction));
@@ -89,12 +92,16 @@ void moving_the_robot(void){
 
 	}
 	else if(get_number_of_lines() == 0){
+	    if(get_listening_voice() == 1){
+			chprintf((BaseSequentialStream *)&SD3, "VOICE \r\n" );
+	    	left_motor_set_speed(right_speed);
+	    	right_motor_set_speed(left_speed);
+	    } else motor_stop();
 		chprintf((BaseSequentialStream *)&SD3, "no lines for path \r\n" );
-		motor_stop();
 		palClearPad(GPIOD, GPIOD_LED5);
     	chThdSleepMilliseconds(2000);
 		palSetPad(GPIOD, GPIOD_LED5);
-		set_line_type(NUMBER_OF_LINES);
+		set_line_type(NO_LINE_TYPE);
 		reset_line();
 		change_search_state(true);
 	}

@@ -178,7 +178,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 
 		//search for the number of lines in the image
 		extract_line(image, searching_for_lines);
-		if((get_listening_voice() == 0) && (get_line_type() == LINE_POSITION)){
+		if( (get_line_type() == LINE_POSITION)){
 			chprintf((BaseSequentialStream *)&SD3, "moving robot \r\n" );
 			moving_the_robot();
 		}

@@ -111,7 +111,7 @@ void compare_mic(float* right, float* left, float* back, float* front){
 		set_motor_angle();
 	} else {
 		listening_voice = 0;
-		set_line_type(LINE_POSITION);
+		//set_line_type(LINE_POSITION);
 	}
 }
 

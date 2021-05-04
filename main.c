@@ -111,10 +111,8 @@ int main(void)
         messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
 		switch(get_frequency()) {
 			case 0: //only used for testing
-				if(get_line_type() == NUMBER_OF_LINES){
-					dance(MAN, &imu_values);
-				}
-
+				set_line_type(LINE_POSITION);
+				set_mode(VOICE);
 				break;
 
 			case 1:
