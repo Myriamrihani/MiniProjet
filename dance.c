@@ -167,25 +167,19 @@ void dancing(void){
 		}
 		count_step++;
 	} else {
-		set_line_type(LINE_POSITION);
-		chprintf((BaseSequentialStream *)&SD3, "before \r\n");
-        chThdSleepMilliseconds(3000);
-        chprintf((BaseSequentialStream *)&SD3, "after \r\n");
-		change_search_state(true);	//////////////////
-		reset_line();				//////////////////
 		reset_dance();
+        chThdSleepMilliseconds(3000);
+        set_line_type(LINE_POSITION);
+		change_search_state(true);	//////////////////
+
 	}
 }
 
 void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
-//	chprintf((BaseSequentialStream *)&SD3, "freq  : %d \r\n" , freq);
-//	chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
 	++freq_counter;
-//	chprintf((BaseSequentialStream *)&SD3, "freq counter  : %d \r\n" , freq_counter);
 
 	if(freq_counter == 1) {
 		past_freq = freq;
-//		chprintf((BaseSequentialStream *)&SD3, "past   : %d \r\n" , past_freq);
 	}
 	set_line_type(NUMBER_OF_LINES);
 
@@ -197,14 +191,14 @@ void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
 			change_search_state(false);
 
 			chprintf((BaseSequentialStream *)&SD3, "nb lines in dance  : %d \r\n" , get_number_of_lines());
+			chprintf((BaseSequentialStream *)&SD3, "start dance  : %d \r\n" , get_start_dance());
 
 			if(get_dance_memo_complete() == 1){
 				wait_start_signal();
-//			    chprintf((BaseSequentialStream *)&SD3, "will dance \r\n");
+				chprintf((BaseSequentialStream *)&SD3, "start dance  : %d \r\n" , get_start_dance());
 			    if (get_start_dance() == 1) {
 			    	if(freq == WOMAN) {playMelody(MARIO, ML_SIMPLE_PLAY, NULL);}
 			    	if(freq == MAN) {playMelody(RUSSIA, ML_SIMPLE_PLAY, NULL);}
-			    	chprintf((BaseSequentialStream *)&SD3, "we will play the dance \r\n");
 			    	dancing();
 			    }
 			} else  if (is_dance_clear()) {fill_dance(imu_values);}
@@ -248,7 +242,10 @@ void reset_dance(void){
 	reset_line();
 	nb_pas = 0;
 	dance_memo_complete = 0;
+	chprintf((BaseSequentialStream *)&SD3, "start dance  : %d \r\n" , get_start_dance());
 	set_start_dance(0);
+	chprintf((BaseSequentialStream *)&SD3, "start dance  : %d \r\n" , get_start_dance());
+	//set_mode(VOICE);
 }
 
 uint8_t get_nb_pas(void){

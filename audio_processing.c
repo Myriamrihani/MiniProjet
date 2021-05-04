@@ -12,6 +12,8 @@
 #include <com_mic.h>
 #include "motors.h"
 #include "motor_managmt.h"
+#include "dance.h"
+#include "camera_processing.h"
 
 
 //semaphore
@@ -48,7 +50,7 @@ static bool start_dance = 0;
 static float angle = 0;
 static bool listening_voice = 0;
 
-static FREQUENCY_TO_DETECT frequency = NONE;
+static FREQUENCY_TO_DETECT frequency = NO_FREQ;
 
 static mvmt_robot voice_fb = STOP;
 static mvmt_robot voice_rl = STOP;
@@ -101,13 +103,16 @@ void compare_mic(float* right, float* left, float* back, float* front){
 		voice_fb = STOP;
 	}
 
-//	if((voice_fb != STOP)) {
-//		listening_voice = 1;
-//	} else if((voice_rl != STOP)){
-//		listening_voice = 1;
-//	} else listening_voice = 0;
-
-	set_motor_angle();
+	if((voice_fb != STOP)) {
+		listening_voice = 1;
+		set_motor_angle();
+	} else if((voice_rl != STOP)){
+		listening_voice = 1;
+		set_motor_angle();
+	} else {
+		listening_voice = 0;
+		set_line_type(LINE_POSITION);
+	}
 }
 
 void set_motor_angle(void){
@@ -133,7 +138,7 @@ void set_motor_angle(void){
 		} else if(voice_rl == RIGHT) {
 			angle = -45;
 		} else if(voice_rl == STOP) {
-			angle = 0;
+			listening_voice = 0;
 		}
 	}
 	motor_take_direction(angle);
@@ -163,21 +168,23 @@ void sound_remote(float* data){
 		}
 	}
 
-	switch(frequency){
-		case 0 :
-			if(max_norm_index >= FREQ_MAN_L && max_norm_index <= FREQ_MAN_H){
-				start_dance = 1;
-			}
-			break;
-		case 1:
-			if(max_norm_index >= FREQ_WOMAN_L && max_norm_index <= FREQ_WOMAN_H){
-				start_dance = 1;
-			}
-			break;
-		case 2:
-			if(max_norm_index >= FREQ_MAN_L && max_norm_index <= FREQ_MAN_H){
-				start_dance = 1;
-			}
+	if(get_dance_memo_complete() ==1 ){
+		switch(frequency){
+			case 0 :
+				if(max_norm_index >= FREQ_MAN_L && max_norm_index <= FREQ_MAN_H){
+					start_dance = 1;
+				}
+				break;
+			case 1:
+				if(max_norm_index >= FREQ_WOMAN_L && max_norm_index <= FREQ_WOMAN_H){
+					start_dance = 1;
+				}
+				break;
+			case 2:
+				if(max_norm_index >= FREQ_MAN_L && max_norm_index <= FREQ_MAN_H){
+					start_dance = 1;
+				}
+		}
 	}
 }
 

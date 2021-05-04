@@ -45,58 +45,16 @@ void motor_take_direction(float angle){
 		right_speed = 400;
 		left_speed = -400;
 	} else if (angle == 0){
-		right_speed = 0;
-		left_speed = 0;
+		right_speed = 400;
+		left_speed = 400;
 	}
 
 	left_motor_set_speed(right_speed);
 	right_motor_set_speed(left_speed);
 }
 
-//void check_position(void){
-//	uint8_t i = 0;
-//    if ((abs(counter_step_right) > abs(pos_r))) {
-//    	counter_step_right = 0;
-//    	right_motor_set_pos(counter_step_right);
-//    	left_motor_set_speed(0);
-//    	right_motor_set_speed(0);
-//    }
-//    else {
-//        if (right_speed > 0) {
-//            i = (i + 1) & 3;
-//            counter_step_right++;
-//        	right_motor_set_speed(0);
-//        } else if (right_speed < 0) {
-//            i = (i - 1) & 3;
-//            right_motor_update(step_table[i]);
-//            counter_step_right--;
-//        	right_motor_set_pos(counter_step_right);
-//        } else {
-//            right_motor_update(step_halt);
-//        }
-//    }
-//
-//	uint8_t j = 0;
-//
-//    // Check if position is reached
-//    if ((abs(counter_step_left) > abs(pos_l))) {
-//    	counter_step_left = 0;
-//    	left_motor_set_pos(counter_step_left);
-//    	left_motor_update(step_halt);
-//    }
-//    else {
-//        if (left_speed > 0) {
-//            j = (j + 1) & 3;
-//            left_motor_update(step_table[j]);
-//            counter_step_left++;
-//        	left_motor_set_pos(counter_step_left);
-//        } else if (left_speed < 0) {
-//            j = (j - 1) & 3;
-//            left_motor_update(step_table[j]);
-//            counter_step_left--;
-//        	left_motor_set_pos(counter_step_left);
-//        } else {
-//            left_motor_update(step_halt);
-//        }
-//    }
-//}
+void motor_stop(void){
+	right_motor_set_speed(0);
+	left_motor_set_speed(0);
+}
+

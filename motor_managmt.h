@@ -24,6 +24,7 @@ typedef enum{
 void set_mode(MODE new_mode);
 MODE get_mode(void);
 
+void motor_stop(void);
 void motor_take_direction(float angle);
 void check_position(void);
 

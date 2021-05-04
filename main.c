@@ -56,16 +56,17 @@ static THD_FUNCTION(selector_freq_thd, arg)
 
 		switch(get_selector()) {
 			case 0:
-				set_frequency(MAN);
+				set_frequency(NO_FREQ);
 				break;
 
 			case 1:
-				set_frequency(NONE);
+				set_frequency(WOMAN);
 				break;
 
 			case 2:
-				set_frequency(WOMAN);
+				set_frequency(MAN);
 				break;
+
 			default: break;
 		}
     }
@@ -96,7 +97,7 @@ int main(void)
     mic_start(&processAudioData);
 
     chThdCreateStatic(selector_freq_thd_wa, sizeof(selector_freq_thd_wa), NORMALPRIO, selector_freq_thd, NULL);
-    chThdSleepMilliseconds(5000);
+    chThdSleepMilliseconds(1000);
     uint8_t freq_counter = 0;
     uint8_t past_freq = 0;
 
@@ -111,22 +112,22 @@ int main(void)
 		switch(get_frequency()) {
 			case 0: //only used for testing
 				if(get_line_type() == NUMBER_OF_LINES){
-					dance(MAN, &imu_values); }
-//				set_line_type(LINE_POSITION);
-				chprintf((BaseSequentialStream *)&SD3, "i'm in 0 \r\n");
-//	        	//chprintf((BaseSequentialStream *)&SD3, "frequency  : %d \r\n" , get_frequency());
-//	        	//chprintf((BaseSequentialStream *)&SD3, "line_type  : %d \r\n" , get_line_type());
-//	        	change_search_state(true);
-//	        	chThdSleepMilliseconds(500);
-//	        	chprintf((BaseSequentialStream *)&SD3, "lines  : %d \r\n" , get_number_of_lines());
-//	        	reset_line();
+					dance(MAN, &imu_values);
+				}
+
 				break;
 
 			case 1:
-				if(get_line_type() == LINE_POSITION){ change_search_state(true); }
-			    	chprintf((BaseSequentialStream *)&SD3, "setting line position\r\n");
-			    	change_search_state(true);
-			    	set_line_type(LINE_POSITION);
+//				if(get_line_type() == LINE_POSITION){ change_search_state(true); }
+//			    	chprintf((BaseSequentialStream *)&SD3, "setting line position\r\n");
+//			    	change_search_state(true);
+//			    	set_line_type(LINE_POSITION);
+				if(get_line_type() == NUMBER_OF_LINES){
+					dance(WOMAN, &imu_values);
+				}
+//				if(get_line_type() == LINE_POSITION){
+//					set_mode(VOICE);
+//				}
 				break;
 
 			case 2:
@@ -135,7 +136,7 @@ int main(void)
 				if(get_line_type() == LINE_POSITION){ change_search_state(true); }
 				set_mode(DANCE);
 	        	set_line_type(NUMBER_OF_LINES);
-	        	dance(WOMAN, &imu_values);
+	        	dance(MAN, &imu_values);
 				break;
 		}
     }
