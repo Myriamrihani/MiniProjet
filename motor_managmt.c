@@ -50,9 +50,6 @@ void motor_take_direction(float angle){
 		right_speed = 400;
 		left_speed = 400;
 	}
-
-	left_motor_set_speed(right_speed);
-	right_motor_set_speed(left_speed);
 }
 
 void motor_stop(void){
@@ -79,11 +76,17 @@ void moving_the_robot(void){
 	           speed_correction = 0;
 	    }
 
-	    //applies the speed from the extra_speed and the correction for the rotation
-	    right_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 - speed_correction));
-	    left_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 + speed_correction));
-		reset_line();
-		change_search_state(true);
+	    if(get_listening_voice() == 1){
+	    	left_motor_set_speed(right_speed);
+	    	right_motor_set_speed(left_speed);
+	    } else {
+		    //applies the speed from the extra_speed and the correction for the rotation
+		    right_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 - speed_correction));
+		    left_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 + speed_correction));
+			reset_line();
+			change_search_state(true);
+	    }
+
 	}
 	else if(get_number_of_lines() == 0){
 		chprintf((BaseSequentialStream *)&SD3, "no lines for path \r\n" );

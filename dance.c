@@ -245,7 +245,7 @@ void reset_dance(void){
 	chprintf((BaseSequentialStream *)&SD3, "start dance  : %d \r\n" , get_start_dance());
 	set_start_dance(0);
 	chprintf((BaseSequentialStream *)&SD3, "start dance  : %d \r\n" , get_start_dance());
-	//set_mode(VOICE);
+	set_mode(VOICE);
 }
 
 uint8_t get_nb_pas(void){
