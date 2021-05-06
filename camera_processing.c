@@ -58,7 +58,7 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 
 				//the slope must at least be WIDTH_SLOPE wide and is compared
 				//to the mean of the image
-				if(buffer[i] > mean && buffer[i+WIDTH_SLOPE] < mean){
+				if(buffer[i] > mean && buffer[i+WIDTH_SLOPE] < mean){			///////////////
 					line_beginning = i;
 					stop_line_limit_search = 1;
 				}
@@ -113,6 +113,39 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 				}
 			}
 		}while(wrong_line);
+
+//		if(!line_found){
+//			for(uint16_t i = IMAGE_BUFFER_SIZE - MIN_LINE_WIDTH; i < IMAGE_BUFFER_SIZE; i++){
+//				if(buffer[i] > mean){
+//					line_found = true;
+//					chprintf((BaseSequentialStream *)&SD3, "found on the img_buff_size end \r\n" );
+//				}
+//				else{
+//					line_found = false;
+//					i = IMAGE_BUFFER_SIZE;
+//					chprintf((BaseSequentialStream *)&SD3, "not found on img_buff_size end \r\n" );
+//				}
+//			}
+//			if(line_found){
+//				line_position = IMAGE_BUFFER_SIZE -  MIN_LINE_WIDTH/2;
+//			} else{
+//				for(uint16_t i = 0; i < MIN_LINE_WIDTH; i++){
+//					if(buffer[i] > mean){
+//						line_found = true;
+//						chprintf((BaseSequentialStream *)&SD3, "found on the i=0 beginning \r\n" );
+//					}
+//					else{
+//						line_found = false;
+//						i = IMAGE_BUFFER_SIZE;
+//						chprintf((BaseSequentialStream *)&SD3, "not found on i=0 beginning \r\n" );
+//
+//					}
+//				}
+//				if(line_found){
+//					line_position = MIN_LINE_WIDTH/2;
+//				}
+//			}
+//		}
 
 		if(!line_found){
 			line_beginning = 0;
