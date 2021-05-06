@@ -30,8 +30,8 @@ static float micRight_output[FFT_SIZE];
 static float micFront_output[FFT_SIZE];
 static float micBack_output[FFT_SIZE];
 
-#define MIN_VALUE_THRESHOLD	10000 
-#define MIN_DIFFERENCE_VALUE 5000
+#define MIN_VALUE_THRESHOLD	20000
+#define MIN_DIFFERENCE_VALUE 10000
 
 
 #define MIN_FREQ		10	//we don't analyze before this index to not use resources for nothing

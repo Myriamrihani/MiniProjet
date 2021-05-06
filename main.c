@@ -113,6 +113,7 @@ int main(void)
 			case 0: //only used for testing
 				set_line_type(LINE_POSITION);
 				set_mode(VOICE);
+
 				break;
 
 			case 1:

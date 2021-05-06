@@ -25,6 +25,7 @@ static float distance_cm = 0;
 static uint8_t number_of_lines = 0;					//very important!
 static uint16_t line_position = IMAGE_BUFFER_SIZE/2;	//middle
 static bool searching_for_lines = false;
+static bool line_found = 1;
 
 static LINE_TYPE_EXTRACT line_type = NO_LINE_TYPE;
 static uint16_t width = 0; //better if we can put argument to threads
@@ -36,9 +37,10 @@ static BSEMAPHORE_DECL(image_ready_sem, TRUE);
 void extract_line(uint8_t *buffer, bool searching_for_lines){
 
 	uint16_t i = 0, line_beginning = 0, line_ending = 0;
-	uint8_t stop_line_limit_search = 0, wrong_line = 0, line_found = 1;
+	uint8_t stop_line_limit_search = 0, wrong_line = 0;
 	uint32_t mean = 0;
 	width = 0;
+	line_found = true;
 
 	static uint16_t last_width = PXTOCM/GOAL_DISTANCE;
 
@@ -116,6 +118,7 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 			line_beginning = 0;
 			line_ending = 0;
 			width = last_width;
+
 		}
 		//sets a maximum width
 		if((PXTOCM/width) > MAX_DISTANCE){		//not useful rn
@@ -126,6 +129,10 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 	if(number_of_lines > 0) {		//to stop searching
 		change_search_state(false);
 	}
+}
+
+bool get_line_found(void){
+	return line_found;
 }
 
 static THD_WORKING_AREA(waCaptureImage, 256);
