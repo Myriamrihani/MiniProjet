@@ -21,7 +21,7 @@ typedef enum {
 
 }LINE_TYPE_EXTRACT;
 
-void SendImageToSystem(uint8_t* data, uint16_t size);
+void SendImageToSystem(uint8_t* data, uint16_t size);		////NOT USED////
 float get_distance_cm(void);
 uint16_t get_line_position(void);
 uint8_t get_number_of_lines(void);

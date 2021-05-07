@@ -8,7 +8,6 @@
 #ifndef MOTOR_MANAGMT_H_
 #define MOTOR_MANAGMT_H_
 
-
 #define ROTATION_THRESHOLD		10
 #define ROTATION_COEFF			2
 

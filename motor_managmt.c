@@ -25,6 +25,8 @@ static int16_t left_speed = 0; 					// in [step/s]
 static float perimeter = 0;
 static int16_t pos_r = 0;
 static int16_t pos_l = 0;
+static uint16_t turning_counter = 0;
+static int16_t speed_correction = 0;
 
 
 void set_mode(MODE new_mode){
@@ -65,20 +67,17 @@ void motor_path_mode(void) {
     	left_motor_set_speed(right_speed);
     	right_motor_set_speed(left_speed);
 	} else {
-		chprintf((BaseSequentialStream *)&SD3, "moving robot \r\n" );
 		moving_the_robot();
 	}
 }
 
 void moving_the_robot(void){
     int16_t extra_speed = 0;
-    int16_t speed_correction = 0;
-	chprintf((BaseSequentialStream *)&SD3, "line type (be 2) %d \r\n" , get_line_type());
+   // int16_t speed_correction = 0;
 
 	if(get_number_of_lines() > 0){
 		chprintf((BaseSequentialStream *)&SD3, "IN MOVING \r\n" );
-
-		chprintf((BaseSequentialStream *)&SD3, "lines: %d \r\n" , get_line_position());
+		chprintf((BaseSequentialStream *)&SD3, "line_position is: %d \r\n" , get_line_position());
 		//computes the speed to give to the motors
 		extra_speed = find_proximity();
 
@@ -108,14 +107,29 @@ void moving_the_robot(void){
 			chprintf((BaseSequentialStream *)&SD3, "VOICE 3 \r\n" );
 	    	left_motor_set_speed(right_speed);
 	    	right_motor_set_speed(left_speed);
-	    } else motor_stop();
-		chprintf((BaseSequentialStream *)&SD3, "no lines for path \r\n" );
-		palClearPad(GPIOD, GPIOD_LED5);
-    	chThdSleepMilliseconds(2000);
-		palSetPad(GPIOD, GPIOD_LED5);
-		//set_line_type(NUMBER_OF_LINES);
-		reset_line();
-		change_search_state(true);
+	    }
+	    else if((turning_counter < 50) && (speed_correction < 0)){
+	    	right_motor_set_speed(50);
+	    	left_motor_set_speed(-50);
+	    	++turning_counter;
+	    }
+	    else if((turning_counter < 50) && (speed_correction > 0)){
+	    	right_motor_set_speed(-50);
+	    	left_motor_set_speed(50);
+	    	++turning_counter;
+	    }
+	    else {
+	    	motor_stop();
+	    	speed_correction = 0;
+	    	turning_counter = 0;
+	    	chprintf((BaseSequentialStream *)&SD3, "no lines for path \r\n" );
+	    	palClearPad(GPIOD, GPIOD_LED5);
+	    	chThdSleepMilliseconds(2000);
+	    	palSetPad(GPIOD, GPIOD_LED5);
+	    	//set_line_type(NUMBER_OF_LINES);
+	    	reset_line();
+	    	change_search_state(true);
+	    }
 	}
 
 }
