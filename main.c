@@ -117,10 +117,6 @@ int main(void)
 				break;
 
 			case 1:
-//				if(get_line_type() == LINE_POSITION){ change_search_state(true); }
-//			    	chprintf((BaseSequentialStream *)&SD3, "setting line position\r\n");
-//			    	change_search_state(true);
-//			    	set_line_type(LINE_POSITION);
 				if(get_line_type() == NUMBER_OF_LINES){
 					dance(WOMAN, &imu_values);
 				}
@@ -130,7 +126,6 @@ int main(void)
 				break;
 
 			case 2:
-				chprintf((BaseSequentialStream *)&SD3, "i'm in 2 \r\n");
 				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values); }
 				if(get_line_type() == LINE_POSITION){ change_search_state(true); }
 				set_mode(DANCE);

@@ -10,7 +10,6 @@
 
 
 #define PROXIMITY_THRESHOLD		100
-#define ROTATION_COEFF			2		//hyper random,might change
 #define ERROR_THRESHOLD			0.1f	//[cm] because of the noise of the camera
 #define KP						800.0f
 #define KI 						3.5f	//must not be zero

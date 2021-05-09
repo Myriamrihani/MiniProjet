@@ -21,13 +21,11 @@
 #include <audio_processing.h>
 
 
-static float distance_cm = 0;	/////NOT USED////
-static uint8_t number_of_lines = 0;					//very important!
-static uint16_t line_position = IMAGE_BUFFER_SIZE/2;	//middle
+static uint8_t number_of_lines = 0;
+static uint16_t line_position = IMAGE_BUFFER_SIZE/2;
 static bool searching_for_lines = false;
 static bool line_found = 1;
 static LINE_TYPE_EXTRACT line_type = NO_LINE_TYPE;
-static uint16_t width = 0; //better if we can put argument to threads //WHY static?!
 
 //semaphore
 static BSEMAPHORE_DECL(image_ready_sem, TRUE);
@@ -38,10 +36,7 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 	uint16_t i = 0, line_beginning = 0, line_ending = 0;
 	uint8_t stop_line_limit_search = 0, wrong_line = 0;
 	uint32_t mean = 0;
-	width = 0;
 	line_found = true;
-
-	static uint16_t last_width = PXTOCM/GOAL_DISTANCE;
 
 	if(searching_for_lines){
 		//performs an average
@@ -57,7 +52,7 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 
 				//the slope must at least be WIDTH_SLOPE wide and is compared
 				//to the mean of the image
-				if(buffer[i] > mean && buffer[i+WIDTH_SLOPE] < mean){			///////////////
+				if(buffer[i] > mean && buffer[i+WIDTH_SLOPE] < mean){
 					line_beginning = i;
 					stop_line_limit_search = 1;
 				}
@@ -75,7 +70,6 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 				}
 				//if a line_ending was not found
 				if(i > IMAGE_BUFFER_SIZE || !line_ending){
-					//chprintf((BaseSequentialStream *)&SD3, "no end found \r\n");
 					line_found = 0;
 				}
 			}
@@ -92,7 +86,6 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 					wrong_line = 1;
 				}
 				else{
-					last_width = width = (line_ending - line_beginning);
 					line_position = (line_beginning + line_ending)/2; //gives the line position.
 					line_beginning = 0;
 					i = line_ending;
@@ -108,7 +101,6 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 					else if(line_type == NUMBER_OF_LINES){	//this part is just comments, to be removed
 						//chThdSleepMilliseconds(300);	//allows us to slide a paper in before the first line is detected alone
 						chprintf((BaseSequentialStream *)&SD3, "nb lines: %d \r\n", number_of_lines);
-						chprintf((BaseSequentialStream *)&SD3, "value should be as line_pos+width/2 : %d \r\n" , i);
 					}
 				}
 			}
@@ -117,11 +109,6 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 		if(!line_found){
 			line_beginning = 0;
 			line_ending = 0;
-			width = last_width;
-		}
-		//sets a maximum width
-		if((PXTOCM/width) > MAX_DISTANCE){		/////NOT USED////
-			width = PXTOCM/MAX_DISTANCE;		/////NOT USED////
 		}
 	}
 
@@ -141,8 +128,8 @@ static THD_FUNCTION(CaptureImage, arg) {
     (void)arg;
 
 	//Takes pixels 0 to IMAGE_BUFFER_SIZE of the line 10 + 11 (minimum 2 lines because reasons)
-	po8030_advanced_config(FORMAT_RGB565, 0, 478, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
-	dcmi_enable_double_buffering();								//maybe open the sampling to get more than 2 lines!
+	po8030_advanced_config(FORMAT_RGB565, 0, CAMERA_POSITION, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
+	dcmi_enable_double_buffering();
 	dcmi_set_capture_mode(CAPTURE_ONE_SHOT);
 	dcmi_prepare();
 
@@ -221,27 +208,21 @@ LINE_TYPE_EXTRACT get_line_type(void){
 	return line_type;
 }
 
-float get_distance_cm(void){		/////NOT USED////
-	return distance_cm;				/////NOT USED////
-}
-
 uint16_t get_line_position(void){
 	return line_position;
 }
 
 void reset_line(void){
 	number_of_lines = 0;
-	chprintf((BaseSequentialStream *)&SD3, "RESET : \r\n" );
 }
 
 uint8_t get_number_of_lines(void){
 	if(line_type == NUMBER_OF_LINES){
-	switch (number_of_lines)
-	{
+	switch (number_of_lines){
 	case 0: 		//All LEDs are off
 		break;
 	case 1:
-		palClearPad(GPIOD, GPIOD_LED1);		//one LED is on
+		palClearPad(GPIOD, GPIOD_LED1);
 		break;
 	case 2:
 		palClearPad(GPIOD, GPIOD_LED1);

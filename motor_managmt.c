@@ -11,10 +11,10 @@
 #include "obstacles.h"
 #include "audio_processing.h"
 
-#define NSTEP_ONE_TURN      1000 // number of step for 1 turn of the motor		///NOT USED///
-#define WHEEL_PERIMETER     13 // [cm]											///NOT USED///
-#define WHEEL_DISTANCE      5.35f    //cm										///NOT USED///
-#define PERIMETER_EPUCK     (PI * WHEEL_DISTANCE)								///NOT USED///
+//#define NSTEP_ONE_TURN      1000 // number of step for 1 turn of the motor		///NOT USED///
+//#define WHEEL_PERIMETER     13 // [cm]											///NOT USED///
+//#define WHEEL_DISTANCE      5.35f    //cm										///NOT USED///
+//#define PERIMETER_EPUCK     (PI * WHEEL_DISTANCE)								///NOT USED///
 
 static MODE mode = DANCE;
 
@@ -22,9 +22,9 @@ static int16_t right_speed = 0; 			    // in [step/s]
 static int16_t left_speed = 0; 					// in [step/s]
 //static int16_t counter_step_right = 0;          // in [step]
 //static int16_t counter_step_left = 0;
-static float perimeter = 0;
-static int16_t pos_r = 0;											///NOT USED///
-static int16_t pos_l = 0;											///NOT USED///
+//static float perimeter = 0;										///NOT USED///
+//static int16_t pos_r = 0;											///NOT USED///
+//static int16_t pos_l = 0;											///NOT USED///
 static uint16_t turning_counter = 0;
 static int16_t speed_correction = 0;
 
@@ -38,20 +38,20 @@ MODE get_mode(void){
 }
 
 void motor_take_direction(float angle){
-	perimeter = angle * PI * WHEEL_DISTANCE /360;
+	//perimeter = angle * PI * WHEEL_DISTANCE /360;
 
-	pos_r = -perimeter * NSTEP_ONE_TURN / WHEEL_PERIMETER;
-	pos_l = perimeter * NSTEP_ONE_TURN / WHEEL_PERIMETER;
+	//pos_r = -perimeter * NSTEP_ONE_TURN / WHEEL_PERIMETER;
+	//pos_l = perimeter * NSTEP_ONE_TURN / WHEEL_PERIMETER;
 
 	if((angle > 0) & (angle <= 180)){
-		right_speed = -400;
-		left_speed = 400;
+		right_speed = -VOICE_ROTATION_AMP;
+		left_speed = VOICE_ROTATION_AMP;
 	} else if((angle < 0) & (angle > -180)){
-		right_speed = 400;
-		left_speed = -400;
+		right_speed = VOICE_ROTATION_AMP;
+		left_speed = -VOICE_ROTATION_AMP;
 	} else if (angle == 0){
-		right_speed = 400;
-		left_speed = 400;
+		right_speed = VOICE_ROTATION_AMP;
+		left_speed = VOICE_ROTATION_AMP;
 	}
 
 }
@@ -63,7 +63,6 @@ void motor_stop(void){
 
 void motor_path_mode(void) {
 	if ((get_listening_voice() == 1)){
-		chprintf((BaseSequentialStream *)&SD3, "VOICE 1 \r\n" );
     	left_motor_set_speed(right_speed);
     	right_motor_set_speed(left_speed);
 	} else {
@@ -77,7 +76,6 @@ void moving_the_robot(void){
 	if(get_number_of_lines() > 0){
     	turning_counter = 0;
     	set_search_side(NO_SEARCH_SIDE);
-		chprintf((BaseSequentialStream *)&SD3, "line_position is: %d \r\n" , get_line_position());
 		//computes the speed to give to the motors
 		extra_speed = get_extra_speed();
 
@@ -89,11 +87,9 @@ void moving_the_robot(void){
 	    }
 
 	    if(get_listening_voice() == 1){
-			chprintf((BaseSequentialStream *)&SD3, "VOICE 2 \r\n" );
 	    	left_motor_set_speed(right_speed);
 	    	right_motor_set_speed(left_speed);
 	    } else {
-			chprintf((BaseSequentialStream *)&SD3, "MOTOR \r\n" );
 		    //applies the speed from the extra_speed and the correction for the rotation
 		    right_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 - speed_correction));
 		    left_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 + speed_correction));
@@ -102,42 +98,37 @@ void moving_the_robot(void){
 	    }
 
 	}
-	else if(get_number_of_lines() == 0){
+	else{
 	    if(get_listening_voice() == 1){
-			chprintf((BaseSequentialStream *)&SD3, "VOICE 3 \r\n" );
 	    	left_motor_set_speed(right_speed);
 	    	right_motor_set_speed(left_speed);
 	    }
 	    else if(turning_counter < 50){
-			chprintf((BaseSequentialStream *)&SD3, "counter is: %d \r\n", turning_counter);
 	    	if(speed_correction < 0){
 	    		if(get_search_side() == SEARCH_RIGHT){
-	    			chprintf((BaseSequentialStream *)&SD3, "searching right \r\n");
-	    			right_motor_set_speed(-100);
-		    		left_motor_set_speed(100);
+	    			right_motor_set_speed(-IR_ROTATION_AMP);
+		    		left_motor_set_speed(IR_ROTATION_AMP);
 		    		++turning_counter;
 	    		}
 	    		else {
-	    			right_motor_set_speed(100);
-		    		left_motor_set_speed(-100);
+	    			right_motor_set_speed(IR_ROTATION_AMP);
+		    		left_motor_set_speed(-IR_ROTATION_AMP);
 		    		++turning_counter;
 	    		}
 	    	}
-	    	else if(speed_correction > 0){
+	    	else{
 	    		if(get_search_side() == SEARCH_LEFT){
-	    			chprintf((BaseSequentialStream *)&SD3, "searching left \r\n");
-	    			right_motor_set_speed(100);
-		    		left_motor_set_speed(-100);
+	    			right_motor_set_speed(IR_ROTATION_AMP);
+		    		left_motor_set_speed(-IR_ROTATION_AMP);
 		    		++turning_counter;
 	    		}
 	    		else {
-	    			right_motor_set_speed(-100);
-		    		left_motor_set_speed(100);
+	    			right_motor_set_speed(-IR_ROTATION_AMP);
+		    		left_motor_set_speed(IR_ROTATION_AMP);
 		    		++turning_counter;
 	    		}
 	    	}
 	    }
-
 	    else {
 	    	motor_stop();
 	    	speed_correction = 0;
