@@ -106,7 +106,7 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 						i = IMAGE_BUFFER_SIZE;	//allows us to stop after 1 line
 					}
 					else if(line_type == NUMBER_OF_LINES){	//this part is just comments, to be removed
-						chThdSleepMilliseconds(300);	//allows us to slide a paper in before the first line is detected alone
+						//chThdSleepMilliseconds(300);	//allows us to slide a paper in before the first line is detected alone
 						chprintf((BaseSequentialStream *)&SD3, "nb lines: %d \r\n", number_of_lines);
 						chprintf((BaseSequentialStream *)&SD3, "value should be as line_pos+width/2 : %d \r\n" , i);
 					}

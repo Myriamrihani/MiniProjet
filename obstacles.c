@@ -39,9 +39,9 @@ int16_t find_proximity(void){
 		return manual_speed(minimum_proximity);
 	}
 	else if (current_sensor == IR0 || current_sensor == IR7){
-//		chprintf((BaseSequentialStream *)&SD3, "wrong sensor_IR  : %d \r\n" , current_sensor);
-//		chprintf((BaseSequentialStream *)&SD3, "proximity  : %d \r\n" , minimum_proximity);
-		return -10*manual_speed(minimum_proximity); // call the ambulance, call the ambulance!
+		chprintf((BaseSequentialStream *)&SD3, "wrong sensor_IR  : %d \r\n" , current_sensor);
+		chprintf((BaseSequentialStream *)&SD3, "proximity  : %d \r\n" , minimum_proximity);
+//		return -10*manual_speed(minimum_proximity); // call the ambulance, call the ambulance!
 	}
 	return 0;
 }

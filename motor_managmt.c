@@ -11,10 +11,10 @@
 #include "obstacles.h"
 #include "audio_processing.h"
 
-#define NSTEP_ONE_TURN      1000 // number of step for 1 turn of the motor
-#define WHEEL_PERIMETER     13 // [cm]
-#define WHEEL_DISTANCE      5.35f    //cm
-#define PERIMETER_EPUCK     (PI * WHEEL_DISTANCE)
+#define NSTEP_ONE_TURN      1000 // number of step for 1 turn of the motor		///NOT USED///
+#define WHEEL_PERIMETER     13 // [cm]											///NOT USED///
+#define WHEEL_DISTANCE      5.35f    //cm										///NOT USED///
+#define PERIMETER_EPUCK     (PI * WHEEL_DISTANCE)								///NOT USED///
 
 static MODE mode = DANCE;
 
@@ -23,8 +23,8 @@ static int16_t left_speed = 0; 					// in [step/s]
 //static int16_t counter_step_right = 0;          // in [step]
 //static int16_t counter_step_left = 0;
 static float perimeter = 0;
-static int16_t pos_r = 0;
-static int16_t pos_l = 0;
+static int16_t pos_r = 0;											///NOT USED///
+static int16_t pos_l = 0;											///NOT USED///
 static uint16_t turning_counter = 0;
 static int16_t speed_correction = 0;
 
@@ -76,7 +76,6 @@ void moving_the_robot(void){
    // int16_t speed_correction = 0;
 
 	if(get_number_of_lines() > 0){
-		chprintf((BaseSequentialStream *)&SD3, "IN MOVING \r\n" );
 		chprintf((BaseSequentialStream *)&SD3, "line_position is: %d \r\n" , get_line_position());
 		//computes the speed to give to the motors
 		extra_speed = find_proximity();
