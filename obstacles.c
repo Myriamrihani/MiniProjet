@@ -18,8 +18,11 @@
 #include <obstacles.h>
 #include <sensors/proximity.h>
 
+static int16_t extra_speed = 0;
+static SEARCHING_SIDE SEARCH_SIDE = NO_SEARCH_SIDE;
 
-int16_t find_proximity(void){
+void find_proximity(void){
+	extra_speed = 0;
 	uint16_t current_proximity = 0;
 	uint16_t minimum_proximity = 0;
 	uint8_t current_sensor = NO_IR;
@@ -34,26 +37,43 @@ int16_t find_proximity(void){
 	}
 
 	if(current_sensor == IR3 || current_sensor == IR4){
+		manual_speed(minimum_proximity);
+	}
+	else if (current_sensor == IR1 || current_sensor == IR2){
 		chprintf((BaseSequentialStream *)&SD3, "sensor_IR  : %d \r\n" , current_sensor);
 		chprintf((BaseSequentialStream *)&SD3, "proximity  : %d \r\n" , minimum_proximity);
-		return manual_speed(minimum_proximity);
+		SEARCH_SIDE = SEARCH_LEFT;
 	}
-	else if (current_sensor == IR0 || current_sensor == IR7){
-		chprintf((BaseSequentialStream *)&SD3, "wrong sensor_IR  : %d \r\n" , current_sensor);
+	else if (current_sensor == IR5 || current_sensor == IR6){
+		chprintf((BaseSequentialStream *)&SD3, "sensor_IR  : %d \r\n" , current_sensor);
 		chprintf((BaseSequentialStream *)&SD3, "proximity  : %d \r\n" , minimum_proximity);
-//		return -10*manual_speed(minimum_proximity); // call the ambulance, call the ambulance!
+		SEARCH_SIDE = SEARCH_RIGHT;
 	}
-	return 0;
 }
 
-int16_t manual_speed(uint16_t distance){ //should only be called with IR3 and 4
-	int16_t extra_speed = 0;
+void manual_speed(uint16_t distance){ //should only be called with IR3 and 4
+
 	int16_t error = 0;
 	error = log10(distance - PROXIMITY_THRESHOLD);
 
 	if(fabs(error) < ERROR_THRESHOLD){
-		return 0;
+		extra_speed = 0;
 	}
 	extra_speed =  error; //maybe add a mini KP factor
+}
+
+int16_t get_extra_speed(void){
+	find_proximity();
 	return extra_speed;
+}
+
+SEARCHING_SIDE get_search_side(void){
+	if(SEARCH_SIDE == NO_SEARCH_SIDE){
+		find_proximity();
+	}
+	return SEARCH_SIDE;
+}
+
+void set_search_side(SEARCHING_SIDE side){
+	SEARCH_SIDE = side;
 }

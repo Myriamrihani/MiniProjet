@@ -29,7 +29,17 @@ typedef enum {
 
 }IR_NUMBER;
 
-int16_t find_proximity(void);
-int16_t manual_speed(uint16_t distance);
+typedef enum {
+	NO_SEARCH_SIDE = 0,
+	SEARCH_LEFT,
+	SEARCH_RIGHT,
+
+}SEARCHING_SIDE;
+
+void find_proximity(void);
+void manual_speed(uint16_t distance);
+int16_t get_extra_speed(void);
+SEARCHING_SIDE get_search_side(void);
+void set_search_side(SEARCHING_SIDE side);
 
 #endif /* OBSTACLES_H_ */

@@ -73,12 +73,13 @@ void motor_path_mode(void) {
 
 void moving_the_robot(void){
     int16_t extra_speed = 0;
-   // int16_t speed_correction = 0;
 
 	if(get_number_of_lines() > 0){
+    	turning_counter = 0;
+    	set_search_side(NO_SEARCH_SIDE);
 		chprintf((BaseSequentialStream *)&SD3, "line_position is: %d \r\n" , get_line_position());
 		//computes the speed to give to the motors
-		extra_speed = find_proximity();
+		extra_speed = get_extra_speed();
 
 	    //computes a correction factor to let the robot rotate to be in front of the line
 	    speed_correction = (get_line_position() - (IMAGE_BUFFER_SIZE/2));
@@ -107,20 +108,41 @@ void moving_the_robot(void){
 	    	left_motor_set_speed(right_speed);
 	    	right_motor_set_speed(left_speed);
 	    }
-	    else if((turning_counter < 50) && (speed_correction < 0)){
-	    	right_motor_set_speed(50);
-	    	left_motor_set_speed(-50);
-	    	++turning_counter;
+	    else if(turning_counter < 50){
+			chprintf((BaseSequentialStream *)&SD3, "counter is: %d \r\n", turning_counter);
+	    	if(speed_correction < 0){
+	    		if(get_search_side() == SEARCH_RIGHT){
+	    			chprintf((BaseSequentialStream *)&SD3, "searching right \r\n");
+	    			right_motor_set_speed(-100);
+		    		left_motor_set_speed(100);
+		    		++turning_counter;
+	    		}
+	    		else {
+	    			right_motor_set_speed(100);
+		    		left_motor_set_speed(-100);
+		    		++turning_counter;
+	    		}
+	    	}
+	    	else if(speed_correction > 0){
+	    		if(get_search_side() == SEARCH_LEFT){
+	    			chprintf((BaseSequentialStream *)&SD3, "searching left \r\n");
+	    			right_motor_set_speed(100);
+		    		left_motor_set_speed(-100);
+		    		++turning_counter;
+	    		}
+	    		else {
+	    			right_motor_set_speed(-100);
+		    		left_motor_set_speed(100);
+		    		++turning_counter;
+	    		}
+	    	}
 	    }
-	    else if((turning_counter < 50) && (speed_correction > 0)){
-	    	right_motor_set_speed(-50);
-	    	left_motor_set_speed(50);
-	    	++turning_counter;
-	    }
+
 	    else {
 	    	motor_stop();
 	    	speed_correction = 0;
 	    	turning_counter = 0;
+	    	set_search_side(NO_SEARCH_SIDE);
 	    	chprintf((BaseSequentialStream *)&SD3, "no lines for path \r\n" );
 	    	palClearPad(GPIOD, GPIOD_LED5);
 	    	chThdSleepMilliseconds(2000);
