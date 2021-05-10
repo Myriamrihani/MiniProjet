@@ -150,17 +150,17 @@ bool get_dance_memo_complete(void){
 void dancing(void){
 	if ( count_step <= nb_pas-1) {
 		if(dance_memo[count_step] == FRONT) {
-			left_motor_set_speed(600);
-			right_motor_set_speed(600);
+			left_motor_set_speed(MOTOR_SPEED);
+			right_motor_set_speed(MOTOR_SPEED);
 		} else if(dance_memo[count_step] == BACK) {
-			left_motor_set_speed(-600);
-			right_motor_set_speed(-600);
+			left_motor_set_speed(-MOTOR_SPEED);
+			right_motor_set_speed(-MOTOR_SPEED);
 		} else if(dance_memo[count_step] == RIGHT) {
-			left_motor_set_speed(600);
-			right_motor_set_speed(-600);
+			left_motor_set_speed(MOTOR_SPEED);
+			right_motor_set_speed(-MOTOR_SPEED);
 		} else if(dance_memo[count_step] == LEFT) {
-			left_motor_set_speed(-600);
-			right_motor_set_speed(600);
+			left_motor_set_speed(-MOTOR_SPEED);
+			right_motor_set_speed(MOTOR_SPEED);
 		} else if(dance_memo[count_step] == STOP) {
 			left_motor_set_speed(0);
 			right_motor_set_speed(0);
@@ -185,9 +185,12 @@ void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
 
 	if(past_freq == get_frequency()){ //we want to make sure that we did not change the frequency type
 
+
 		if(get_number_of_lines() > 0) {
+			palClearPad(GPIOB, GPIOB_LED_BODY);
 			set_mode(DANCE);
 			set_nb_pas(get_number_of_lines());
+
 			change_search_state(false);
 
 			chprintf((BaseSequentialStream *)&SD3, "nb lines in dance  : %d \r\n" , get_number_of_lines());
@@ -246,6 +249,7 @@ void reset_dance(void){
 	set_start_dance(0);
 	chprintf((BaseSequentialStream *)&SD3, "start dance  : %d \r\n" , get_start_dance());
 	set_mode(VOICE);
+	palSetPad(GPIOB, GPIOB_LED_BODY);
 }
 
 uint8_t get_nb_pas(void){

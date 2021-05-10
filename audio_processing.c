@@ -41,8 +41,8 @@ static float micBack_output[FFT_SIZE];
 //#define FREQ_BACKWARD	26	//406Hz
 #define MAX_FREQ		30	//we don't analyze after this index to not use resources for nothing
 
-#define FREQ_WOMAN_L		(FREQ_WOMAN-1)
-#define FREQ_WOMAN_H		(FREQ_WOMAN+1)
+#define FREQ_WOMAN_L		(FREQ_WOMAN-5)
+#define FREQ_WOMAN_H		(FREQ_WOMAN+5)
 #define FREQ_MAN_L			(FREQ_MAN-1)
 #define FREQ_MAN_H			(FREQ_MAN+1)
 
@@ -171,9 +171,6 @@ void sound_remote(float* data){
 	if(get_dance_memo_complete() ==1 ){
 		switch(frequency){
 			case 0 :
-				if(max_norm_index >= FREQ_MAN_L && max_norm_index <= FREQ_MAN_H){
-					start_dance = 1;
-				}
 				break;
 			case 1:
 				if(max_norm_index >= FREQ_WOMAN_L && max_norm_index <= FREQ_WOMAN_H){

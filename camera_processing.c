@@ -217,7 +217,7 @@ void reset_line(void){
 }
 
 uint8_t get_number_of_lines(void){
-	if(line_type == NUMBER_OF_LINES){
+	if((line_type == NUMBER_OF_LINES) && (searching_for_lines == true)){
 	switch (number_of_lines){
 	case 0: 		//All LEDs are off
 		break;

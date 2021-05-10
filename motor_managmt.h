@@ -9,8 +9,6 @@
 #define MOTOR_MANAGMT_H_
 
 #define ROTATION_THRESHOLD		10
-#define VOICE_ROTATION_AMP		400
-#define IR_ROTATION_AMP			100
 #define MOTOR_SPEED				MOTOR_SPEED_LIMIT/3
 
 typedef enum {

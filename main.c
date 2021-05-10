@@ -81,7 +81,6 @@ int main(void)
 	dac_start();
     usb_start();
 
-
 	/** Inits the Inter Process Communication bus. */
 	messagebus_init(&bus, &bus_lock, &bus_condvar);
     imu_start();
@@ -98,8 +97,6 @@ int main(void)
 
     chThdCreateStatic(selector_freq_thd_wa, sizeof(selector_freq_thd_wa), NORMALPRIO, selector_freq_thd, NULL);
     chThdSleepMilliseconds(1000);
-    uint8_t freq_counter = 0;
-    uint8_t past_freq = 0;
 
     change_search_state(true);
     set_line_type(NUMBER_OF_LINES);
@@ -120,9 +117,6 @@ int main(void)
 				if(get_line_type() == NUMBER_OF_LINES){
 					dance(WOMAN, &imu_values);
 				}
-//				if(get_line_type() == LINE_POSITION){
-//					set_mode(VOICE);
-//				}
 				break;
 
 			case 2:
