@@ -1,9 +1,3 @@
-/*
- * moto_managmt.h
- *
- *  Created on: 27 Apr 2021
- *      Author: myriamrihani
- */
 
 #ifndef MOTOR_MANAGMT_H_
 #define MOTOR_MANAGMT_H_

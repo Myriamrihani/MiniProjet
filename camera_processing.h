@@ -1,9 +1,3 @@
-/*
- * camera_processing.h
- *
- *      Author: Bryan Kheirallah
- */
-
 #ifndef CAMERA_PROCESSING_H_
 #define CAMERA_PROCESSING_H_
 

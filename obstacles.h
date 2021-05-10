@@ -1,10 +1,3 @@
-/*
- * obstacles.h
- *
- *  Created on: 21 Apr 2021
- *      Author: Bryan Kheirallah
- */
-
 #ifndef OBSTACLES_H_
 #define OBSTACLES_H_
 

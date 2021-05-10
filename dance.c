@@ -1,10 +1,3 @@
-/*
- * dance.c
- *
- *  Created on: 8 Apr 2021
- *      Author: myriamrihani
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -1,10 +1,3 @@
-/*
- * dance.h
- *
- *  Created on: 8 Apr 2021
- *      Author: myriamrihani
- */
-
 #ifndef DANCE_H_
 #define DANCE_H_
 
