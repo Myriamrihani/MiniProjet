@@ -180,7 +180,7 @@ void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
 
 
 		if(get_number_of_lines() > 0) {
-			palClearPad(GPIOB, GPIOB_LED_BODY);
+			palSetPad(GPIOB, GPIOB_LED_BODY);
 			set_mode(DANCE);
 			set_nb_pas(get_number_of_lines());
 
@@ -193,12 +193,12 @@ void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
 				wait_start_signal();
 				chprintf((BaseSequentialStream *)&SD3, "start dance  : %d \r\n" , get_start_dance());
 			    if (get_start_dance() == 1) {
-			    	if(freq == WOMAN) {playMelody(MARIO, ML_SIMPLE_PLAY, NULL);}
-			    	if(freq == MAN) {playMelody(RUSSIA, ML_SIMPLE_PLAY, NULL);}
+			    	if(freq == HUMAN) {playMelody(MARIO, ML_SIMPLE_PLAY, NULL);}
 			    	dancing();
 			    }
 			} else  if (is_dance_clear()) {fill_dance(imu_values);}
 		} else if((get_number_of_lines() == 0)){
+			stopCurrentMelody();
 			change_search_state(true);
 		    chThdSleepMilliseconds(2000);
 		}
@@ -242,7 +242,7 @@ void reset_dance(void){
 	set_start_dance(0);
 	chprintf((BaseSequentialStream *)&SD3, "start dance  : %d \r\n" , get_start_dance());
 	set_mode(VOICE);
-	palSetPad(GPIOB, GPIOB_LED_BODY);
+	palClearPad(GPIOB, GPIOB_LED_BODY);
 }
 
 uint8_t get_nb_pas(void){

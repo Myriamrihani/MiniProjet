@@ -46,31 +46,31 @@ static void serial_start(void)
     sdStart(&SD3, &ser_cfg); // UART3. Connected to the second com port of the programmer
 }
 
-static THD_WORKING_AREA(selector_freq_thd_wa, 2048);
-static THD_FUNCTION(selector_freq_thd, arg)
-{
-    (void) arg;
-    chRegSetThreadName(__FUNCTION__);
-
-    while(1) {
-
-		switch(get_selector()) {
-			case 0:
-				set_frequency(NO_FREQ);
-				break;
-
-			case 1:
-				set_frequency(WOMAN);
-				break;
-
-			case 2:
-				set_frequency(MAN);
-				break;
-
-			default: break;
-		}
-    }
-}
+//static THD_WORKING_AREA(selector_freq_thd_wa, 2048);
+//static THD_FUNCTION(selector_freq_thd, arg)
+//{
+//    (void) arg;
+//    chRegSetThreadName(__FUNCTION__);
+//
+//    while(1) {
+//
+//		switch(get_selector()) {
+//			case 0:
+//				set_frequency(NO_FREQ);
+//				break;
+//
+//			case 1:
+//				set_frequency(WOMAN);
+//				break;
+//
+//			case 2:
+//				set_frequency(MAN);
+//				break;
+//
+//			default: break;
+//		}
+//    }
+//}
 
 int main(void)
 {
@@ -95,7 +95,7 @@ int main(void)
     playSoundFileStart();
     mic_start(&processAudioData);
 
-    chThdCreateStatic(selector_freq_thd_wa, sizeof(selector_freq_thd_wa), NORMALPRIO, selector_freq_thd, NULL);
+    //chThdCreateStatic(selector_freq_thd_wa, sizeof(selector_freq_thd_wa), NORMALPRIO, selector_freq_thd, NULL);
     chThdSleepMilliseconds(1000);
 
     change_search_state(true);
@@ -106,7 +106,7 @@ int main(void)
         chThdSleepMilliseconds(1000);
         //wait for new measures to be published
         messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
-		switch(get_frequency()) {
+		switch(get_selector()) {
 			case 0: //only used for testing
 				set_line_type(LINE_POSITION);
 				set_mode(VOICE);
@@ -114,17 +114,14 @@ int main(void)
 				break;
 
 			case 1:
+				set_frequency(HUMAN);
+
 				if(get_line_type() == NUMBER_OF_LINES){
-					dance(WOMAN, &imu_values);
+					dance(HUMAN, &imu_values);
 				}
 				break;
 
 			case 2:
-				if(get_line_type() == NUMBER_OF_LINES){ dance(WOMAN, &imu_values); }
-				if(get_line_type() == LINE_POSITION){ change_search_state(true); }
-				set_mode(DANCE);
-	        	set_line_type(NUMBER_OF_LINES);
-	        	dance(MAN, &imu_values);
 				break;
 		}
     }

@@ -10,6 +10,8 @@
 #include "camera_processing.h"
 #include "obstacles.h"
 #include "audio_processing.h"
+#include "audio/play_melody.h"
+
 
 static MODE mode = DANCE;
 
@@ -82,14 +84,13 @@ void moving_the_robot(void){
 			reset_line();
 			change_search_state(true);
 	    }
-
 	}
 	else{
 	    if(get_listening_voice() == 1){
 	    	left_motor_set_speed(right_speed);
 	    	right_motor_set_speed(left_speed);
 	    }
-	    else if(turning_counter < 50){
+	    else if(turning_counter < 20){
 	    	if(speed_correction < 0){
 	    		if(get_search_side() == SEARCH_RIGHT){
 	    			right_motor_set_speed(-MOTOR_SPEED);
@@ -116,18 +117,22 @@ void moving_the_robot(void){
 	    	}
 	    }
 	    else {
-	    	motor_stop();
-	    	speed_correction = 0;
-	    	turning_counter = 0;
-	    	set_search_side(NO_SEARCH_SIDE);
-	    	chprintf((BaseSequentialStream *)&SD3, "no lines for path \r\n" );
-	    	palClearPad(GPIOD, GPIOD_LED5);
-	    	chThdSleepMilliseconds(2000);
-	    	palSetPad(GPIOD, GPIOD_LED5);
-	    	//set_line_type(NUMBER_OF_LINES);
-	    	reset_line();
-	    	change_search_state(true);
+	        chThdSleepMilliseconds(2000);
+	    	if(get_listening_voice() == 1){
+	    	left_motor_set_speed(right_speed);
+	    	right_motor_set_speed(left_speed);
+	    	} else {
+	    		playMelody(MARIO_DEATH, ML_SIMPLE_PLAY, NULL);
+		    	motor_stop();
+		    	speed_correction = 0;
+		    	turning_counter = 0;
+		    	set_search_side(NO_SEARCH_SIDE);
+		    	chprintf((BaseSequentialStream *)&SD3, "no lines for path \r\n" );
+		        chThdSleepMilliseconds(2000);
+		    	set_line_type(NUMBER_OF_LINES);
+		    	reset_line();
+		    	change_search_state(true);
+		    }
 	    }
 	}
-
 }

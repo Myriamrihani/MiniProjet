@@ -21,7 +21,7 @@ typedef enum {
 
 typedef enum {
 	NO_FREQ = 0,
-	WOMAN,
+	HUMAN,
 	MAN,
 }FREQUENCY_TO_DETECT;
 

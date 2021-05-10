@@ -5,6 +5,7 @@
 #define ROTATION_THRESHOLD		10
 #define MOTOR_SPEED				MOTOR_SPEED_LIMIT/3
 
+
 typedef enum {
 	DANCE = 0,
 	VOICE,
