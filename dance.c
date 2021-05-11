@@ -229,11 +229,10 @@ void display_dance(void){
 }
 
 void reset_dance(void){
+	motor_stop();
 	clear_dance();
 	stopCurrentMelody();
 	display_dance();
-	left_motor_set_speed(0);
-	right_motor_set_speed(0);
 	count_step = 0;
 	reset_line();
 	nb_pas = 0;
