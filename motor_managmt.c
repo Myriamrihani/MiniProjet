@@ -29,7 +29,7 @@ MODE get_mode(void){
 	return mode;
 }
 
-void motor_take_direction(float angle){
+void motor_follow_voice(float angle){
 
 	if((angle > 0) & (angle <= 180)){
 		right_speed = -MOTOR_SPEED;
@@ -119,15 +119,14 @@ void moving_the_robot(void){
 	    else {
 	        chThdSleepMilliseconds(2000);
 	    	if(get_listening_voice() == 1){
-	    	left_motor_set_speed(right_speed);
-	    	right_motor_set_speed(left_speed);
+	    		left_motor_set_speed(right_speed);
+	    		right_motor_set_speed(left_speed);
 	    	} else {
 	    		playMelody(MARIO_DEATH, ML_SIMPLE_PLAY, NULL);
 		    	motor_stop();
 		    	speed_correction = 0;
 		    	turning_counter = 0;
 		    	set_search_side(NO_SEARCH_SIDE);
-		    	chprintf((BaseSequentialStream *)&SD3, "no lines for path \r\n" );
 		        chThdSleepMilliseconds(2000);
 		    	set_line_type(NUMBER_OF_LINES);
 		    	reset_line();

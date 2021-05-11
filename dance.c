@@ -24,14 +24,12 @@
 static mvmt_robot tilt;
 static uint8_t count_step = 0;
 static uint8_t nb_pas = 0;
-static uint8_t freq_counter = 0;
 
 static mvmt_robot dance_memo[NB_PAS] = {STOP};
 
-static bool dance_memo_complete = 0;
-static bool dance_cleared = 1;
+static bool dance_memo_complete = false;
+static bool dance_cleared = true;
 
-static FREQUENCY_TO_DETECT past_freq = 0;
 
 void set_nb_pas(uint8_t nb){
 	nb_pas = nb;
@@ -123,15 +121,13 @@ void fill_dance(imu_msg_t *imu_values){
         }
     }
 
-     chprintf((BaseSequentialStream *)&SD3, "count : %d \r\n" , count_step);
-     chprintf((BaseSequentialStream *)&SD3, "tilt : %d \r\n" , tilt);
 
      dance_memo[count_step] = tilt;
      count_step++;
      if (count_step >= nb_pas){
      	count_step = 0;
-     	dance_memo_complete = 1;
-     	dance_cleared = 0;
+     	dance_memo_complete = true;
+     	dance_cleared = false;
   	}
 }
 
@@ -163,50 +159,35 @@ void dancing(void){
 		reset_dance();
         chThdSleepMilliseconds(3000);
         set_line_type(LINE_POSITION);
-		change_search_state(true);	//////////////////
+		change_search_state(true);
+		set_mode(VOICE);
 
 	}
 }
 
-void dance(FREQUENCY_TO_DETECT freq, imu_msg_t *imu_values){
-	++freq_counter;
-
-	if(freq_counter == 1) {
-		past_freq = freq;
-	}
+void dance(imu_msg_t *imu_values){
 	set_line_type(NUMBER_OF_LINES);
 
-	if(past_freq == get_frequency()){ //we want to make sure that we did not change the frequency type
+	if(get_number_of_lines() > 0) {
+		palSetPad(GPIOB, GPIOB_LED_BODY);
+		set_mode(DANCE);
+		set_nb_pas(get_number_of_lines());
 
+		change_search_state(false);
 
-		if(get_number_of_lines() > 0) {
-			palSetPad(GPIOB, GPIOB_LED_BODY);
-			set_mode(DANCE);
-			set_nb_pas(get_number_of_lines());
-
-			change_search_state(false);
-
-			chprintf((BaseSequentialStream *)&SD3, "nb lines in dance  : %d \r\n" , get_number_of_lines());
-			chprintf((BaseSequentialStream *)&SD3, "start dance  : %d \r\n" , get_start_dance());
-
-			if(get_dance_memo_complete() == 1){
-				wait_start_signal();
-				chprintf((BaseSequentialStream *)&SD3, "start dance  : %d \r\n" , get_start_dance());
-			    if (get_start_dance() == 1) {
-			    	if(freq == HUMAN) {playMelody(MARIO, ML_SIMPLE_PLAY, NULL);}
-			    	dancing();
-			    }
-			} else  if (is_dance_clear()) {fill_dance(imu_values);}
-		} else if((get_number_of_lines() == 0)){
-			stopCurrentMelody();
-			change_search_state(true);
-		    chThdSleepMilliseconds(2000);
-		}
-	} else {
-	    chprintf((BaseSequentialStream *)&SD3, "changed frequency \r\n");
-		freq_counter = 0;
-		reset_dance();
+		if(get_dance_memo_complete() == true){
+			wait_start_signal();
+		    if (get_start_dance() == true) {
+		    	playMelody(MARIO, ML_SIMPLE_PLAY, NULL);
+		    	dancing();
+		    }
+		} else  if (is_dance_clear()) {fill_dance(imu_values);}
+	} else if((get_number_of_lines() == 0)){
+		stopCurrentMelody();
+		change_search_state(true);
+	    chThdSleepMilliseconds(2000);
 	}
+
 }
 
 void clear_dance(void){
@@ -232,16 +213,12 @@ void reset_dance(void){
 	clear_dance();
 	stopCurrentMelody();
 	display_dance();
-	left_motor_set_speed(0);
-	right_motor_set_speed(0);
+	motor_stop();
 	count_step = 0;
 	reset_line();
 	nb_pas = 0;
 	dance_memo_complete = 0;
-	chprintf((BaseSequentialStream *)&SD3, "start dance  : %d \r\n" , get_start_dance());
 	set_start_dance(0);
-	chprintf((BaseSequentialStream *)&SD3, "start dance  : %d \r\n" , get_start_dance());
-	set_mode(VOICE);
 	palClearPad(GPIOB, GPIOB_LED_BODY);
 }
 
