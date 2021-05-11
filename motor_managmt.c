@@ -29,7 +29,7 @@ MODE get_mode(void){
 	return mode;
 }
 
-void motor_follow_voice(float angle){
+void motor_take_direction(float angle){
 
 	if((angle > 0) & (angle <= 180)){
 		right_speed = -MOTOR_SPEED;

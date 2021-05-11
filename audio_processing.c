@@ -36,12 +36,15 @@ static float micBack_output[FFT_SIZE];
 
 #define MIN_FREQ		10	//we don't analyze before this index to not use resources for nothing
 #define FREQ_HUMAN		16	//250Hz
-
+#define FREQ_MAN		12	//296Hz
+//#define FREQ_RIGHT		23	//359HZ
+//#define FREQ_BACKWARD	26	//406Hz
 #define MAX_FREQ		30	//we don't analyze after this index to not use resources for nothing
 
 #define FREQ_HUMAN_L		(FREQ_HUMAN-5)
 #define FREQ_HUMAN_H		(FREQ_HUMAN+5)
-
+#define FREQ_MAN_L			(FREQ_MAN-1)
+#define FREQ_MAN_H			(FREQ_MAN+1)
 
 static bool start_dance = 0;
 static float angle = 0;
@@ -138,7 +141,7 @@ void set_motor_angle(void){
 			listening_voice = 0;
 		}
 	}
-	motor_follow_voice(angle);
+	motor_take_direction(angle);
 }
 
 bool get_listening_voice(void){
@@ -166,12 +169,21 @@ void sound_remote(float* data){
 	}
 
 	if(get_dance_memo_complete() ==1 ){
-		if(max_norm_index >= FREQ_HUMAN_L && max_norm_index <= FREQ_HUMAN_H){
-			start_dance = 1;
+		switch(frequency){
+			case 0 :
+				break;
+			case 1:
+				if(max_norm_index >= FREQ_HUMAN_L && max_norm_index <= FREQ_HUMAN_H){
+					start_dance = 1;
+				}
+				break;
+			case 2:
+				if(max_norm_index >= FREQ_MAN_L && max_norm_index <= FREQ_MAN_H){
+					start_dance = 1;
+				}
 		}
 	}
 }
-
 
 void set_frequency(FREQUENCY_TO_DETECT freq){
 	frequency = freq;
