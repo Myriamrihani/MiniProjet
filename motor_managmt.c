@@ -91,6 +91,7 @@ void moving_the_robot(void){
 	    	right_motor_set_speed(left_speed);
 	    }
 	    else if(turning_counter < 20){
+//	    	SEARCHING_SIDE side = get_search_side();
 	    	if(speed_correction < 0){
 	    		if(get_search_side() == SEARCH_RIGHT){
 	    			right_motor_set_speed(-IR_MOTOR_SPEED);
@@ -122,7 +123,7 @@ void moving_the_robot(void){
 	    		left_motor_set_speed(right_speed);
 	    		right_motor_set_speed(left_speed);
 	    	} else {
-	    		playMelody(MARIO_DEATH, ML_SIMPLE_PLAY, NULL);
+//	    		playMelody(MARIO_DEATH, ML_SIMPLE_PLAY, NULL);
 		    	motor_stop();
 		    	speed_correction = 0;
 		    	turning_counter = 0;

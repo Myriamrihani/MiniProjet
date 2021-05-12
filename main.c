@@ -91,7 +91,9 @@ int main(void)
             set_line_type(NUMBER_OF_LINES);
             reset_dance();
             break;
-
+        case 2 :
+        	set_line_type(LINE_POSITION);
+        	set_mode(VOICE);
         default: break;
         }
     }
