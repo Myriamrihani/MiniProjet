@@ -101,7 +101,7 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 	}
 
 	if(number_of_lines > 0) {		//to stop searching
-		set_search_state(false);
+		searching_for_lines = false;
 	}
 }
 
@@ -184,9 +184,7 @@ void set_search_state(bool new_state){
 	searching_for_lines = new_state;
 }
 
-bool get_search_state(void){
-	return searching_for_lines;
-}
+
 
 void set_line_type(LINE_TYPE_EXTRACT type){
 	line_type = type;

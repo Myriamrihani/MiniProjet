@@ -64,7 +64,7 @@ void fill_dance(imu_msg_t *imu_values){
 			palSetPad(GPIOD, GPIOD_LED7);
     }
 
-    if((fabs(acc_x) < MIN_GRAV_VALUE) & (fabs(acc_y) < MIN_GRAV_VALUE))
+    if((fabs(acc_x) < MIN_GRAV_VALUE) & (fabs(acc_y) < MIN_GRAV_VALUE))			///maybe un OR dans le if précédent?
     {
     	//on etient toutes les LED car le robot est tout droit
     	palSetPad(GPIOD, GPIOD_LED1);
@@ -166,8 +166,6 @@ void dance(imu_msg_t *imu_values){
 		set_mode(DANCE);
 		nb_pas = get_number_of_lines();
 		chprintf((BaseSequentialStream *)&SD3, "pas  : %d \r\n" , nb_pas);
-
-
 		set_search_state(false);
 
 		if(get_dance_memo_complete() == true){
