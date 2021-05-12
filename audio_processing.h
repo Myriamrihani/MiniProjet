@@ -19,19 +19,17 @@ typedef enum {
 	BACK_OUTPUT
 } BUFFER_NAME_t;
 
-typedef enum {
-	NO_FREQ = 0,
-	HUMAN,
-	MAN,
-}FREQUENCY_TO_DETECT;
 
-
+//compare the 4 mics amplitude
 void compare_mic(float* right, float* left, float* back, float* front);
+
+//finds the highest amplitude peak in data
 float highest_peak(float* data);
+
+//determines the rotation angle via voice
 void set_motor_angle(void);
 void processAudioData(int16_t *data, uint16_t num_samples);
-void set_frequency(FREQUENCY_TO_DETECT freq);
-FREQUENCY_TO_DETECT get_frequency(void);
+
 bool get_start_dance(void);
 void set_start_dance(bool state);
 bool get_listening_voice(void);

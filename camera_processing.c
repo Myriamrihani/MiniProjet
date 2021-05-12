@@ -86,7 +86,6 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 					stop_line_limit_search = 0;
 					wrong_line = 1;
 					++number_of_lines;
-					chprintf((BaseSequentialStream *)&SD3, "line position  : %d \r\n" , line_position);
 
 					if(line_type == LINE_POSITION){
 						i = IMAGE_BUFFER_SIZE;	//allows us to stop after 1 line
