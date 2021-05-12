@@ -43,8 +43,8 @@ static bool start_dance = 0;
 static float angle = 0;
 static bool listening_voice = 0;
 
-static mvmt_robot voice_fb = STOP;
-static mvmt_robot voice_rl = STOP;
+static MVMT_ROBOT voice_fb = STOP;
+static MVMT_ROBOT voice_rl = STOP;
 
 
 float highest_peak(float* data){

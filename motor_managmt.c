@@ -13,7 +13,7 @@
 #include "audio/play_melody.h"
 
 
-static MODE mode = DANCE;
+static MIC_MODE mode = DANCE;
 
 static int16_t right_speed = 0; 			    // in [step/s]
 static int16_t left_speed = 0; 					// in [step/s]
@@ -21,11 +21,11 @@ static uint16_t turning_counter = 0;
 static int16_t speed_correction = 0;
 
 
-void set_mode(MODE new_mode){
+void set_mode(MIC_MODE new_mode){
 	mode = new_mode;
 }
 
-MODE get_mode(void){
+MIC_MODE get_mode(void){
 	return mode;
 }
 
@@ -112,8 +112,8 @@ void motor_find_path(void){
 	 else {										///ptet faire une fonction "end_of_path()"
 		 chThdSleepMilliseconds(2000);
 		 if(get_listening_voice() == 1){
-			 left_motor_set_speed(right_speed);
-			 right_motor_set_speed(left_speed);
+			 left_motor_set_speed(left_speed);
+			 right_motor_set_speed(right_speed);
 		 } else {
 //    		playMelody(MARIO_DEATH, ML_SIMPLE_PLAY, NULL);
 			 motor_stop();

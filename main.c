@@ -94,6 +94,7 @@ int main(void)
         case 2 :
         	set_line_type(LINE_POSITION);
         	set_mode(VOICE);
+        	break;
         default: break;
         }
     }
