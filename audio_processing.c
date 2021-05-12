@@ -4,16 +4,13 @@
 #include <usbcfg.h>
 #include <chprintf.h>
 
-#include <motors.h>
 #include <audio/microphone.h>
 #include <audio_processing.h>
 #include <fft.h>
 #include <arm_math.h>
 #include <com_mic.h>
-#include "motors.h"
 #include "motor_managmt.h"
 #include "dance.h"
-#include "camera_processing.h"
 
 //semaphore
 static BSEMAPHORE_DECL(micro_ready_sem, TRUE);
@@ -39,6 +36,8 @@ static float micBack_output[FFT_SIZE];
 
 #define FREQ_HUMAN_L		(FREQ_HUMAN-5)
 #define FREQ_HUMAN_H		(FREQ_HUMAN+5)
+
+#define MIN_ROTATION_ANGLE 22.5
 
 static bool start_dance = 0;
 static float angle = 0;
@@ -103,32 +102,31 @@ void compare_mic(float* right, float* left, float* back, float* front){
 		set_motor_angle();
 	} else {
 		listening_voice = 0;
-		//set_line_type(LINE_POSITION);
 	}
 }
 
 void set_motor_angle(void){
 	if(voice_fb == FRONT) {
 		if(voice_rl == LEFT) {
-			angle = 22.5;
+			angle = MIN_ROTATION_ANGLE;
 		} else if(voice_rl == RIGHT){
-			angle = -22.5;
+			angle = -MIN_ROTATION_ANGLE;
 		} else if(voice_rl == STOP){
 			angle = 0;
 		}
 	} else if(voice_fb == BACK) {
 		if(voice_rl == RIGHT) {
-			angle = -67.5;
+			angle = -3*MIN_ROTATION_ANGLE;
 		} else if(voice_rl == LEFT){
-			angle = 67.5;
+			angle = 3*MIN_ROTATION_ANGLE;
 		} else if(voice_rl == STOP){
-			angle = 180;
+			angle = 8*MIN_ROTATION_ANGLE;
 		}
 	}else if(voice_fb == STOP) {
 		if(voice_rl == LEFT) {
-			angle = 45;
+			angle = 2*MIN_ROTATION_ANGLE;
 		} else if(voice_rl == RIGHT) {
-			angle = -45;
+			angle = -2*MIN_ROTATION_ANGLE;
 		} else if(voice_rl == STOP) {
 			listening_voice = 0;
 		}

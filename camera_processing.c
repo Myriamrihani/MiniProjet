@@ -9,10 +9,9 @@
 #include <math.h>
 #include "memory_protection.h"
 #include <camera/po8030.h>
-#include "motors.h"
 #include <camera_processing.h>
 #include <camera/dcmi_camera.h>
-#include <audio_processing.h>
+#include <motor_managmt.h>
 
 
 static uint8_t number_of_lines = 0;
@@ -92,10 +91,6 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 					if(line_type == LINE_POSITION){
 						i = IMAGE_BUFFER_SIZE;	//allows us to stop after 1 line
 					}
-					else if(line_type == NUMBER_OF_LINES){	//this part is just comments, to be removed
-						//chThdSleepMilliseconds(300);	//allows us to slide a paper in before the first line is detected alone
-						chprintf((BaseSequentialStream *)&SD3, "nb lines: %d \r\n", number_of_lines);
-					}
 				}
 			}
 		}while(wrong_line);
@@ -107,7 +102,7 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 	}
 
 	if(number_of_lines > 0) {		//to stop searching
-		change_search_state(false);
+		set_search_state(false);
 	}
 }
 
@@ -186,7 +181,7 @@ void wait_image_detected(void){
 	chBSemWait(&image_ready_sem);
 }
 
-void change_search_state(bool new_state){
+void set_search_state(bool new_state){
 	searching_for_lines = new_state;
 }
 

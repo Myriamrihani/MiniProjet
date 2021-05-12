@@ -14,11 +14,6 @@
 #include "camera_processing.h"
 #include "audio/play_melody.h"
 #include "audio/audio_thread.h"
-#include "selector.h"
-#include <obstacles.h>
-#include "motor_managmt.h"
-
-
 
 
 static mvmt_robot tilt;
@@ -39,28 +34,28 @@ void set_nb_pas(uint8_t nb){
 void fill_dance(imu_msg_t *imu_values){
 
     //variable to measure the time some functions take
-    //volatile to not be optimized out by the compiler if not used
-    volatile uint16_t time = 0;
-
-    /*
-    *   Use this to reset the timer counter and prevent the system
-    *   to switch to another thread.
-    *   Place it at the beginning of the code you want to measure
-    */
-    chSysLock();
-    //reset the timer counter
-    GPTD11.tim->CNT = 0;
+//    //volatile to not be optimized out by the compiler if not used
+//    volatile uint16_t time = 0;
+//
+//    /*
+//    *   Use this to reset the timer counter and prevent the system
+//    *   to switch to another thread.
+//    *   Place it at the beginning of the code you want to measure
+//    */
+//    chSysLock();
+//    //reset the timer counter
+//    GPTD11.tim->CNT = 0;
 
     float acc_x = imu_values->acceleration[X_AXIS];
     float acc_y = imu_values->acceleration[Y_AXIS];
 
-    /*
-       *   Use this to capture the counter and stop to prevent
-       *   the system to switch to another thread.
-       *   Place it at the end of the code you want to measure
-       */
-    time = GPTD11.tim->CNT;
-    chSysUnlock();
+//    /*
+//       *   Use this to capture the counter and stop to prevent
+//       *   the system to switch to another thread.
+//       *   Place it at the end of the code you want to measure
+//       */
+//    time = GPTD11.tim->CNT;
+//    chSysUnlock();
 
     if(count_step == 0){
 	    	palSetPad(GPIOD, GPIOD_LED1);
@@ -159,7 +154,7 @@ void dancing(void){
 		reset_dance();
         chThdSleepMilliseconds(3000);
         set_line_type(LINE_POSITION);
-		change_search_state(true);
+		set_search_state(true);
 		set_mode(VOICE);
 
 	}
@@ -171,9 +166,9 @@ void dance(imu_msg_t *imu_values){
 	if(get_number_of_lines() > 0) {
 		palSetPad(GPIOB, GPIOB_LED_BODY);
 		set_mode(DANCE);
-		set_nb_pas(get_number_of_lines());
+		nb_pas = get_number_of_lines();
 
-		change_search_state(false);
+		set_search_state(false);
 
 		if(get_dance_memo_complete() == true){
 			wait_start_signal();
@@ -184,7 +179,7 @@ void dance(imu_msg_t *imu_values){
 		} else  if (is_dance_clear()) {fill_dance(imu_values);}
 	} else if((get_number_of_lines() == 0)){
 		stopCurrentMelody();
-		change_search_state(true);
+		set_search_state(true);
 	    chThdSleepMilliseconds(2000);
 	}
 
@@ -212,13 +207,12 @@ void display_dance(void){
 void reset_dance(void){
 	clear_dance();
 	stopCurrentMelody();
-	display_dance();
 	motor_stop();
 	count_step = 0;
 	reset_line();
 	nb_pas = 0;
-	dance_memo_complete = 0;
-	set_start_dance(0);
+	dance_memo_complete = false;
+	set_start_dance(false);
 	palClearPad(GPIOB, GPIOB_LED_BODY);
 }
 

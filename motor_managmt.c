@@ -82,7 +82,7 @@ void moving_the_robot(void){
 		    right_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 - speed_correction));
 		    left_motor_set_speed((1+extra_speed)*(MOTOR_SPEED_LIMIT/3 + speed_correction));
 			reset_line();
-			change_search_state(true);
+			set_search_state(true);
 	    }
 	}
 	else{
@@ -93,25 +93,25 @@ void moving_the_robot(void){
 	    else if(turning_counter < 20){
 	    	if(speed_correction < 0){
 	    		if(get_search_side() == SEARCH_RIGHT){
-	    			right_motor_set_speed(-MOTOR_SPEED);
-		    		left_motor_set_speed(MOTOR_SPEED);
+	    			right_motor_set_speed(-IR_MOTOR_SPEED);
+		    		left_motor_set_speed(IR_MOTOR_SPEED);
 		    		++turning_counter;
 	    		}
 	    		else {
-	    			right_motor_set_speed(MOTOR_SPEED);
-		    		left_motor_set_speed(-MOTOR_SPEED);
+	    			right_motor_set_speed(IR_MOTOR_SPEED);
+		    		left_motor_set_speed(-IR_MOTOR_SPEED);
 		    		++turning_counter;
 	    		}
 	    	}
 	    	else{
 	    		if(get_search_side() == SEARCH_LEFT){
-	    			right_motor_set_speed(MOTOR_SPEED);
-		    		left_motor_set_speed(-MOTOR_SPEED);
+	    			right_motor_set_speed(IR_MOTOR_SPEED);
+		    		left_motor_set_speed(-IR_MOTOR_SPEED);
 		    		++turning_counter;
 	    		}
 	    		else {
-	    			right_motor_set_speed(-MOTOR_SPEED);
-		    		left_motor_set_speed(MOTOR_SPEED);
+	    			right_motor_set_speed(-IR_MOTOR_SPEED);
+		    		left_motor_set_speed(IR_MOTOR_SPEED);
 		    		++turning_counter;
 	    		}
 	    	}
@@ -130,7 +130,7 @@ void moving_the_robot(void){
 		        chThdSleepMilliseconds(2000);
 		    	set_line_type(NUMBER_OF_LINES);
 		    	reset_line();
-		    	change_search_state(true);
+		    	set_search_state(true);
 		    }
 	    }
 	}

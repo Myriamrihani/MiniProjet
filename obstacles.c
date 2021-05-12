@@ -1,9 +1,3 @@
-/*
- * obstacles.c
- *
- *      Author: Bryan Kheirallah
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -58,7 +52,7 @@ void manual_speed(uint16_t distance){
 	if(fabs(error) < ERROR_THRESHOLD){
 		error = 0;
 	}
-	extra_speed =  error; //maybe add a mini KP factor
+	extra_speed =  error;
 }
 
 int16_t get_extra_speed(void){

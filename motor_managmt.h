@@ -4,6 +4,7 @@
 
 #define ROTATION_THRESHOLD		10
 #define MOTOR_SPEED				MOTOR_SPEED_LIMIT/3
+#define IR_MOTOR_SPEED			200
 
 
 typedef enum {

@@ -22,7 +22,6 @@
 #include <sensors/proximity.h>
 #include "audio/play_melody.h"
 #include "audio/audio_thread.h"
-#include "button.h"
 #include "audio/play_sound_file.h"
 #include "selector.h"
 #include "motors.h"
@@ -72,7 +71,7 @@ int main(void)
 
     chThdSleepMilliseconds(1000);
 
-    change_search_state(true);
+    set_search_state(true);
     set_line_type(NUMBER_OF_LINES);
     /* Infinite loop. */
     while (1) {
@@ -81,10 +80,20 @@ int main(void)
         //wait for new measures to be published
         messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));
 
-		if(get_line_type() == NUMBER_OF_LINES){
-			dance(&imu_values);
-		}
+        switch(get_selector()){
+        case 0:
+    		if(get_line_type() == NUMBER_OF_LINES){
+    			dance(&imu_values);
+    		}
+    		break;
 
+        case 1:
+            set_line_type(NUMBER_OF_LINES);
+            reset_dance();
+            break;
+
+        default: break;
+        }
     }
 }
 

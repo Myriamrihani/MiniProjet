@@ -10,7 +10,7 @@
 #include <i2c_bus.h>
 #include <audio_processing.h>
 
-#define NB_PAS 2
+#define NB_PAS 10
 
 #define STANDARD_GRAVITY    9.80665f
 #define DEG2RAD(deg) (deg / 180 * M_PI)
