@@ -161,8 +161,6 @@ void dancing(void){
 }
 
 void dance(imu_msg_t *imu_values){
-	set_line_type(NUMBER_OF_LINES);
-
 	if(get_number_of_lines() > 0) {
 		palSetPad(GPIOB, GPIOB_LED_BODY);
 		set_mode(DANCE);
