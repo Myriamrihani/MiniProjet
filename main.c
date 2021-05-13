@@ -27,11 +27,9 @@
 #include "motors.h"
 #include "motor_managmt.h"
 
-
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
-
 
 static void serial_start(void)
 {
@@ -44,7 +42,6 @@ static void serial_start(void)
 
     sdStart(&SD3, &ser_cfg); // UART3. Connected to the second com port of the programmer
 }
-
 
 int main(void)
 {
@@ -62,7 +59,6 @@ int main(void)
     imu_msg_t imu_values;
 
     motors_init();
-  // pi_regulator_start();
     process_image_start();
     proximity_start();
     playMelodyStart();
@@ -82,15 +78,16 @@ int main(void)
 
         switch(get_selector()){
         case 0:
-    		if(get_line_type() == NUMBER_OF_LINES){
-    			dance(&imu_values);
-    		}
+            set_line_type(NUMBER_OF_LINES);
+            reset_dance();
     		break;
 
         case 1:
-            set_line_type(NUMBER_OF_LINES);
-            reset_dance();
+    		if(get_line_type() == NUMBER_OF_LINES){
+    			dance(&imu_values);
+    		}
             break;
+
         case 2 :
         	set_line_type(LINE_POSITION);
         	set_mode(VOICE);

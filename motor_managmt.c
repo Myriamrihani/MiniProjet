@@ -41,7 +41,6 @@ void motor_follow_voice(float angle){
 		left_speed = MOTOR_SPEED;
 		right_speed = MOTOR_SPEED;
 	}
-
 }
 
 void motor_stop(void){
@@ -64,25 +63,16 @@ void motor_follow_path(void){
 		speed_correction = 0;
 	}
 
-	if(get_listening_voice() == 1){				///useless imo, already done in motor_path_mode which is a loop
-		left_motor_set_speed(right_speed);		///useless imo, already done in motor_path_mode which is a loop
-		right_motor_set_speed(left_speed);		///useless imo, already done in motor_path_mode which is a loop
-	} else {									///useless imo, already done in motor_path_mode which is a loop
-		//applies the speed from the extra_speed and the correction for the rotation
-		left_motor_set_speed((1+extra_speed)*(MOTOR_SPEED + speed_correction));
-		right_motor_set_speed((1+extra_speed)*(MOTOR_SPEED - speed_correction));
-		reset_line();
-		set_search_state(true);
-	}
+	//applies the speed from the extra_speed and the correction for the rotation
+	left_motor_set_speed((1+extra_speed)*(MOTOR_SPEED + speed_correction));
+	right_motor_set_speed((1+extra_speed)*(MOTOR_SPEED - speed_correction));
+	reset_line();
+	set_search_state(true);
 }
 
 
 void motor_find_path(void){
-	 if(get_listening_voice() == 1){			///useless imo, already done in motor_path_mode which is a loop
-		 left_motor_set_speed(right_speed);		///useless imo, already done in motor_path_mode which is a loop
-		 right_motor_set_speed(left_speed);		///useless imo, already done in motor_path_mode which is a loop
-	 }											///useless imo, already done in motor_path_mode which is a loop
-	 else if(turning_counter < SEARCH_MAX_COUNTER){
+	if(turning_counter < SEARCH_MAX_COUNTER){
 		 SEARCHING_SIDE side = get_search_side();
 		 if(speed_correction < 0){
 			 if(side == SEARCH_RIGHT){
@@ -109,22 +99,17 @@ void motor_find_path(void){
 			 }
 		 }
 	 }
-	 else {										///ptet faire une fonction "end_of_path()"
+	 else {
 		 chThdSleepMilliseconds(2000);
-		 if(get_listening_voice() == 1){
-			 left_motor_set_speed(left_speed);
-			 right_motor_set_speed(right_speed);
-		 } else {
-//    		playMelody(MARIO_DEATH, ML_SIMPLE_PLAY, NULL);
-			 motor_stop();
-			 speed_correction = 0;
-			 turning_counter = 0;
-			 set_search_side(NO_SEARCH_SIDE);
-			 chThdSleepMilliseconds(2000);
-			 set_line_type(NUMBER_OF_LINES);
-			 reset_line();
-			 set_search_state(true);
-		 }
+		 playMelody(MARIO_DEATH, ML_SIMPLE_PLAY, NULL);
+		 motor_stop();
+		 speed_correction = 0;
+		 turning_counter = 0;
+		 set_search_side(NO_SEARCH_SIDE);
+		 chThdSleepMilliseconds(2000);
+		 set_line_type(NUMBER_OF_LINES);
+		 reset_line();
+		 set_search_state(true);
 	 }
 }
 

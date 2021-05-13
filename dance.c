@@ -163,7 +163,6 @@ void dance(imu_msg_t *imu_values){
 		palSetPad(GPIOB, GPIOB_LED_BODY);
 		set_mode(DANCE);
 		nb_pas = get_number_of_lines();
-		chprintf((BaseSequentialStream *)&SD3, "pas  : %d \r\n" , nb_pas);
 		set_search_state(false);
 
 		if(get_dance_memo_complete() == true){
