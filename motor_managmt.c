@@ -8,7 +8,7 @@
 #include "motors.h"
 #include "motor_managmt.h"
 #include "camera_processing.h"
-#include "obstacles.h"
+#include "ir_interference.h"
 #include "audio_processing.h"
 #include "audio/play_melody.h"
 

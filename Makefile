@@ -14,7 +14,7 @@ CSRC += ./main.c \
 		./audio_processing.c \
 		./fft.c \
 		./camera_processing.c \
-		./obstacles.c \
+		./ir_interference.c \
 		./motor_managmt.c \
 		
 

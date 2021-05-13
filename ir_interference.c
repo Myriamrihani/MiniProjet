@@ -9,7 +9,7 @@
 #include <math.h>
 #include "memory_protection.h"
 #include "motors.h"
-#include <obstacles.h>
+#include <ir_interference.h>
 #include <sensors/proximity.h>
 
 static int16_t extra_speed = 0;
