@@ -10,23 +10,17 @@
 #include <i2c_bus.h>
 #include <audio_processing.h>
 
-#define NB_PAS 10
 
-#define STANDARD_GRAVITY    9.80665f
-#define DEG2RAD(deg) (deg / 180 * M_PI)
-#define GRAVITY_CALIBRATION 32768.0f
-#define GYRO_CALIBRATION (3.814f/1000.0f)
-#define NB_SAMPLES_OFFSET     200
-#define MIN_GRAV_VALUE (STANDARD_GRAVITY*0.1)
 
-void set_nb_pas(uint8_t nb);
-uint8_t get_nb_pas(void);
+
+void set_nb_steps(uint8_t nb);
+uint8_t get_nb_steps(void);
 
 
 //Function that uses IMU to fill the dance moves into the dance vector
 void fill_dance(imu_msg_t *imu_values);
 
-//Function that executes the dances with the motor
+//Function that takes memorized dance and starts the motors
 void dancing(void);
 
 bool get_dance_memo_complete(void);

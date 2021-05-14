@@ -12,7 +12,17 @@
 #include "motor_managmt.h"
 #include "dance.h"
 
-//semaphore
+
+#define MIN_VALUE_THRESHOLD		20000
+#define MIN_DIFFERENCE_VALUE 	10000
+#define MIN_FREQ				10	//we don't analyze before and after these
+#define MAX_FREQ				30	//indexes to minimize the resources used
+#define FREQ_HUMAN				16	//250Hz
+#define FREQ_HUMAN_L			(FREQ_HUMAN-5)
+#define FREQ_HUMAN_H			(FREQ_HUMAN+5)
+#define MIN_ROTATION_ANGLE		 22.5
+
+
 static BSEMAPHORE_DECL(micro_ready_sem, TRUE);
 
 //2 times FFT_SIZE because these arrays contain complex numbers (real + imaginary)
@@ -26,23 +36,9 @@ static float micRight_output[FFT_SIZE];
 static float micFront_output[FFT_SIZE];
 static float micBack_output[FFT_SIZE];
 
-#define MIN_VALUE_THRESHOLD	20000
-#define MIN_DIFFERENCE_VALUE 10000
-
-
-#define MIN_FREQ		10	//we don't analyze before this index to not use resources for nothing
-#define FREQ_HUMAN		16	//250Hz
-#define MAX_FREQ		30	//we don't analyze after this index to not use resources for nothing
-
-#define FREQ_HUMAN_L		(FREQ_HUMAN-5)
-#define FREQ_HUMAN_H		(FREQ_HUMAN+5)
-
-#define MIN_ROTATION_ANGLE 22.5
-
 static bool start_dance = 0;
 static float angle = 0;
 static bool listening_voice = 0;
-
 static MVMT_ROBOT voice_fb = STOP;
 static MVMT_ROBOT voice_rl = STOP;
 
@@ -57,6 +53,7 @@ float highest_peak(float* data){
 
 	return max_norm;
 }
+
 
 void compare_mic(float* right, float* left, float* back, float* front){
 	if((highest_peak(left) - highest_peak(right)) > MIN_DIFFERENCE_VALUE){
@@ -83,18 +80,18 @@ void compare_mic(float* right, float* left, float* back, float* front){
 		voice_fb = FRONT;
 
 	} else if((highest_peak(back) - highest_peak(front)) > MIN_DIFFERENCE_VALUE){
-		//do a 180
+		//do a 180 turn
 		palSetPad(GPIOD, GPIOD_LED1);
 		palClearPad(GPIOD, GPIOD_LED5);
 		voice_fb = BACK;
 	}else {
-		//none
+		//nor front nor back
 		palSetPad(GPIOD, GPIOD_LED1);
 		palSetPad(GPIOD, GPIOD_LED5);
 		voice_fb = STOP;
 	}
 
-	if((voice_fb != STOP)) {
+	if((voice_fb != STOP)){
 		listening_voice = 1;
 		set_motor_angle();
 	} else if((voice_rl != STOP)){
@@ -104,6 +101,7 @@ void compare_mic(float* right, float* left, float* back, float* front){
 		listening_voice = 0;
 	}
 }
+
 
 void set_motor_angle(void){
 	if(voice_fb == FRONT) {
@@ -134,18 +132,18 @@ void set_motor_angle(void){
 	motor_follow_voice(angle);
 }
 
+
 bool get_listening_voice(void){
 	return listening_voice;
 }
+
 
 void set_listening_voice(bool state){
 	listening_voice = state;
 }
 
-/*
-*	Simple function used to detect the highest value in a buffer
-*	and to execute a motor command depending on it
-*/
+//Simple function used to detect the highest value in a buffer
+//and to execute a motor command depending on it
 void sound_remote(float* data){
 	float max_norm = MIN_VALUE_THRESHOLD;
 	int16_t max_norm_index = -1; 
@@ -170,29 +168,18 @@ bool get_start_dance(void){
 	return start_dance;
 }
 
+
 void set_start_dance(bool state) {
 	start_dance = state;
 }
 
-/*
-*	Callback called when the demodulation of the four microphones is done.
-*	We get 160 samples per mic every 10ms (16kHz)
-*	
-*	params :
-*	int16_t *data			Buffer containing 4 times 160 samples. the samples are sorted by micro
-*							so we have [micRight1, micLeft1, micBack1, micFront1, micRight2, etc...]
-*	uint16_t num_samples	Tells how many data we get in total (should always be 640)
-*/
+
+
+//	Callback called when the demodulation of the four microphones is done.
 void processAudioData(int16_t *data, uint16_t num_samples){
 
-	/*
-	*
-	*	We get 160 samples per mic every 10ms
-	*	So we fill the samples buffers to reach
-	*	1024 samples, then we compute the FFTs.
-	*
-	*/
-
+	//	We get 160 samples per mic every 10ms (16kHz). So we fill the
+	//	sample buffers to reach 1024 samples, then we compute the FFTs.
 	static uint16_t nb_samples = 0;
 	static uint8_t mustSend = 0;
 
@@ -213,31 +200,23 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 
 		nb_samples++;
 
-		//stop when buffer is full
+		//stop when the buffer is full
 		if(nb_samples >= (2 * FFT_SIZE)){
 			break;
 		}
 	}
 
 	if(nb_samples >= (2 * FFT_SIZE)){
-		/*	FFT proccessing
-		*
-		*	This FFT function stores the results in the input buffer given.
-		*	This is an "In Place" function. 
-		*/
 
+		//FFT proccessing
+		//This FFT function stores the results in the input buffer given.
 		doFFT_optimized(FFT_SIZE, micRight_cmplx_input);
 		doFFT_optimized(FFT_SIZE, micLeft_cmplx_input);
 		doFFT_optimized(FFT_SIZE, micFront_cmplx_input);
 		doFFT_optimized(FFT_SIZE, micBack_cmplx_input);
 
-		/*	Magnitude processing
-		*
-		*	Computes the magnitude of the complex numbers and
-		*	stores them in a buffer of FFT_SIZE because it only contains
-		*	real numbers.
-		*
-		*/
+		//Magnitude processing - Computes the magnitude of the complex numbers and
+		//stores them in a buffer of FFT_SIZE because it only contains real numbers
 		arm_cmplx_mag_f32(micRight_cmplx_input, micRight_output, FFT_SIZE);
 		arm_cmplx_mag_f32(micLeft_cmplx_input, micLeft_output, FFT_SIZE);
 		arm_cmplx_mag_f32(micFront_cmplx_input, micFront_output, FFT_SIZE);
@@ -246,18 +225,18 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 		//sends only one FFT result over 10 for 1 mic to not flood the computer
 		//sends to UART3
 		if(mustSend > 8){
-			//signals to send the result to the computer
+
 			chBSemSignal(&micro_ready_sem);
 			mustSend = 0;
 		}
 		nb_samples = 0;
 		mustSend++;
 
-		if(get_mode() == DANCE){
+		if(get_mic_mode() == DANCE){
 			sound_remote(micLeft_output);
 		}
 
-		if(get_mode() == VOICE){
+		if(get_mic_mode() == VOICE){
 			compare_mic(micRight_output, micLeft_output, micBack_output, micFront_output);
 		}
 	}
@@ -268,6 +247,7 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 void wait_start_signal(void){
 	chBSemWait(&micro_ready_sem);
 }
+
 
 float* get_audio_buffer_ptr(BUFFER_NAME_t name){
 	if(name == LEFT_CMPLX_INPUT){

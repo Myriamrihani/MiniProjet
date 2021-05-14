@@ -4,7 +4,6 @@
 #include <math.h>
 #include <ch.h>
 #include <hal.h>
-
 #include "ch.h"
 #include "hal.h"
 #include "memory_protection.h"
@@ -16,18 +15,25 @@
 #include "audio/audio_thread.h"
 
 
-static MVMT_ROBOT tilt;
+#define NB_STEPS 				10
+#define STANDARD_GRAVITY   		9.80665f
+#define DEG2RAD(deg) 			(deg / 180 * M_PI)
+#define GRAVITY_CALIBRATION 	32768.0f
+#define GYRO_CALIBRATION 		(3.814f/1000.0f)
+#define NB_SAMPLES_OFFSET     	200
+#define MIN_GRAV_VALUE 			(STANDARD_GRAVITY*0.1)
+
+
 static uint8_t count_step = 0;
-static uint8_t nb_pas = 0;
-
-static MVMT_ROBOT dance_memo[NB_PAS] = {STOP};
-
+static uint8_t nb_steps = 0;
+static MVMT_ROBOT tilt;
+static MVMT_ROBOT dance_memo[NB_STEPS] = {STOP};
 static bool dance_memo_complete = false;
 static bool dance_cleared = true;
 
 
-void set_nb_pas(uint8_t nb){
-	nb_pas = nb;
+void set_nb_steps(uint8_t nb){
+	nb_steps = nb;
 }
 
 //function that fills the dancing vector to memorize
@@ -64,7 +70,7 @@ void fill_dance(imu_msg_t *imu_values){
 
     if((fabs(acc_x) < MIN_GRAV_VALUE) & (fabs(acc_y) < MIN_GRAV_VALUE))
     {
-    	//on etient toutes les LED car le robot est tout droit
+    	//turn off all the LEDs as the robot is straight flat
     	palSetPad(GPIOD, GPIOD_LED1);
 		palSetPad(GPIOD, GPIOD_LED3);
 		palSetPad(GPIOD, GPIOD_LED5);
@@ -72,41 +78,34 @@ void fill_dance(imu_msg_t *imu_values){
 		return;
     }
 
-    //le robot est en rotation selon y, donc une acceleration en x
-    if(fabs(acc_x) > fabs(acc_y))
-    {
+    //robot is rotating with respect to y, thus acceleration is in x
+    if(fabs(acc_x) > fabs(acc_y)){
     	palSetPad(GPIOD, GPIOD_LED1);
     	palSetPad(GPIOD, GPIOD_LED5);
 
-    	if(acc_x > 0)
-    	{
-    		//GAUCHE
+    	if(acc_x > 0){
+    		//LEFT
     		palClearPad(GPIOD, GPIOD_LED7);
     		palSetPad(GPIOD, GPIOD_LED3);
     		tilt = LEFT;
-    	}
-    	else
-    	{
-    		//DROITE
+    	} else{
+    		//RIGHT
     		palClearPad(GPIOD, GPIOD_LED3);
     		palSetPad(GPIOD, GPIOD_LED7);
     		tilt = RIGHT;
     	}
 
-    }else
-    {
-    	//le robot est en rotation selon x, donc une acceleration en y
+    } else{
+    //robot is rotating with respect to x, thus acceleration is in y
         palSetPad(GPIOD, GPIOD_LED3);
        	palSetPad(GPIOD, GPIOD_LED7);
 
-        if(acc_y < 0)
-        {
+        if(acc_y < 0){
         	//FRONT
         	palClearPad(GPIOD, GPIOD_LED1);
         	palSetPad(GPIOD, GPIOD_LED5);
         	tilt = FRONT;
-        }else
-        {
+        } else{
         	//BACK
         	palClearPad(GPIOD, GPIOD_LED5);
         	palSetPad(GPIOD, GPIOD_LED1);
@@ -114,23 +113,23 @@ void fill_dance(imu_msg_t *imu_values){
         }
     }
 
-
-     dance_memo[count_step] = tilt;
-     count_step++;
-     if (count_step >= nb_pas){
-     	count_step = 0;
+    dance_memo[count_step] = tilt;
+    count_step++;
+    if (count_step >= nb_steps){
+    	count_step = 0;
      	dance_memo_complete = true;
      	dance_cleared = false;
   	}
 }
 
+
 bool get_dance_memo_complete(void){
 	return dance_memo_complete;
 }
 
-//function that takes memorized dance and starts the motors
+
 void dancing(void){
-	if ( count_step <= nb_pas-1) {
+	if ( count_step <= nb_steps-1) {
 		if(dance_memo[count_step] == FRONT) {
 			left_motor_set_speed(MOTOR_SPEED);
 			right_motor_set_speed(MOTOR_SPEED);
@@ -148,22 +147,22 @@ void dancing(void){
 			right_motor_set_speed(0);
 		}
 		count_step++;
-	} else {
+	} else{
 		reset_dance();
         chThdSleepMilliseconds(3000);
         set_line_type(LINE_POSITION);
-		set_search_state(true);
-		set_mode(VOICE);
-
+		set_line_search_state(true);
+		set_mic_mode(VOICE);
 	}
 }
+
 
 void dance(imu_msg_t *imu_values){
 	if(get_number_of_lines() > 0) {
 		palSetPad(GPIOB, GPIOB_LED_BODY);
-		set_mode(DANCE);
-		nb_pas = get_number_of_lines();
-		set_search_state(false);
+		set_mic_mode(DANCE);
+		nb_steps = get_number_of_lines();
+		set_line_search_state(false);
 
 		if(get_dance_memo_complete() == true){
 			wait_start_signal();
@@ -171,33 +170,34 @@ void dance(imu_msg_t *imu_values){
 		    	playMelody(MARIO, ML_SIMPLE_PLAY, NULL);
 		    	dancing();
 		    }
-		} else  if (is_dance_clear()) {fill_dance(imu_values);}
+		} else if(is_dance_clear()) {fill_dance(imu_values);}
 	} else if((get_number_of_lines() == 0)){
 		stopCurrentMelody();
-		set_search_state(true);
+		set_line_search_state(true);
 	    chThdSleepMilliseconds(2000);
 	}
-
 }
 
-void clear_dance(void){
 
-	for(int i = 0; i<nb_pas; i++){
+void clear_dance(void){
+	for(int i = 0; i<nb_steps; i++){
 		dance_memo[i] = STOP;
 	}
 	dance_cleared = 1;
 }
 
+
 bool is_dance_clear(void){
-	return (dance_cleared & (nb_pas != 0));
+	return (dance_cleared & (nb_steps != 0));
 }
 
-void display_dance(void){
 
-	for(int i = 0; i<nb_pas; i++){
+void display_dance(void){
+	for(int i = 0; i<nb_steps; i++){
 		chprintf((BaseSequentialStream *)&SD3, "dance  : %d \r\n" , dance_memo[i]);
 	}
 }
+
 
 void reset_dance(void){
 	clear_dance();
@@ -205,13 +205,14 @@ void reset_dance(void){
 	motor_stop();
 	count_step = 0;
 	reset_line();
-	nb_pas = 0;
+	nb_steps = 0;
 	dance_memo_complete = false;
 	set_start_dance(false);
 	palClearPad(GPIOB, GPIOB_LED_BODY);
 }
 
-uint8_t get_nb_pas(void){
-	return nb_pas;
+
+uint8_t get_nb_steps(void){
+	return nb_steps;
 }
 

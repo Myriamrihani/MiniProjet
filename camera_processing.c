@@ -4,8 +4,6 @@
 #include <ch.h>
 #include <hal.h>
 #include <chprintf.h>
-#include <usbcfg.h>				//this one is not necessarily useful
-
 #include <math.h>
 #include "memory_protection.h"
 #include <camera/po8030.h>
@@ -14,13 +12,16 @@
 #include <motor_managmt.h>
 
 
+#define WIDTH_SLOPE				5
+#define MIN_LINE_WIDTH			30
+#define CAMERA_POSITION			478
+
+
 static uint8_t number_of_lines = 0;
 static uint16_t line_position = IMAGE_BUFFER_SIZE/2;
 static bool searching_for_lines = false;
-static bool line_found = 1;
+static bool line_found = true;
 static LINE_TYPE_EXTRACT line_type = NO_LINE_TYPE;
-
-//semaphore
 static BSEMAPHORE_DECL(image_ready_sem, TRUE);
 
 
@@ -28,11 +29,15 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 
 	uint16_t i = 0, line_beginning = 0, line_ending = 0;
 	uint8_t stop_line_limit_search = 0, wrong_line = 0;
+
+	//this element is a uint32_t because a cumulative addition is done
 	uint32_t mean = 0;
+
 	line_found = true;
 
 	if(searching_for_lines){
-		//performs an average
+
+		//performs an average to reduce the influence of ambient light
 		for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
 			mean += buffer[i];
 		}
@@ -40,17 +45,15 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 
 		do{
 			wrong_line = 0;
-			//search for a line_beginning
 			while(stop_line_limit_search == 0 && i < (IMAGE_BUFFER_SIZE - WIDTH_SLOPE)){
 
-				//the slope must at least be WIDTH_SLOPE wide and is compared
-				//to the mean of the image
 				if(buffer[i] > mean && buffer[i+WIDTH_SLOPE] < mean){
 					line_beginning = i;
 					stop_line_limit_search = 1;
 				}
 				i++;
 			}
+
 			//if a line_beginning was found, search for a line_ending
 			if(i < (IMAGE_BUFFER_SIZE - WIDTH_SLOPE) && line_beginning){
 				stop_line_limit_search = 0;
@@ -61,37 +64,34 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 					}
 					i++;
 				}
-				//if a line_ending was not found
 				if(i > IMAGE_BUFFER_SIZE || !line_ending){
 					line_found = 0;
 				}
-			}
-			else{				//if no line_beginning was found
+			} else{
 				line_found = 0;
 			}
+
 			if(line_found){
-				//if a line too small has been detected, continues the search
 				if((line_ending-line_beginning) < MIN_LINE_WIDTH){
 					i = line_ending;
 					line_beginning = 0;
 					line_ending = 0;
 					stop_line_limit_search = 0;
 					wrong_line = 1;
-				}
-				else{
-					line_position = (line_beginning + line_ending)/2; //gives the line position.
+				} else{
+					line_position = (line_beginning + line_ending)/2;
 					line_beginning = 0;
 					i = line_ending;
 					line_ending = 0;
 					stop_line_limit_search = 0;
 					wrong_line = 1;
 					++number_of_lines;
-
 					if(line_type == LINE_POSITION){
 						i = IMAGE_BUFFER_SIZE;	//allows us to stop after 1 line
 					}
 				}
 			}
+
 		}while(wrong_line);
 
 		if(!line_found){
@@ -100,14 +100,11 @@ void extract_line(uint8_t *buffer, bool searching_for_lines){
 		}
 	}
 
-	if(number_of_lines > 0) {		//to stop searching
-		set_search_state(false);
+	if(number_of_lines > 0) {
+		set_line_search_state(false);
 	}
 }
 
-bool get_line_found(void){
-	return line_found;
-}
 
 static THD_WORKING_AREA(waCaptureImage, 256);
 static THD_FUNCTION(CaptureImage, arg) {
@@ -115,22 +112,18 @@ static THD_FUNCTION(CaptureImage, arg) {
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
 
-	//Takes pixels 0 to IMAGE_BUFFER_SIZE of the line 10 + 11 (minimum 2 lines because reasons)
-	po8030_advanced_config(FORMAT_RGB565, 0, CAMERA_POSITION, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
+	po8030_advanced_config(FORMAT_RGB565, 0, CAMERA_POSITION, IMAGE_BUFFER_SIZE,
+											2, SUBSAMPLING_X1, SUBSAMPLING_X1);
 	dcmi_enable_double_buffering();
 	dcmi_set_capture_mode(CAPTURE_ONE_SHOT);
 	dcmi_prepare();
 
     while(1){
-        //starts a capture
 		dcmi_capture_start();
-		//waits for the capture to be done
 		wait_image_ready();
-		//signals an image has been captured
 		chBSemSignal(&image_ready_sem);
     }
 }
-
 
 
 static THD_WORKING_AREA(waProcessImage, 2048);
@@ -142,71 +135,69 @@ static THD_FUNCTION(ProcessImage, arg) {
 	uint8_t *img_buff_ptr;
 	uint8_t image[IMAGE_BUFFER_SIZE] = {0};
 
-	bool send_to_computer = true;
-
     while(chThdShouldTerminateX() == false){
-    	//waits until an image has been captured
 		wait_image_detected();
-		//gets the pointer to the array filled with the last image in RGB565
+
 		img_buff_ptr = dcmi_get_last_image_ptr();
 
-		//Extracts only the red pixels
+		//extracts only the red pixels
 		for(uint16_t i = 0 ; i < (2 * IMAGE_BUFFER_SIZE) ; i += 2){
-			//extracts first 5bits of the first byte
-			//takes nothing from the second byte
 			image[i/2] = (uint8_t)img_buff_ptr[i]&0xF8;
 		}
 
-		//search for the number of lines in the image
 		extract_line(image, searching_for_lines);
+
 		if((get_line_type() == LINE_POSITION)){
 			motor_path_mode();
 		}
-
-		//invert the bool
-		send_to_computer = !send_to_computer;
     }
 }
+
 
 void process_image_start(void){
     dcmi_start();
     po8030_start();
-
 	chThdCreateStatic(waProcessImage, sizeof(waProcessImage), NORMALPRIO, ProcessImage, NULL);
 	chThdCreateStatic(waCaptureImage, sizeof(waCaptureImage), NORMALPRIO, CaptureImage, NULL);
 }
+
 
 void wait_image_detected(void){
 	chBSemWait(&image_ready_sem);
 }
 
-void set_search_state(bool new_state){
+
+void set_line_search_state(bool new_state){
 	searching_for_lines = new_state;
 }
-
 
 
 void set_line_type(LINE_TYPE_EXTRACT type){
 	line_type = type;
 }
 
+
 LINE_TYPE_EXTRACT get_line_type(void){
 	return line_type;
 }
+
 
 uint16_t get_line_position(void){
 	return line_position;
 }
 
+
 void reset_line(void){
 	number_of_lines = 0;
 }
 
+
 uint8_t get_number_of_lines(void){
+
 	if((line_type == NUMBER_OF_LINES) && (searching_for_lines == true)){
 	switch (number_of_lines){
-	case 0: 		//All LEDs are off
-		break;
+	case 0:
+		break;		//All LEDs are off
 	case 1:
 		palClearPad(GPIOD, GPIOD_LED1);
 		break;

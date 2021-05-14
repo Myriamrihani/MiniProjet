@@ -2,12 +2,6 @@
 #define OBSTACLES_H_
 
 
-#define PROXIMITY_THRESHOLD		100
-#define ERROR_THRESHOLD			0.1f	//[cm] because of the noise of the camera
-#define KP						800.0f
-#define KI 						3.5f	//must not be zero
-#define MAX_SUM_ERROR 			(MOTOR_SPEED_LIMIT/KI)
-
 typedef enum {
 	IR0,
 	IR1,
@@ -28,10 +22,14 @@ typedef enum {
 
 }SEARCHING_SIDE;
 
+
 void find_proximity(void);
 void manual_speed(uint16_t distance);
-int16_t get_extra_speed(void);
-SEARCHING_SIDE get_search_side(void);
 void set_search_side(SEARCHING_SIDE side);
+SEARCHING_SIDE get_search_side(void);
+
+//Function that only focuses on IR3 and IR4 - the sensors placed at the back
+int16_t get_extra_speed(void);
+
 
 #endif /* OBSTACLES_H_ */

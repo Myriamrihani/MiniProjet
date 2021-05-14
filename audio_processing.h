@@ -19,13 +19,13 @@ typedef enum {
 	BACK_OUTPUT
 } BUFFER_NAME_t;
 
-typedef enum {			///why this enum is not in audio_proc.c?
+typedef enum {
 	DANCE = 0,
 	VOICE,
 }MIC_MODE;
 
-void set_mode(MIC_MODE new_mode);
-MIC_MODE get_mode(void);
+void set_mic_mode(MIC_MODE new_mode);
+MIC_MODE get_mic_mode(void);
 
 //compare the 4 mics amplitude
 void compare_mic(float* right, float* left, float* back, float* front);
