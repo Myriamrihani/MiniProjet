@@ -27,21 +27,12 @@ typedef enum {
 void set_mic_mode(MIC_MODE new_mode);
 MIC_MODE get_mic_mode(void);
 
-//compare the 4 mics amplitude
-void compare_mic(float* right, float* left, float* back, float* front);
-
-//finds the highest amplitude peak in data
-float highest_peak(float* data);
-
-//determines the rotation angle via voice
-void set_motor_angle(void);
 void processAudioData(int16_t *data, uint16_t num_samples);
 
 bool get_start_dance(void);
 void set_start_dance(bool state);
 bool get_listening_voice(void);
 void set_listening_voice(bool state);
-
 
 /*
 *	put the invoking thread into sleep until it can process the audio datas

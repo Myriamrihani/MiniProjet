@@ -32,34 +32,11 @@ static bool dance_memo_complete = false;
 static bool dance_cleared = true;
 
 
-void set_nb_steps(uint8_t nb){
-	nb_steps = nb;
-}
-
-//function that fills the dancing vector to memorize
+////Function that uses IMU to fill the dance moves into the dance vector
 void fill_dance(imu_msg_t *imu_values){
-    //variable to measure the time some functions take
-    //volatile to not be optimized out by the compiler if not used
-    volatile uint16_t time = 0;
-
-    /*
-    *   Use this to reset the timer counter and prevent the system
-    *   to switch to another thread.
-    *   Place it at the beginning of the code you want to measure
-    */
-    chSysLock();
-    //reset the timer counter
-    GPTD11.tim->CNT = 0;
 
     float acc_x = imu_values->acceleration[X_AXIS];
     float acc_y = imu_values->acceleration[Y_AXIS];
-	/*
-	   *   Use this to capture the counter and stop to prevent
-	   *   the system to switch to another thread.
-	   *   Place it at the end of the code you want to measure
-	   */
-	time = GPTD11.tim->CNT;
-	chSysUnlock();
 
     if(count_step == 0){
 	    	palSetPad(GPIOD, GPIOD_LED1);
@@ -127,7 +104,7 @@ bool get_dance_memo_complete(void){
 	return dance_memo_complete;
 }
 
-
+//Function that takes memorized dance and starts the motors
 void dancing(void){
 	if ( count_step <= nb_steps-1) {
 		if(dance_memo[count_step] == FRONT) {
@@ -198,7 +175,6 @@ void display_dance(void){
 	}
 }
 
-
 void reset_dance(void){
 	clear_dance();
 	stopCurrentMelody();
@@ -212,7 +188,4 @@ void reset_dance(void){
 }
 
 
-uint8_t get_nb_steps(void){
-	return nb_steps;
-}
 

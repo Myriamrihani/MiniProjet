@@ -6,9 +6,9 @@
 
 #include <audio/microphone.h>
 #include <audio_processing.h>
-#include <fft.h>
 #include <arm_math.h>
-#include <com_mic.h>
+#include <arm_const_structs.h>
+
 #include "motor_managmt.h"
 #include "dance.h"
 
@@ -21,6 +21,11 @@
 #define FREQ_HUMAN_L			(FREQ_HUMAN-5)
 #define FREQ_HUMAN_H			(FREQ_HUMAN+5)
 #define MIN_ROTATION_ANGLE		 22.5
+
+typedef struct complex_float{
+	float real;
+	float imag;
+}complex_float;
 
 
 static BSEMAPHORE_DECL(micro_ready_sem, TRUE);
@@ -37,12 +42,19 @@ static float micFront_output[FFT_SIZE];
 static float micBack_output[FFT_SIZE];
 
 static bool start_dance = 0;
-static float angle = 0;
+static float angle = 0;				//angle of the direction of the voice
 static bool listening_voice = 0;
-static MVMT_ROBOT voice_fb = STOP;
-static MVMT_ROBOT voice_rl = STOP;
 
+static MVMT_ROBOT voice_fb = STOP;	//voice direction front or back
+static MVMT_ROBOT voice_rl = STOP;	//voice direction right or left
 
+void doFFT_optimized(uint16_t size, float* complex_buffer){
+	if(size == 1024)
+		arm_cfft_f32(&arm_cfft_sR_f32_len1024, complex_buffer, 0, 1);
+
+}
+
+//function used to detect highest amplitude peak in data
 float highest_peak(float* data){
 	float max_norm = MIN_VALUE_THRESHOLD;
 	for(uint16_t i = MIN_FREQ ; i <= MAX_FREQ ; i++){
@@ -50,11 +62,42 @@ float highest_peak(float* data){
 			max_norm = data[i];
 		}
 	}
-
 	return max_norm;
 }
 
 
+//depending on the voice's direction detected in compare_mic,
+//we set the direction angle and call the motor management function
+void set_motor_angle(void){
+	if(voice_fb == FRONT) {
+		if(voice_rl == LEFT) {
+			angle = MIN_ROTATION_ANGLE;
+		} else if(voice_rl == RIGHT){
+			angle = -MIN_ROTATION_ANGLE;
+		} else if(voice_rl == STOP){
+			angle = 0;
+		}
+	} else if(voice_fb == BACK) {
+		if(voice_rl == RIGHT) {
+			angle = -3*MIN_ROTATION_ANGLE;
+		} else if(voice_rl == LEFT){
+			angle = 3*MIN_ROTATION_ANGLE;
+		} else if(voice_rl == STOP){
+			angle = 8*MIN_ROTATION_ANGLE;
+		}
+	}else if(voice_fb == STOP) {
+		if(voice_rl == LEFT) {
+			angle = 2*MIN_ROTATION_ANGLE;
+		} else if(voice_rl == RIGHT) {
+			angle = -2*MIN_ROTATION_ANGLE;
+		} else if(voice_rl == STOP) {
+			listening_voice = 0;
+		}
+	}
+	motor_follow_voice(angle);
+}
+
+//compares the 4 mics amplitude and sets the direction of the voice
 void compare_mic(float* right, float* left, float* back, float* front){
 	if((highest_peak(left) - highest_peak(right)) > MIN_DIFFERENCE_VALUE){
 		//turn left
@@ -102,37 +145,6 @@ void compare_mic(float* right, float* left, float* back, float* front){
 	}
 }
 
-
-void set_motor_angle(void){
-	if(voice_fb == FRONT) {
-		if(voice_rl == LEFT) {
-			angle = MIN_ROTATION_ANGLE;
-		} else if(voice_rl == RIGHT){
-			angle = -MIN_ROTATION_ANGLE;
-		} else if(voice_rl == STOP){
-			angle = 0;
-		}
-	} else if(voice_fb == BACK) {
-		if(voice_rl == RIGHT) {
-			angle = -3*MIN_ROTATION_ANGLE;
-		} else if(voice_rl == LEFT){
-			angle = 3*MIN_ROTATION_ANGLE;
-		} else if(voice_rl == STOP){
-			angle = 8*MIN_ROTATION_ANGLE;
-		}
-	}else if(voice_fb == STOP) {
-		if(voice_rl == LEFT) {
-			angle = 2*MIN_ROTATION_ANGLE;
-		} else if(voice_rl == RIGHT) {
-			angle = -2*MIN_ROTATION_ANGLE;
-		} else if(voice_rl == STOP) {
-			listening_voice = 0;
-		}
-	}
-	motor_follow_voice(angle);
-}
-
-
 bool get_listening_voice(void){
 	return listening_voice;
 }
@@ -142,8 +154,7 @@ void set_listening_voice(bool state){
 	listening_voice = state;
 }
 
-//Simple function used to detect the highest value in a buffer
-//and to execute a motor command depending on it
+//Simple function used to detect the highest value's frequency in a buffer
 void sound_remote(float* data){
 	float max_norm = MIN_VALUE_THRESHOLD;
 	int16_t max_norm_index = -1; 
@@ -172,8 +183,6 @@ bool get_start_dance(void){
 void set_start_dance(bool state) {
 	start_dance = state;
 }
-
-
 
 //	Callback called when the demodulation of the four microphones is done.
 void processAudioData(int16_t *data, uint16_t num_samples){
@@ -223,7 +232,6 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 		arm_cmplx_mag_f32(micBack_cmplx_input, micBack_output, FFT_SIZE);
 
 		//sends only one FFT result over 10 for 1 mic to not flood the computer
-		//sends to UART3
 		if(mustSend > 8){
 
 			chBSemSignal(&micro_ready_sem);

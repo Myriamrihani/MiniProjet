@@ -21,8 +21,7 @@
 #include "motors.h"
 #include "motor_managmt.h"
 #include <dance.h>
-#include <fft.h>
-#include "com_mic.h"
+
 #include <camera_processing.h>
 #include <audio_processing.h>
 
@@ -46,7 +45,8 @@ static void serial_start(void){
 ///***	Practical Works (TPS) of the EPFL Micro-315 Course. The main ones are:
 ///***	"extract_line" function, inspired by the camera processing (TP4)
 ///***  Threads "CaptureImage" and "ProcessImage", based on similar threads (TP4)\\\***
-///***  "process_audio_data" and FFTs functions, inspired by similar ones (TP5)
+///***  "process_audio_data", "sound_remote" and FFTs functions, inspired by similar ones (TP5)
+///***	"fill_dance" inspired by inspired by a similar one (TP3)
 
 int main(void)
 {

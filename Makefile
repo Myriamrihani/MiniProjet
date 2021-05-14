@@ -3,7 +3,7 @@
 #Simply adapt the lines below to be able to compile
 
 # Define project name here
-PROJECT = Project_template
+PROJECT = project_groupe10
 
 #Define path to the e-puck2_main-processor folder
 GLOBAL_PATH = ../e-puck2_main-processor
@@ -12,7 +12,6 @@ GLOBAL_PATH = ../e-puck2_main-processor
 CSRC += ./main.c \
 		./dance.c \
 		./audio_processing.c \
-		./fft.c \
 		./camera_processing.c \
 		./ir_interference.c \
 		./motor_managmt.c \

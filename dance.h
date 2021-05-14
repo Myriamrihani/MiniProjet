@@ -11,18 +11,6 @@
 #include <audio_processing.h>
 
 
-
-
-void set_nb_steps(uint8_t nb);
-uint8_t get_nb_steps(void);
-
-
-//Function that uses IMU to fill the dance moves into the dance vector
-void fill_dance(imu_msg_t *imu_values);
-
-//Function that takes memorized dance and starts the motors
-void dancing(void);
-
 bool get_dance_memo_complete(void);
 
 //Main Function of the dance module
