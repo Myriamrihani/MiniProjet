@@ -23,7 +23,6 @@ typedef enum {
 }SEARCHING_SIDE;
 
 
-void find_proximity(void);
 void manual_speed(uint16_t distance);
 void set_search_side(SEARCHING_SIDE side);
 SEARCHING_SIDE get_search_side(void);
