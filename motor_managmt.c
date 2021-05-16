@@ -27,6 +27,7 @@ void set_mic_mode(MIC_MODE new_mode){
 	mode = new_mode;
 }
 
+
 MIC_MODE get_mic_mode(void){
 	return mode;
 }

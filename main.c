@@ -41,12 +41,17 @@ static void serial_start(void){
     sdStart(&SD3, &ser_cfg);
 }
 
-///***	Some functions and threads are based on similar code developed in the
-///***	Practical Works (TPS) of the EPFL Micro-315 Course. The main ones are:
-///***	"extract_line" function, inspired by the camera processing (TP4)
-///***  Threads "CaptureImage" and "ProcessImage", based on similar threads (TP4)\\\***
-///***  "process_audio_data", "sound_remote" and FFTs functions, inspired by similar ones (TP5)
-///***	"fill_dance" inspired by inspired by a similar one (TP3)
+
+///***Git URL link for the project code source:									\\\***
+
+///***	Some functions and threads are based on similar code developed in the	\\\***
+///***	Practical Works (TPS) of the EPFL Micro-315 Course. The main ones are:	\\\***
+///***	"extract_line" function, inspired by the camera processing (TP4)		\\\***
+///***  Threads "CaptureImage" and "ProcessImage", based on similar ones (TP4)	\\\***
+///***  "process_audio_data", "sound_remote" and FFTs							\\\***
+///***	functions, inspired by similar ones (TP5)								\\\***
+///***	"fill_dance" inspired by inspired by a similar one (TP3)				\\\***
+
 
 int main(void)
 {

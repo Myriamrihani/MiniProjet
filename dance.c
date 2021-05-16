@@ -175,6 +175,7 @@ void display_dance(void){
 	}
 }
 
+
 void reset_dance(void){
 	clear_dance();
 	stopCurrentMelody();

@@ -15,12 +15,13 @@
 
 #define MIN_VALUE_THRESHOLD		20000
 #define MIN_DIFFERENCE_VALUE 	10000
-#define MIN_FREQ				10	//we don't analyze before and after these
-#define MAX_FREQ				30	//indexes to minimize the resources used
-#define FREQ_HUMAN				16	//250Hz
+#define MIN_FREQ				10		//we don't analyze before and after these
+#define MAX_FREQ				30		//indexes to minimize the resources used
+#define FREQ_HUMAN				16		//250Hz
 #define FREQ_HUMAN_L			(FREQ_HUMAN-5)
 #define FREQ_HUMAN_H			(FREQ_HUMAN+5)
 #define MIN_ROTATION_ANGLE		 22.5
+
 
 typedef struct complex_float{
 	float real;
@@ -42,17 +43,19 @@ static float micFront_output[FFT_SIZE];
 static float micBack_output[FFT_SIZE];
 
 static bool start_dance = 0;
-static float angle = 0;				//angle of the direction of the voice
+static float angle = 0;						//angle of the direction of the voice
 static bool listening_voice = 0;
 
-static MVMT_ROBOT voice_fb = STOP;	//voice direction front or back
-static MVMT_ROBOT voice_rl = STOP;	//voice direction right or left
+static MVMT_ROBOT voice_fb = STOP;			//voice direction front or back
+static MVMT_ROBOT voice_rl = STOP;			//voice direction right or left
+
 
 void doFFT_optimized(uint16_t size, float* complex_buffer){
 	if(size == 1024)
 		arm_cfft_f32(&arm_cfft_sR_f32_len1024, complex_buffer, 0, 1);
 
 }
+
 
 //function used to detect highest amplitude peak in data
 float highest_peak(float* data){
@@ -97,6 +100,7 @@ void set_motor_angle(void){
 	motor_follow_voice(angle);
 }
 
+
 //compares the 4 mics amplitude and sets the direction of the voice
 void compare_mic(float* right, float* left, float* back, float* front){
 	if((highest_peak(left) - highest_peak(right)) > MIN_DIFFERENCE_VALUE){
@@ -109,7 +113,7 @@ void compare_mic(float* right, float* left, float* back, float* front){
 		palSetPad(GPIOD, GPIOD_LED7);
 		palClearPad(GPIOD, GPIOD_LED3);
 		voice_rl = RIGHT;
-	} else {
+	} else{
 		//nor left nor right
 		palSetPad(GPIOD, GPIOD_LED3);
 		palSetPad(GPIOD, GPIOD_LED7);
@@ -127,7 +131,7 @@ void compare_mic(float* right, float* left, float* back, float* front){
 		palSetPad(GPIOD, GPIOD_LED1);
 		palClearPad(GPIOD, GPIOD_LED5);
 		voice_fb = BACK;
-	}else {
+	} else{
 		//nor front nor back
 		palSetPad(GPIOD, GPIOD_LED1);
 		palSetPad(GPIOD, GPIOD_LED5);
@@ -145,6 +149,7 @@ void compare_mic(float* right, float* left, float* back, float* front){
 	}
 }
 
+
 bool get_listening_voice(void){
 	return listening_voice;
 }
@@ -153,6 +158,7 @@ bool get_listening_voice(void){
 void set_listening_voice(bool state){
 	listening_voice = state;
 }
+
 
 //Simple function used to detect the highest value's frequency in a buffer
 void sound_remote(float* data){
@@ -183,6 +189,7 @@ bool get_start_dance(void){
 void set_start_dance(bool state) {
 	start_dance = state;
 }
+
 
 //	Callback called when the demodulation of the four microphones is done.
 void processAudioData(int16_t *data, uint16_t num_samples){

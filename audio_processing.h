@@ -34,14 +34,11 @@ void set_start_dance(bool state);
 bool get_listening_voice(void);
 void set_listening_voice(bool state);
 
-/*
-*	put the invoking thread into sleep until it can process the audio datas
-*/
+
+//Puts the invoking thread into sleep until it can process the audio datas
 void wait_start_signal(void);
 
-/*
-*	Returns the pointer to the BUFFER_NAME_t buffer asked
-*/
+//Returns the pointer to the BUFFER_NAME_t buffer asked
 float* get_audio_buffer_ptr(BUFFER_NAME_t name);
 
 #endif /* AUDIO_PROCESSING_H */
