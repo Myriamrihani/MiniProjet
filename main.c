@@ -42,7 +42,7 @@ static void serial_start(void){
 }
 
 
-///***Git URL link for the project code source:									\\\***
+///***Git URL link for the project code source: https://github.com/Myriamrihani/MiniProjet.git	\\\***
 
 ///***	Some functions and threads are based on similar code developed in the	\\\***
 ///***	Practical Works (TPS) of the EPFL Micro-315 Course. The main ones are:	\\\***
